@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { AdminRepository } from '../dominio/admin.repository';
-import type { Administrador, PiezasMantenimiento } from '../dominio/entidades';
+import type { Administrador, BitacoraReserva, InspeccionPieza, NuevoInspeccionPieza, PiezasMantenimiento, RegistroEntradaBitacora } from '../dominio/entidades';
 
 @Injectable()
 export class AdminMemoriaRepository implements AdminRepository {
@@ -51,6 +51,12 @@ export class AdminMemoriaRepository implements AdminRepository {
         motivo: 'reparacion'
       }]]);
 
+  private bitacoras = new Map<number, BitacoraReserva>();
+  private proximoBitacoraId = 1;
+
+  private inspeccionesPieza = new Map<number, InspeccionPieza>();
+  private proximoInspeccionId = 1;
+
   async listar(): Promise<Administrador[]> {
     return Array.from(this.administradores.values()).map((admin) => ({ ...admin }));
   }
@@ -91,7 +97,7 @@ export class AdminMemoriaRepository implements AdminRepository {
     return { ...admin };
   }
 
-  async obtenerCantidadPiezasMantenimiento(articuloId: number) {
+  async obtenerCantidadPiezasMantenimiento(articuloId: number): Promise<number> {
     let cantidadPiezas = 0;
     [...this.piezasMantenimiento.values()].filter((p) => p.articuloId === articuloId).forEach((p) => cantidadPiezas += p.cantidad);
     return cantidadPiezas;
@@ -107,4 +113,50 @@ export class AdminMemoriaRepository implements AdminRepository {
     piezas.forEach((p) => cantidadPiezas += p.cantidad);
     return cantidadPiezas;
   }
+
+  async registrarEntrega(registroEntrada: RegistroEntradaBitacora): Promise<BitacoraReserva> {
+    const id = this.proximoBitacoraId;
+    const nuevaBitacora: BitacoraReserva = {
+      id: id,
+      reservaId: registroEntrada.reservaId,
+      fechaHoraEntregada: new Date(),
+      montoTotalGarantía: registroEntrada.montoTotalGarantía
+    };
+    this.bitacoras.set(id, nuevaBitacora);
+    return nuevaBitacora;
+  }
+
+  async obtenerBitacoraPorReserva(reservaId: number): Promise<BitacoraReserva | null>{
+    return [...this.bitacoras.values()].find((b) => b.reservaId === reservaId) ?? null;
+  }
+
+  async registrarRecoleccion(bitacoraId: number, inspeccionesPiezas: NuevoInspeccionPieza[]): Promise<BitacoraReserva> {
+    const bitacora = this.bitacoras.get(bitacoraId);
+    if (!bitacora) {
+      const bitacoraUnknown: BitacoraReserva = {
+        id: -1,
+        reservaId: -1,
+        fechaHoraEntregada: new Date('2015-10-18'),
+        fechaHoraRecolectada: new Date('2016-02-02'),
+        montoTotalGarantía: Number.MAX_VALUE
+      };
+      return bitacoraUnknown;
+    }
+    bitacora.fechaHoraRecolectada = new Date();
+    inspeccionesPiezas.forEach((p) => {
+      const id = this.proximoInspeccionId++;
+      const inspeccionArticulo: InspeccionPieza = {
+        id: id,
+        articuloReservadoId: p.articuloReservadoId,
+        bitacoraReservaId: bitacoraId,
+        piezasCompletas: p.piezasCompletas,
+        piezasDaniadas: p.piezasDaniadas,
+        piezasFaltantes: p.piezasFaltantes,
+        montoGarantia: p.montoGarantia
+      }
+      this.inspeccionesPieza.set(id, inspeccionArticulo);
+    });
+    return bitacora;
+  }
+
 }

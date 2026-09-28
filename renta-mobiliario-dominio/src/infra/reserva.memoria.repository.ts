@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { nuevoFolio, type ArticuloReserva, type Direccion, type NuevaReserva, type NuevoArticuloReserva, type Reserva } from '../dominio/entidades';
+import { DepositoGarantia, EstadoReserva, nuevoFolio, type ArticuloReserva, type Direccion, type NuevaReserva, type NuevoArticuloReserva, type Reserva } from '../dominio/entidades';
 import type { ReservaRepository } from '../dominio/reserva.repository';
 
 @Injectable()
@@ -31,8 +31,8 @@ export class ReservaMemoriaRepository implements ReservaRepository {
         clienteId: 2,
         folio: nuevoFolio(),
         montoTotal: 2550,
-        fechaEntrega: new Date('2026-09-15T09:00:00Z'),
-        fechaRecoleccion: new Date('2026-09-17T20:00:00Z'),
+        fechaEntrega: new Date('2026-09-15'),
+        fechaRecoleccion: new Date('2026-09-17'),
         creadoEn: new Date('2026-09-10T11:00:00Z'),
         estado: 'entregada',
         direccionEntrega: {
@@ -58,7 +58,7 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     }],[2,
       {
       id: 2,
-      articuloId: 2,
+      articuloId: 5,
       reservaId: 1,
       cantidad: 21,
       precioUnitario: 13.50,
@@ -90,9 +90,29 @@ export class ReservaMemoriaRepository implements ReservaRepository {
   }]]);
 
   private proximoIdArticulos = 6;
+  private proximoIdDireccion = 1;
 
-  private direccionesEntrega = new Map<number, Direccion>();
-  private proximoIdDireccion = 0;
+  private depositosGarantia = new Map<number, DepositoGarantia>([[
+    1,
+    {
+      id: 1,
+      reservaId: 1,
+      monto: 920,
+      confirmado: false,
+      devuelto: false
+    }
+  ], [
+    2, 
+    {
+      id: 2,
+      reservaId: 2,
+      monto: 510,
+      confirmado: false,
+      devuelto: false
+    }
+  ]]);
+
+  private proximoGarantiaId = 3;
 
   async listar(): Promise<Reserva[]> {
     return Array.from(this.reservas.values());
@@ -113,14 +133,6 @@ export class ReservaMemoriaRepository implements ReservaRepository {
   }
 
   async crear(datosReserva: NuevaReserva, datosArticulos: NuevoArticuloReserva[]): Promise<Reserva> {
-    // Se contruye y se guarda la nueva dirección de entrega
-    const direccionEntrega: Direccion = {
-      id: this.proximoIdDireccion++,
-      numero: datosReserva.numero,
-      calle: datosReserva.calle,
-      colonia: datosReserva.colonia
-    };
-    this.direccionesEntrega.set(direccionEntrega.id, direccionEntrega);
     // Se contruye la nueva reserva
     const id = this.proximoId++;
     const nuevaReserva: Reserva = {
@@ -132,8 +144,22 @@ export class ReservaMemoriaRepository implements ReservaRepository {
       fechaRecoleccion: datosReserva.fechaRecoleccion,
       creadoEn: new Date(),
       estado: 'apartada',
-      direccionEntrega: direccionEntrega
+      direccionEntrega: {
+        id: this.proximoIdDireccion++,
+        numero: datosReserva.numero,
+        calle: datosReserva.calle,
+        colonia: datosReserva.colonia
+      }
     };
+    // Se contruye y se guarda el nuevo depósito de garantía
+    const depositoGarantia: DepositoGarantia = {
+      id: this.proximoGarantiaId++,
+      reservaId: nuevaReserva.id,
+      monto: datosReserva.montoGarantia,
+      confirmado: false,
+      devuelto: false
+    };
+    this.depositosGarantia.set(depositoGarantia.id, depositoGarantia);
     // Se contruyen y se guardan los artículos reservados
     datosArticulos.forEach((a) => {
       const id = this.proximoIdArticulos++;
@@ -184,7 +210,9 @@ export class ReservaMemoriaRepository implements ReservaRepository {
 
   async obtenerPiezasReservadas(articuloId: number): Promise<number> {
     let piezasReservadas = 0;
-    [...this.articuloReservas.values()].filter((a) => a.articuloId === articuloId).forEach((a) => piezasReservadas += a.cantidad);
+    [...this.articuloReservas.values()]
+      .filter((a) => a.articuloId === articuloId && (this.reservas.get(a.reservaId)?.estado ?? 'apartada') === 'apartada')
+      .forEach((a) => piezasReservadas += a.cantidad);
     return piezasReservadas;
   }
 
@@ -192,6 +220,7 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     let piezasReservadas = 0;
     const reservados = [...this.articuloReservas.values()]
       .filter((a) => a.articuloId === articuloId && 
+      (this.reservas.get(a.reservaId)?.estado ?? 'apartada') === 'apartada' &&
       (
         (
           fechaInicio >= (this.reservas.get(a.reservaId)?.fechaEntrega ?? new Date()) ||

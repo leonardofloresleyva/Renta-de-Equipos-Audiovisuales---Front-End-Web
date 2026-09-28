@@ -68,7 +68,7 @@ export class ArticuloMemoriaRepository implements ArticuloRepository {
         nombre: 'Cabezas Móviles Beam 7R 230W DMX 512',
         descripcion: 'Iluminación robótica profesional con rueda de colores y prismas giratorios.',
         precioPorDia: 550,
-        existencias: 12,
+        existencias: 32,
         categoria: 'Iluminación',
         fotografiasUrl: [
           'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80',

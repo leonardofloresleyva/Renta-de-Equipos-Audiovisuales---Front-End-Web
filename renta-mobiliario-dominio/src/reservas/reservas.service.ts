@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { type AdminRepository, ArticuloNoEncontradoError, ClienteNoEncontradoError, FechasReservaInvalidasError, type ArticuloRepository, type ClienteRepository, type Reserva, type ReservaRepository, DisponibilidadInsuficienteError, NuevoArticuloReserva, nuevoFolio, NuevaReserva } from 'src/dominio';
+import { type AdminRepository, ArticuloNoEncontradoError, ClienteNoEncontradoError, FechasReservaInvalidasError, type ArticuloRepository, type ClienteRepository, type Reserva, type ReservaRepository, DisponibilidadInsuficienteError, NuevoArticuloReserva, nuevoFolio, NuevaReserva, porcentajeGarantia, CantidadExcesivaError } from 'src/dominio';
 import { ADMIN_REPOSITORY, ARTICULO_REPOSITORY, CLIENTE_REPOSITORY, RESERVA_REPOSITORY } from './reservas.tokens';
 import { CrearReservaDto } from 'src/dto/crear.reserva.dto';
 
@@ -47,9 +47,12 @@ export class ReservasService {
         for(let a of dto.articulos) {
             const articulo = await this.articulosRepo.buscarPorId(a.articuloId);
             if (!articulo) throw new ArticuloNoEncontradoError(a.articuloId);
+
+            if (a.cantidad > articulo.existencias) throw new CantidadExcesivaError(articulo.id, a.cantidad - articulo.existencias);
+
             const piezasReservadas = await this.reservasRepo.obtenerPiezasReservadasPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
             const piezasMantenimiento = await this.adminRepo.obtenerCantidadPiezasMantenimientoPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
-            if ((piezasReservadas + piezasMantenimiento) > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
+            if ((piezasReservadas + piezasMantenimiento + a.cantidad) > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
             const nuevoArticuloReservado = {
                 articuloId: a.articuloId,
                 cantidad: a.cantidad,
@@ -57,7 +60,7 @@ export class ReservasService {
                 subtotal: articulo.precioPorDia * a.cantidad
             };
             montoTotal += nuevoArticuloReservado.subtotal;
-            articulosReservados.push();
+            articulosReservados.push(nuevoArticuloReservado);
         }
         
         // Se contruye la nueva reserva validada
@@ -69,7 +72,8 @@ export class ReservasService {
             fechaRecoleccion: dto.fechaRecoleccion,
             numero: dto.numero,
             calle: dto.calle,
-            colonia: dto.colonia
+            colonia: dto.colonia,
+            montoGarantia: montoTotal * porcentajeGarantia
         };
         return this.reservasRepo.crear(nuevaReserva, articulosReservados);
     }

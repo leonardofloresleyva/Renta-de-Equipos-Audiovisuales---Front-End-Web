@@ -75,6 +75,13 @@ export class DatosInvalidosError extends Error {
   }
 }
 
+export class CantidadExcesivaError extends Error {
+  constructor(id: number, diferencia: number) {
+    super(`La cantidad seleccionada del artículo de id ${id} supera por ${diferencia} unidades a sus existencias.`);
+    this.name = 'CantidadExcesivaError';
+  }
+}
+
 /* =========================================================
    Errores de Reglas de Negocio del Dominio de Renta
    ========================================================= */

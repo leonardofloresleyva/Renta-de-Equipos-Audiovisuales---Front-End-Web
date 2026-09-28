@@ -1,3 +1,5 @@
+// Porcentaje de garantía
+export const porcentajeGarantia = 0.20;
 // Lo que hace falta para crear
 export interface NuevaReserva {
   clienteId: number;
@@ -8,8 +10,11 @@ export interface NuevaReserva {
   numero: string;
   calle: string;
   colonia: string;
+  montoGarantia: number;
 }
 export type NuevoArticuloReserva = Omit<ArticuloReserva, 'id' | 'reservaId'>;
+export type RegistroEntradaBitacora = Omit<BitacoraReserva, 'id' | 'fechaHoraRecolectada' | 'fechaHoraEntregada'>;
+export type NuevoInspeccionPieza = Omit<InspeccionPieza, 'id' | 'bitacoraReservaId'>;
 
 // Genera un folio sencillo
 export function nuevoFolio(): string {
@@ -108,7 +113,7 @@ export interface DepositoGarantia {
   devuelto: boolean;
 }
 
-export interface InspeccionPiezas {
+export interface InspeccionPieza {
   readonly id: number;
   readonly articuloReservadoId: number;
   readonly bitacoraReservaId: number;
@@ -121,7 +126,7 @@ export interface InspeccionPiezas {
 export interface BitacoraReserva {
   readonly id: number;
   readonly reservaId: number;
-  fechaHoraRecolectada: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  fechaHoraRecolectada?: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
   fechaHoraEntregada: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
   montoTotalGarantía: number;
 }

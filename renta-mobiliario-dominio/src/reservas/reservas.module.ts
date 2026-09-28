@@ -21,6 +21,7 @@ import { ADMIN_REPOSITORY, ARTICULO_REPOSITORY, CLIENTE_REPOSITORY, RESERVA_REPO
     {
       provide: ADMIN_REPOSITORY,
       useClass: AdminMemoriaRepository
-    }]
+    }],
+    exports: [ReservasModule]
 })
 export class ReservasModule { }
