@@ -1,70 +1,116 @@
-export interface Admin {
-  id: number;
-  nombre: string;
-  email: string;
-  password?: string;
-  rol: string;
-  telefono?: string;
-  activo: boolean;
-  creadoEn?: Date;
-  actualizadoEn?: Date;
+export interface Usuario {
+  readonly id: number;
+  readonly email: string;
+  password: string;
 }
 
-export type Administrador = Admin;
+export interface Administrador extends Usuario {
+  nombre: string;
+  telefono?: string;
+}
+
+export interface Cliente extends Usuario {
+  nombre: string;
+  telefono: string;
+  direccion: Direccion;
+}
+
+export interface Direccion {
+  readonly id: number;
+  numero: string;
+  calle: string;
+  colonia: string;
+}
 
 export interface Articulo {
-  id: number;
+  readonly id: number;
   nombre: string;
   descripcion: string;
-  categoria: string;
-  cantidadTotal: number;
   precioPorDia: number;
-  depositoGarantia: number;
-  imagenUrl?: string;
-  activo: boolean;
-  creadoEn?: Date;
-  actualizadoEn?: Date;
+  existencias: number;
+  categoria: string;
+  fotografiasUrl: string[];
 }
 
-export interface Cliente {
-  id: number;
-  nombre: string;
-  email: string;
-  telefono: string;
-  direccion?: string;
-  identificacion?: string;
-  activo: boolean;
-  creadoEn?: Date;
-  actualizadoEn?: Date;
-}
+export type MotivoAjuste = 'perdida' | 'adquisicion' | 'deterioro';
 
-export type EstadoReserva =
-  | 'PENDIENTE'
-  | 'CONFIRMADA'
-  | 'ENTREGADA'
-  | 'FINALIZADA'
-  | 'CANCELADA';
-
-export interface DetalleReserva {
-  id?: number;
-  articuloId: number;
-  articulo?: Articulo;
+export interface AjusteExistencia {
+  readonly id: number;
+  readonly articuloId: number;
+  readonly adminId: number;
   cantidad: number;
-  precioUnitarioPorDia: number;
-  depositoGarantiaUnitario: number;
+  esIncremento: boolean;
+  motivo: MotivoAjuste;
+  creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+}
+
+export type MotivoBloqueo = 'preparacion' | 'limpieza';
+
+export interface PiezasMantenimiento {
+  readonly id: number;
+  readonly articuloId: number;
+  readonly adminId: number;
+  cantidad: number;
+  fechaInicio: Date;
+  fechaTermino: Date;
+  motivo: MotivoBloqueo;
+}
+
+export interface ArticuloReserva {
+  readonly id: number;
+  readonly articuloId: number;
+  readonly reservaId: number;
+  cantidad: number;
+  precioUnitario: number;
   subtotal: number;
 }
 
+export type EstadoReserva = 'apartada'| 'entregada'| 'devuelta' | 'cancelada';
+
 export interface Reserva {
-  id: number;
-  clienteId: number;
-  cliente?: Cliente;
-  fechaInicio: Date | string;
-  fechaFin: Date | string;
-  estado: EstadoReserva;
-  depositoGarantiaTotal: number;
+  readonly id: number;
+  readonly clienteId: number;
+  readonly folio: number;
   montoTotal: number;
-  items: DetalleReserva[];
-  creadoEn?: Date;
-  actualizadoEn?: Date;
+  fechaEntrega: Date;
+  fechaRecoleccion: Date;
+  creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  estado: EstadoReserva;
+  direccionEntrega: Direccion;
+}
+
+export interface DepositoGarantia {
+  readonly id: number;
+  readonly reservaId: number;
+  monto: number;
+  confirmado: boolean;
+  devuelto: boolean;
+}
+
+export interface InspeccionPiezas {
+  readonly id: number;
+  readonly articuloReservadoId: number;
+  readonly bitacoraReservaId: number;
+  piezasCompletas: number;
+  piezasDaniadas?: number;
+  piezasFaltantes?: number;
+  montoGarantia?: number;
+}
+
+export interface BitacoraReserva {
+  readonly id: number;
+  readonly reservaId: number;
+  fechaHoraRecolectada: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  fechaHoraEntregada: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  montoTotalGarantía: number;
+}
+
+export type EstadoSolicitud = 'pendiente' | 'aprovada' | 'rechazada';
+
+export interface SolicitudCancelacion {
+  readonly id: number;
+  readonly clienteId: number;
+  readonly reservadId: number;
+  fechaSolicitud: Date;
+  estadoSolicitud: EstadoSolicitud;
 }
