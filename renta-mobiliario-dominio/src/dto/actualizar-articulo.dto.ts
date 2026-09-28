@@ -1,10 +1,9 @@
 export interface ActualizarArticuloDto {
   nombre?: string;
   descripcion?: string;
-  categoria?: string;
-  cantidadTotal?: number;
   precioPorDia?: number;
-  depositoGarantia?: number;
-  imagenUrl?: string;
+  existencias?: number;
+  categoria?: string;
+  fotografiasUrl?: string[];
   activo?: boolean;
 }

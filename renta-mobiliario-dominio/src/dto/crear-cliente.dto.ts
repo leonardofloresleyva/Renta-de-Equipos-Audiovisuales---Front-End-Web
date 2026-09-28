@@ -1,8 +1,10 @@
+import type { Direccion } from '../dominio/entidades';
+
 export interface CrearClienteDto {
-  nombre: string;
   email: string;
+  password: string;
+  nombre: string;
   telefono: string;
-  direccion?: string;
-  identificacion?: string;
+  direccion: Direccion;
   activo?: boolean;
 }
