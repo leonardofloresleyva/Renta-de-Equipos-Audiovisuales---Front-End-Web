@@ -4,4 +4,4 @@ import { ReservasService } from './reservas.service';
 @Module({
   providers: [ReservasService]
 })
-export class ReservasModule {}
+export class ReservasModule { }
