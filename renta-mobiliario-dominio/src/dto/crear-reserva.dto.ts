@@ -1,26 +1,16 @@
-import type { Direccion, EstadoReserva } from '../dominio/entidades';
+import type { EstadoReserva } from '../dominio/entidades';
 
 export interface ItemReservaDto {
-  articuloId: number | string;
+  articuloId: number;
   cantidad: number;
-  precioUnitario?: number;
-}
-
-export interface DepositoGarantiaDto {
-  costo: number;
-  confirmado?: boolean;
-  devuelto?: boolean;
 }
 
 export interface CrearReservaDto {
-  folio?: number;
-  clienteId?: number | string;
-  fechaEntrega: Date | string;
-  fechaRecoleccion: Date | string;
-  direccionEntrega: Direccion;
-  articulos?: ItemReservaDto[];
-  items?: ItemReservaDto[]; // Alias de compatibilidad
-  montoTotal?: number;
+  clienteId: number;
+  fechaInicio: Date | string;
+  fechaFin: Date | string;
+  items: ItemReservaDto[];
   estado?: EstadoReserva;
-  depositoGarantia?: DepositoGarantiaDto;
+  depositoGarantiaTotal?: number;
+  montoTotal?: number;
 }

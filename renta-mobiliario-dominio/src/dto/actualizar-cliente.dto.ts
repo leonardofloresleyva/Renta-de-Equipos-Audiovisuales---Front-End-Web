@@ -1,10 +1,8 @@
-import type { Direccion } from '../dominio/entidades';
-
 export interface ActualizarClienteDto {
-  email?: string;
-  password?: string;
   nombre?: string;
+  email?: string;
   telefono?: string;
-  direccion?: Partial<Direccion>;
+  direccion?: string;
+  identificacion?: string;
   activo?: boolean;
 }

@@ -1,7 +1,8 @@
 export interface ActualizarAdminDto {
+  nombre?: string;
   email?: string;
   password?: string;
-  nombre?: string;
+  rol?: string;
   telefono?: string;
   activo?: boolean;
 }

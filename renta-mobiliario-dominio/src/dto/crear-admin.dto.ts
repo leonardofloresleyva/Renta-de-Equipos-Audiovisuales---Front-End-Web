@@ -1,7 +1,8 @@
 export interface CrearAdminDto {
-  email: string;
-  password: string;
   nombre: string;
-  telefono: string;
+  email: string;
+  password?: string;
+  rol?: string;
+  telefono?: string;
   activo?: boolean;
 }

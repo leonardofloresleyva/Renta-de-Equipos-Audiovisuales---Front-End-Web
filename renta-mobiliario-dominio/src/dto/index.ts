@@ -6,8 +6,3 @@ export * from './crear-cliente.dto';
 export * from './actualizar-cliente.dto';
 export * from './crear-reserva.dto';
 export * from './actualizar-reserva.dto';
-export * from './solicitud-cancelacion.dto';
-export * from './ajuste-existencia.dto';
-export * from './piezas-mantenimiento.dto';
-export * from './bitacora-reserva.dto';
-export * from './inspeccion-piezas.dto';

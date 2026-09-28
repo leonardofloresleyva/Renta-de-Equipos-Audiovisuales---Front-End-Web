@@ -1,13 +1,11 @@
-import type { Direccion, EstadoReserva } from '../dominio/entidades';
-import type { DepositoGarantiaDto, ItemReservaDto } from './crear-reserva.dto';
+import type { EstadoReserva } from '../dominio/entidades';
+import type { ItemReservaDto } from './crear-reserva.dto';
 
 export interface ActualizarReservaDto {
-  fechaEntrega?: Date | string;
-  fechaRecoleccion?: Date | string;
+  fechaInicio?: Date | string;
+  fechaFin?: Date | string;
   estado?: EstadoReserva;
-  direccionEntrega?: Partial<Direccion>;
-  articulos?: ItemReservaDto[];
   items?: ItemReservaDto[];
+  depositoGarantiaTotal?: number;
   montoTotal?: number;
-  depositoGarantia?: Partial<DepositoGarantiaDto>;
 }
