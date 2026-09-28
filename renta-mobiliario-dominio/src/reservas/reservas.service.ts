@@ -47,8 +47,8 @@ export class ReservasService {
         for(let a of dto.articulos) {
             const articulo = await this.articulosRepo.buscarPorId(a.articuloId);
             if (!articulo) throw new ArticuloNoEncontradoError(a.articuloId);
-            const piezasReservadas = await this.reservasRepo.obtenerPiezasReservadas(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
-            const piezasMantenimiento = await this.adminRepo.obtenerCantidadPiezasMantenimiento(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
+            const piezasReservadas = await this.reservasRepo.obtenerPiezasReservadasPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
+            const piezasMantenimiento = await this.adminRepo.obtenerCantidadPiezasMantenimientoPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
             if ((piezasReservadas + piezasMantenimiento) > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
             const nuevoArticuloReservado = {
                 articuloId: a.articuloId,

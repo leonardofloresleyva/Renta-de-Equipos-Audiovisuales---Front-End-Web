@@ -182,7 +182,13 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     return reserva;
   }
 
-  async obtenerPiezasReservadas(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
+  async obtenerPiezasReservadas(articuloId: number): Promise<number> {
+    let piezasReservadas = 0;
+    [...this.articuloReservas.values()].filter((a) => a.articuloId === articuloId).forEach((a) => piezasReservadas += a.cantidad);
+    return piezasReservadas;
+  }
+
+  async obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
     let piezasReservadas = 0;
     const reservados = [...this.articuloReservas.values()]
       .filter((a) => a.articuloId === articuloId && 

@@ -8,5 +8,6 @@ export interface ReservaRepository {
   actualizar(id: number, datos: Partial<Reserva>): Promise<Reserva | null>;
   eliminar(id: number): Promise<Reserva | null>;
   buscarPorCliente(clienteId: number): Promise<Reserva[]>;
-  obtenerPiezasReservadas(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number>;
+  obtenerPiezasReservadas(articuloId: number): Promise<number>;
+  obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number>;
 }

@@ -91,7 +91,13 @@ export class AdminMemoriaRepository implements AdminRepository {
     return { ...admin };
   }
 
-  async obtenerCantidadPiezasMantenimiento(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
+  async obtenerCantidadPiezasMantenimiento(articuloId: number) {
+    let cantidadPiezas = 0;
+    [...this.piezasMantenimiento.values()].filter((p) => p.articuloId === articuloId).forEach((p) => cantidadPiezas += p.cantidad);
+    return cantidadPiezas;
+  }
+
+  async obtenerCantidadPiezasMantenimientoPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
     let cantidadPiezas = 0;
     const piezas = [...this.piezasMantenimiento.values()]
       .filter((p) => p.articuloId === articuloId && (
