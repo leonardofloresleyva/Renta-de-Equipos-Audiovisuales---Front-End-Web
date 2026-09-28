@@ -3,7 +3,7 @@ import type { ArticuloReserva, NuevaReserva, NuevoArticuloReserva, Reserva } fro
 export interface ReservaRepository {
   listar(): Promise<Reserva[]>;
   buscarPorId(id: number): Promise<Reserva | null>;
-  buscarArticulosPorId(id: number): Promise<ArticuloReserva[]>;
+  buscarArticulosPorId(reservaId: number): Promise<ArticuloReserva[]>;
   crear(datosReserva: NuevaReserva, datosArticulos: NuevoArticuloReserva[]): Promise<Reserva>;
   actualizar(id: number, datos: Partial<Reserva>): Promise<Reserva | null>;
   eliminar(id: number): Promise<Reserva | null>;

@@ -31,9 +31,10 @@ async function bootstrap() {
             articulos: articulosUno
         }
         console.log("");
-        await servico.crear(dtoUno);
+        const reserva = await servico.crear(dtoUno);
         console.log("Exito!");
         console.log(await servico.listar());
+        console.log(await servico.buscarArticulosPorId(reserva.id));
         console.log("");
 
         // SEGUNDO ESCENARIO: Primer error - fechas inválidas

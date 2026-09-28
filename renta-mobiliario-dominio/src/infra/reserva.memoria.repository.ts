@@ -128,8 +128,8 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     return Array.from(this.reservas.values()).filter((r) => r.clienteId === clienteId);
   }
 
-  async buscarArticulosPorId(id: number): Promise<ArticuloReserva[]> {
-    return Array.from(this.articuloReservas.values()).filter((a) => a.reservaId === id);
+  async buscarArticulosPorId(reservaId: number): Promise<ArticuloReserva[]> {
+    return Array.from(this.articuloReservas.values()).filter((a) => a.reservaId === reservaId);
   }
 
   async crear(datosReserva: NuevaReserva, datosArticulos: NuevoArticuloReserva[]): Promise<Reserva> {

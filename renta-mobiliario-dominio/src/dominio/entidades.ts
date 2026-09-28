@@ -1,5 +1,6 @@
 // Porcentaje de garantía
 export const porcentajeGarantia = 0.20;
+
 // Lo que hace falta para crear
 export interface NuevaReserva {
   clienteId: number;

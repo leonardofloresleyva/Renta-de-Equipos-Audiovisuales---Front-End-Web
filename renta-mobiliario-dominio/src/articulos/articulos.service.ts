@@ -11,6 +11,14 @@ export class ArticulosService {
     private readonly articuloRepository: ArticuloRepository 
   ) {}
 
+  listar(): Promise<Articulo[]> {
+    return this.articuloRepository.listar();
+  }
+
+  buscarPorId(id: number): Promise<Articulo | null> {
+    return this.articuloRepository.buscarPorId(id);
+  }
+
   crear(dto: CrearArticuloDto): Promise<Articulo> {
     return this.articuloRepository.crear({
       nombre: dto.nombre,
@@ -21,4 +29,5 @@ export class ArticulosService {
       fotografiasUrl: dto.fotografiasUrl
     });
   }
+
 }

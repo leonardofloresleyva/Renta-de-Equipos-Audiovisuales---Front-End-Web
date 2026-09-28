@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { type AdminRepository, ArticuloNoEncontradoError, ClienteNoEncontradoError, FechasReservaInvalidasError, type ArticuloRepository, type ClienteRepository, type Reserva, type ReservaRepository, DisponibilidadInsuficienteError, NuevoArticuloReserva, nuevoFolio, NuevaReserva, porcentajeGarantia, CantidadExcesivaError } from 'src/dominio';
+import { type AdminRepository, ArticuloNoEncontradoError, ClienteNoEncontradoError, FechasReservaInvalidasError, type ArticuloRepository, type ClienteRepository, type Reserva, type ReservaRepository, DisponibilidadInsuficienteError, NuevoArticuloReserva, nuevoFolio, NuevaReserva, porcentajeGarantia, CantidadExcesivaError, ArticuloReserva } from 'src/dominio';
 import { ADMIN_REPOSITORY, ARTICULO_REPOSITORY, CLIENTE_REPOSITORY, RESERVA_REPOSITORY } from './reservas.tokens';
 import { CrearReservaDto } from 'src/dto/crear.reserva.dto';
 
@@ -22,6 +22,10 @@ export class ReservasService {
 
     buscarPorId(id: number): Promise<Reserva | null> {
         return this.reservasRepo.buscarPorId(id);
+    }
+
+    buscarArticulosPorId(reservaId: number): Promise<ArticuloReserva[]> {
+        return this.reservasRepo.buscarArticulosPorId(reservaId);
     }
 
     async crear(dto: CrearReservaDto): Promise<Reserva> {
