@@ -1,3 +1,24 @@
+// Lo que hace falta para crear
+export interface NuevaReserva {
+  clienteId: number;
+  folio: string;
+  montoTotal: number;
+  fechaEntrega: Date;
+  fechaRecoleccion: Date;
+  numero: string;
+  calle: string;
+  colonia: string;
+}
+export type NuevoArticuloReserva = Omit<ArticuloReserva, 'id' | 'reservaId'>;
+
+// Genera un folio sencillo
+export function nuevoFolio(): string {
+  const numero = Math.floor(Math.random() * 1000000);
+  return numero.toString().padStart(6, '0');
+}
+
+// Entidades de dominio
+
 export interface Usuario {
   readonly id: number;
   readonly email: string;
@@ -41,10 +62,10 @@ export interface AjusteExistencia {
   cantidad: number;
   esIncremento: boolean;
   motivo: MotivoAjuste;
-  creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  readonly creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
 }
 
-export type MotivoBloqueo = 'preparacion' | 'limpieza';
+export type MotivoBloqueo = 'reparacion' | 'limpieza';
 
 export interface PiezasMantenimiento {
   readonly id: number;
@@ -70,11 +91,11 @@ export type EstadoReserva = 'apartada'| 'entregada'| 'devuelta' | 'cancelada';
 export interface Reserva {
   readonly id: number;
   readonly clienteId: number;
-  readonly folio: number;
+  readonly folio: string;
   montoTotal: number;
   fechaEntrega: Date;
   fechaRecoleccion: Date;
-  creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
+  readonly creadoEn: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
   estado: EstadoReserva;
   direccionEntrega: Direccion;
 }

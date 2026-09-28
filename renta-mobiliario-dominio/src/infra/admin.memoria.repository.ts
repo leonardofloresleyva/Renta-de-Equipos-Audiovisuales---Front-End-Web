@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { AdminRepository } from '../dominio/admin.repository';
-import type { Administrador } from '../dominio/entidades';
+import type { Administrador, PiezasMantenimiento } from '../dominio/entidades';
 
 @Injectable()
 export class AdminMemoriaRepository implements AdminRepository {
@@ -28,6 +28,28 @@ export class AdminMemoriaRepository implements AdminRepository {
   ]);
 
   private proximoId = 3;
+
+  private piezasMantenimiento = new Map<number, PiezasMantenimiento>([
+    [
+      1, {
+        id: 1,
+        articuloId: 1,
+        adminId: 1,
+        cantidad: 2,
+        fechaInicio: new Date('2026-09-29'),
+        fechaTermino: new Date('2026-10-01'),
+        motivo: 'limpieza'
+      }],
+    [
+      2, {
+        id: 2,
+        articuloId: 2,
+        adminId: 2,
+        cantidad: 8,
+        fechaInicio: new Date('2026-10-05'),
+        fechaTermino: new Date('2026-10-09'),
+        motivo: 'reparacion'
+      }]]);
 
   async listar(): Promise<Administrador[]> {
     return Array.from(this.administradores.values()).map((admin) => ({ ...admin }));
@@ -64,10 +86,19 @@ export class AdminMemoriaRepository implements AdminRepository {
 
   async eliminar(id: number): Promise<Administrador | null> {
     const admin = this.administradores.get(Number(id));
-    if (!admin) {
-      return null;
-    }
+    if (!admin) return null;
     this.administradores.delete(Number(id));
     return { ...admin };
+  }
+
+  async obtenerCantidadPiezasMantenimiento(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
+    let cantidadPiezas = 0;
+    const piezas = [...this.piezasMantenimiento.values()]
+      .filter((p) => p.articuloId === articuloId && (
+          (fechaInicio >= p.fechaInicio && fechaInicio <= p.fechaTermino) || 
+          (fechaFin >= p.fechaInicio && fechaFin <= p.fechaTermino)
+        ));
+    piezas.forEach((p) => cantidadPiezas += p.cantidad);
+    return cantidadPiezas;
   }
 }
