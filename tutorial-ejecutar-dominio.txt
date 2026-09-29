@@ -1,0 +1,10 @@
+Para ejecutar las pruebas de dominio, siga los siguientes pasos:
+
+1.- Ubique el directorio de su terminal en la carpeta "renta-mobiliario-dominio".
+2.- Ejecute el comando "npm i" para instalar las dependencias del proyecto.
+3.- Ejecute el comando "npm run build" para transpilar el código del proyecto a JavaScript.
+4.- Ejecute el comando "node dist/prueba.dominio.js".
+
+Después de ejecutar el último comando, se ejecutará el programa que realiza las pruebas de los tres escenarios y se mostrará el resultado en consola. 
+
+Recomendamos revisar los archivos "reserva.memoria.repository.ts", "articulo.memoria.repository.ts" y "cliente.memoria.repository.ts" para observar las entidades ya almacenadas y verificar la veracidad de las pruebas.
