@@ -1,4 +1,4 @@
-import type { ArticuloReserva, NuevaReserva, NuevoArticuloReserva, Reserva } from './entidades';
+import type { ArticuloReserva, DepositoGarantia, NuevaReserva, NuevoArticuloReserva, Reserva } from './entidades';
 
 export interface ReservaRepository {
   listar(): Promise<Reserva[]>;
@@ -8,6 +8,7 @@ export interface ReservaRepository {
   actualizar(id: number, datos: Partial<Reserva>): Promise<Reserva | null>;
   eliminar(id: number): Promise<Reserva | null>;
   buscarPorCliente(clienteId: number): Promise<Reserva[]>;
+  obtenerGarantiaPorReserva(reservaId: number): Promise<DepositoGarantia | null>;
   obtenerPiezasReservadas(articuloId: number): Promise<number>;
   obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number>;
 }

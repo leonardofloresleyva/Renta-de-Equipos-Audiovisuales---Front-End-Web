@@ -119,7 +119,7 @@ export class ReservaMemoriaRepository implements ReservaRepository {
   }
 
   async buscarPorId(id: number): Promise<Reserva | null> {
-    const reserva = this.reservas.get(Number(id));
+    const reserva = this.reservas.get(id);
     if (!reserva) return null;
     return reserva;
   }
@@ -208,6 +208,9 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     return reserva;
   }
 
+  async obtenerGarantiaPorReserva(reservaId: number): Promise<DepositoGarantia | null> {
+    return [...this.depositosGarantia.values()].find((d) => d.reservaId === reservaId) ?? null;
+  }
   async obtenerPiezasReservadas(articuloId: number): Promise<number> {
     let piezasReservadas = 0;
     [...this.articuloReservas.values()]

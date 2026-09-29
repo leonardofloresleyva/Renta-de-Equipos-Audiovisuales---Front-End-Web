@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AjustarExistenciaDto } from 'src/dto/ajustar.existencia.dto';
-import { AdminNoEncontradoError, ArticuloNoEncontradoError, DisponibilidadInsuficienteError, EstadoAjusteNoValido, FechasInvalidasError, ReduccionStockInvalidaError } from 'src/dominio/errores';
+import { AdminNoEncontradoError, ArticuloNoEncontradoError, DepositoGarantiaRequeridoError, DisponibilidadInsuficienteError, EstadoAjusteNoValido, FechasInvalidasError, ReduccionStockInvalidaError, ReservaNoEncontradaError } from 'src/dominio/errores';
 import { ADMIN_REPOSITORY, ARTICULO_REPOSITORY, RESERVA_REPOSITORY } from './admin.tokens';
 import type { ArticuloRepository } from 'src/dominio/articulo.repository';
 import type { ReservaRepository } from 'src/dominio/reserva.repository';
 import type { AdminRepository } from 'src/dominio/admin.repository';
-import type { Administrador, AjusteExistencia, PiezasMantenimiento } from 'src/dominio/entidades';
+import type { Administrador, AjusteExistencia, BitacoraReserva, PiezasMantenimiento, RegistroEntradaBitacora } from 'src/dominio/entidades';
 import { CrearPiezaMantenimientoDto } from 'src/dto/crear.pieza.mantenimiento.dto';
 
 @Injectable()
@@ -86,5 +86,19 @@ export class AdminService {
         if ((piezasReservadas + piezasMantenimiento + dto.cantidad) > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
 
         return this.adminRepo.registrarPiezasMantenimiento({...dto});
+    }
+
+    async registrarEntrega(reservaId: number): Promise<BitacoraReserva> {
+        const reserva = await this.reservasRepo.buscarPorId(reservaId);
+        if (!reserva) throw new ReservaNoEncontradaError(reservaId);
+
+        const depositoGarantia = await this.reservasRepo.obtenerGarantiaPorReserva(reserva.id);
+        if (!depositoGarantia) throw new DepositoGarantiaRequeridoError();
+
+        const nuevaBitacora: RegistroEntradaBitacora = {
+            reservaId: reservaId,
+            montoTotalGarantía: depositoGarantia.monto
+        };
+        return this.adminRepo.registrarEntrega(nuevaBitacora);
     }
  }
