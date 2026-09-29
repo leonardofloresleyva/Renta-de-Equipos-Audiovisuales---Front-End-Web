@@ -16,6 +16,7 @@ export interface NuevaReserva {
 export type NuevoArticuloReserva = Omit<ArticuloReserva, 'id' | 'reservaId'>;
 export type RegistroEntradaBitacora = Omit<BitacoraReserva, 'id' | 'fechaHoraRecolectada' | 'fechaHoraEntregada'>;
 export type NuevoInspeccionPieza = Omit<InspeccionPieza, 'id' | 'bitacoraReservaId'>;
+export type NuevoAjusteExistencia = Omit<AjusteExistencia, 'id' | 'creadoEn'>;
 
 // Genera un folio sencillo
 export function nuevoFolio(): string {

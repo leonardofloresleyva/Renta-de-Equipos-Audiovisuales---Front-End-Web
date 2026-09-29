@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DepositoGarantia, EstadoReserva, nuevoFolio, type ArticuloReserva, type Direccion, type NuevaReserva, type NuevoArticuloReserva, type Reserva } from '../dominio/entidades';
+import { DepositoGarantia, nuevoFolio, type ArticuloReserva, type Direccion, type NuevaReserva, type NuevoArticuloReserva, type Reserva } from '../dominio/entidades';
 import type { ReservaRepository } from '../dominio/reserva.repository';
 
 @Injectable()

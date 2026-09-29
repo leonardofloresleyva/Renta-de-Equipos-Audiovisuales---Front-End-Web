@@ -1,7 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { type AdminRepository, ArticuloNoEncontradoError, ClienteNoEncontradoError, FechasReservaInvalidasError, type ArticuloRepository, type ClienteRepository, type Reserva, type ReservaRepository, DisponibilidadInsuficienteError, NuevoArticuloReserva, nuevoFolio, NuevaReserva, porcentajeGarantia, CantidadExcesivaError, ArticuloReserva } from 'src/dominio';
 import { ADMIN_REPOSITORY, ARTICULO_REPOSITORY, CLIENTE_REPOSITORY, RESERVA_REPOSITORY } from './reservas.tokens';
 import { CrearReservaDto } from 'src/dto/crear.reserva.dto';
+import type { ClienteRepository } from 'src/dominio/cliente.repository';
+import type { ArticuloRepository } from 'src/dominio/articulo.repository';
+import type { ReservaRepository } from 'src/dominio/reserva.repository';
+import type { AdminRepository } from 'src/dominio/admin.repository';
+import { ArticuloReserva, NuevaReserva, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva } from 'src/dominio/entidades';
+import { ArticuloNoEncontradoError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, FechasInvalidasError } from 'src/dominio/errores';
 
 @Injectable()
 export class ReservasService {
@@ -37,11 +42,9 @@ export class ReservasService {
 
         // REGLA DE NEGOCIO 02 - VERIFICAR FECHAS VÁlIDAS
         
-        // Se ignora el tiempo de la fecha
-
         // Se verifica si el rango es válido (futuras y recolección después de entrega)
         if (dto.fechaEntrega < new Date() || dto.fechaRecoleccion < new Date() || dto.fechaRecoleccion <= dto.fechaEntrega) {
-            throw new FechasReservaInvalidasError()
+            throw new FechasInvalidasError()
         };
 
         // REGLA DE NEGOCIO 01 - VERIFICAR DISPONIBILIDAD DE ARTÍCULOS
@@ -77,7 +80,7 @@ export class ReservasService {
             numero: dto.numero,
             calle: dto.calle,
             colonia: dto.colonia,
-            montoGarantia: montoTotal * porcentajeGarantia
+            montoGarantia: montoTotal * porcentajeGarantia // REGLA DE NEGOCIO 08
         };
         return this.reservasRepo.crear(nuevaReserva, articulosReservados);
     }

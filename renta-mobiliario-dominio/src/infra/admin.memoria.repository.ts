@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { AdminRepository } from '../dominio/admin.repository';
-import type { Administrador, BitacoraReserva, InspeccionPieza, NuevoInspeccionPieza, PiezasMantenimiento, RegistroEntradaBitacora } from '../dominio/entidades';
+import type { Administrador, AjusteExistencia, BitacoraReserva, InspeccionPieza, NuevoAjusteExistencia, NuevoInspeccionPieza, PiezasMantenimiento, RegistroEntradaBitacora } from '../dominio/entidades';
 
 @Injectable()
 export class AdminMemoriaRepository implements AdminRepository {
@@ -49,7 +49,12 @@ export class AdminMemoriaRepository implements AdminRepository {
         fechaInicio: new Date('2026-10-05'),
         fechaTermino: new Date('2026-10-09'),
         motivo: 'reparacion'
-      }]]);
+      }]
+  ]);
+  private proximoMantenimientoId = 3;
+
+  private ajustesExistencias = new Map<number, AjusteExistencia>();
+  private proximoAjusteId = 1;
 
   private bitacoras = new Map<number, BitacoraReserva>();
   private proximoBitacoraId = 1;
@@ -63,7 +68,7 @@ export class AdminMemoriaRepository implements AdminRepository {
 
   async buscarPorId(id: number): Promise<Administrador | null> {
     const admin = this.administradores.get(Number(id));
-    return admin ? { ...admin } : null;
+    return admin ? admin : null;
   }
 
   async crear(datos: Omit<Administrador, 'id'>): Promise<Administrador> {
@@ -73,11 +78,11 @@ export class AdminMemoriaRepository implements AdminRepository {
       ...datos,
     };
     this.administradores.set(id, nuevoAdmin);
-    return { ...nuevoAdmin };
+    return nuevoAdmin;
   }
 
   async actualizar(id: number, datos: Partial<Administrador>): Promise<Administrador | null> {
-    const adminExistente = this.administradores.get(Number(id));
+    const adminExistente = this.administradores.get(id);
     if (!adminExistente) {
       return null;
     }
@@ -86,15 +91,15 @@ export class AdminMemoriaRepository implements AdminRepository {
       ...datos,
       id: adminExistente.id,
     };
-    this.administradores.set(Number(id), adminActualizado);
-    return { ...adminActualizado };
+    this.administradores.set(id, adminActualizado);
+    return adminActualizado;
   }
 
   async eliminar(id: number): Promise<Administrador | null> {
     const admin = this.administradores.get(Number(id));
     if (!admin) return null;
     this.administradores.delete(Number(id));
-    return { ...admin };
+    return admin;
   }
 
   async obtenerCantidadPiezasMantenimiento(articuloId: number): Promise<number> {
@@ -112,6 +117,27 @@ export class AdminMemoriaRepository implements AdminRepository {
         ));
     piezas.forEach((p) => cantidadPiezas += p.cantidad);
     return cantidadPiezas;
+  }
+
+  async registrarAjuste(datos: NuevoAjusteExistencia): Promise<AjusteExistencia> {
+    const id = this.proximoAjusteId++;
+    const nuevoAjuste: AjusteExistencia = {
+      id: id,
+      ...datos,
+      creadoEn: new Date()
+    };
+    this.ajustesExistencias.set(id, nuevoAjuste);
+    return nuevoAjuste;
+  }
+
+  async registrarPiezasMantenimiento(datos: Omit<PiezasMantenimiento, 'id'>): Promise<PiezasMantenimiento> {
+    const id = this.proximoMantenimientoId++;
+    const nuevoPiezasMantenimiento: PiezasMantenimiento = {
+      id: id,
+      ...datos
+    };
+    this.piezasMantenimiento.set(id, nuevoPiezasMantenimiento);
+    return nuevoPiezasMantenimiento;
   }
 
   async registrarEntrega(registroEntrada: RegistroEntradaBitacora): Promise<BitacoraReserva> {

@@ -47,7 +47,7 @@ export class ReservaNoEncontradaError extends Error {
 }
 
 /* =========================================================
-   Errores de Validación y Duplicidad
+   Errores de Validación, Duplicidad o Lógica
    ========================================================= */
 
 export class EmailYaRegistradoError extends Error {
@@ -82,6 +82,14 @@ export class CantidadExcesivaError extends Error {
   }
 }
 
+export class EstadoAjusteNoValido extends Error {
+  constructor(esIncremento: boolean) {
+    super((esIncremento) ? 'No pueden añadirse existencias de artículos dañados o perdidos' : 
+    'No pueden restarse existencias en una adquisición');
+    this.name = 'EstadoAjusteNoValido';
+  }
+}
+
 /* =========================================================
    Errores de Reglas de Negocio del Dominio de Renta
    ========================================================= */
@@ -103,9 +111,9 @@ export class DisponibilidadInsuficienteError extends Error {
 /**
  * Regla de negocio 02: Fechas de recolección/entrega inválidas o pasadas (duración mínima de un día).
  */
-export class FechasReservaInvalidasError extends Error {
+export class FechasInvalidasError extends Error {
   constructor(
-    mensaje = 'Las fechas de la reserva son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.'
+    mensaje = 'Las fechas son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.'
   ) {
     super(mensaje);
     this.name = 'FechasReservaInvalidasError';

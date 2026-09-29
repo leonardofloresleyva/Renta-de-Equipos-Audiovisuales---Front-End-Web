@@ -1,4 +1,4 @@
-import type { Administrador, BitacoraReserva, NuevoInspeccionPieza, RegistroEntradaBitacora } from './entidades';
+import type { Administrador, AjusteExistencia, BitacoraReserva, NuevoAjusteExistencia, NuevoInspeccionPieza, PiezasMantenimiento, RegistroEntradaBitacora } from './entidades';
 
 export interface AdminRepository {
   listar(): Promise<Administrador[]>;
@@ -8,6 +8,8 @@ export interface AdminRepository {
   eliminar(id: number): Promise<Administrador | null>;
   obtenerCantidadPiezasMantenimiento(articuloId: number): Promise<number>;
   obtenerCantidadPiezasMantenimientoPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number>;
+  registrarAjuste(datos: NuevoAjusteExistencia): Promise<AjusteExistencia>;
+  registrarPiezasMantenimiento(datos: Omit<PiezasMantenimiento, 'id'>): Promise<PiezasMantenimiento>;
   registrarEntrega(registroEntrada: RegistroEntradaBitacora): Promise<BitacoraReserva>;
   obtenerBitacoraPorReserva(idFolio: number): Promise<BitacoraReserva | null>;
   registrarRecoleccion(bitacoraId: number, inspeccionesPiezas: NuevoInspeccionPieza[]): Promise<BitacoraReserva>;

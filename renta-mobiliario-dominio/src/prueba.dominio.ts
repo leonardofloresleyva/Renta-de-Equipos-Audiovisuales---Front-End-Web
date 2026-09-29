@@ -3,7 +3,7 @@ import { AppModule } from "./app.module";
 import { ReservasService } from "./reservas/reservas.service";
 import { CrearReservaDto } from "./dto/crear.reserva.dto";
 import { ArticuloReservaDto } from "./dto/articulo.reserva.dto";
-import { DisponibilidadInsuficienteError, FechasReservaInvalidasError } from "./dominio";
+import { DisponibilidadInsuficienteError, FechasReservaInvalidasError } from "./dominio/errores";
 
 
 async function bootstrap() {
