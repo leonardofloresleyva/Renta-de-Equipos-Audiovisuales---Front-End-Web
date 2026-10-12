@@ -17,6 +17,11 @@ export class AdminMemoriaRepository implements AdminRepository {
         return (admin) ? admin : null;
     }
 
+    async buscarPorEmail(email: string): Promise<Administrador | null> {
+        const admin = [...ADMINS.values()].find((c) => c.email === email);
+        return (admin) ? admin : null;
+    }
+
     async crear(datos: Omit<Administrador, 'id'>): Promise<Administrador> {
         const id = this.proximoId++;
         const nuevoAdmin: Administrador = {

@@ -17,6 +17,11 @@ export class ClienteMemoriaRepository implements ClienteRepository {
         return (cliente) ? cliente : null;
     }
 
+    async buscarPorEmail(email: string): Promise<Cliente | null> {
+        const cliente = [...CLIENTES.values()].find((c) => c.email === email);
+        return (cliente) ? cliente : null;
+    }
+
     async crear(datos: Omit<Cliente, 'id'>): Promise<Cliente> {
         const id = this.proximoId++;
         const nuevoCliente: Cliente = {

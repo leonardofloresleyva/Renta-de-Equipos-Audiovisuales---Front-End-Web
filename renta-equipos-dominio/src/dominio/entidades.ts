@@ -17,6 +17,7 @@ export type NuevoArticuloReserva = Omit<ArticuloReserva, 'id' | 'reservaId'>;
 export type RegistroEntradaBitacora = Omit<BitacoraReserva, 'id' | 'fechaHoraRecolectada' | 'fechaHoraEntregada'>;
 export type NuevoInspeccionPieza = Omit<InspeccionPieza, 'id' | 'bitacoraReservaId'>;
 export type NuevoAjusteExistencia = Omit<AjusteExistencia, 'id' | 'creadoEn'>;
+export type NuevaSolicitud = Omit<SolicitudCancelacion, 'id' | 'fechaSolicitud' | 'estadoSolicitud'>;
 
 export interface FiltrosArticulo {
   nombre?: string;
