@@ -38,23 +38,6 @@ export class PiezasMantenimientoMemoriaRepository implements PiezasMantenimiento
         });
     }
 
-    async obtenerCantidad(articuloId: number): Promise<number> {
-        let cantidadPiezas = 0;
-        [...PIEZAS_MANTENIMIENTO.values()].filter((p) => p.articuloId === articuloId).forEach((p) => cantidadPiezas += p.cantidad);
-        return cantidadPiezas;
-    }
-
-    async obtenerCantidadPorPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
-        let cantidadPiezas = 0;
-        const piezas = [...PIEZAS_MANTENIMIENTO.values()]
-        .filter((p) => p.articuloId === articuloId && (
-            (fechaInicio >= p.fechaInicio && fechaInicio <= p.fechaTermino) || 
-            (fechaFin >= p.fechaInicio && fechaFin <= p.fechaTermino)
-        ));
-        piezas.forEach((p) => cantidadPiezas += p.cantidad);
-        return cantidadPiezas;
-    }
-
     async crear(datos: Omit<PiezasMantenimiento, 'id'>): Promise<PiezasMantenimiento> {
         const id = this.proximoId++;
         const nuevoPiezasMantenimiento: PiezasMantenimiento = { id: id, ...datos };

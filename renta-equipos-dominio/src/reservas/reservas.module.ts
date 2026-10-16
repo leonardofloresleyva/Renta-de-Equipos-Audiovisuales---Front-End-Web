@@ -8,9 +8,10 @@ import { ArticuloReservaMemoriaRepository } from './infra/articulo.reserva.memor
 import { SolicitudCancelacionMemoriaRepository } from './infra/solicitud.cancelacion.memoria.repository';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { InventarioModule } from 'src/inventario/inventario.module';
+import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
 
 @Module({
-  imports: [UsuariosModule, InventarioModule],
+  imports: [UsuariosModule, InventarioModule, DisponibilidadModule],
   providers: [ReservasService, {
     provide: RESERVA_REPOSITORY,
     useClass: ReservaMemoriaRepository

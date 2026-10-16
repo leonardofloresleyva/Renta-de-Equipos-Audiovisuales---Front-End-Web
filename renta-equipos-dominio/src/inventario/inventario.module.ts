@@ -6,9 +6,10 @@ import { AjusteExistenciaMemoriaRepository } from './infra/ajuste.existencia.mem
 import { PiezasMantenimientoMemoriaRepository } from './infra/piezas.mantenimiento.memoria.repository';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { ReservasModule } from 'src/reservas/reservas.module';
+import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
 
 @Module({
-  imports: [UsuariosModule, ReservasModule],
+  imports: [UsuariosModule, DisponibilidadModule],
   providers: [InventarioService, {
     provide: ARTICULO_REPOSITORY,
     useClass: ArticuloMemoriaRepository

@@ -4,11 +4,12 @@ import type { ArticuloRepository } from './repositorios/articulo.repository';
 import { AJUSTE_EXISTENCIA_REPOSITORY, ARTICULO_REPOSITORY, PIEZAS_MANTENIMIENTO_REPOSITORY } from './inventario.tokens';
 import type { AjusteExistenciaRepository } from './repositorios/ajuste.existencia.repository';
 import type { PiezasMantenimientoRepository } from './repositorios/piezas.mantenimiento.repository';
-import { AjusteExistencia, Articulo, FiltrosArticulo } from 'src/dominio/entidades';
+import { AjusteExistencia, Articulo, FiltrosArticulo, PiezasMantenimiento } from 'src/dominio/entidades';
 import { CrearArticuloDto } from './dto/crear.articulo.dto';
-import { ReservasService } from 'src/reservas/reservas.service';
 import { AjustarExistenciaDto } from './dto/ajustar.existencia.dto';
-import { AdminNoEncontradoError, ArticuloNoEncontradoError, EstadoAjusteNoValido, ReduccionStockInvalidaError } from 'src/dominio/errores';
+import { AdminNoEncontradoError, ArticuloNoEncontradoError, DisponibilidadInsuficienteError, EstadoAjusteNoValido, FechasInvalidasError, ReduccionStockInvalidaError } from 'src/dominio/errores';
+import { CrearPiezaMantenimientoDto } from './dto/crear.pieza.mantenimiento.dto';
+import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
 
 @Injectable()
 export class InventarioService {
@@ -20,8 +21,9 @@ export class InventarioService {
         private readonly ajusteRepo: AjusteExistenciaRepository,
         @Inject(PIEZAS_MANTENIMIENTO_REPOSITORY)
         private readonly piezasRepo: PiezasMantenimientoRepository,
+        // Servicios de soporte
         private readonly usuariosService: UsuariosService,
-        private readonly reservasService: ReservasService
+        private readonly dispoService: DisponibilidadService
     ) { }
 
     listarArticulos(): Promise<Articulo[]> {
@@ -48,15 +50,6 @@ export class InventarioService {
         });
     }
 
-    // REGLA DE NEGOCIO 07
-    async obtenerDisponibilidad(id: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
-        let cantidadDisponible = 0;
-        const piezasReservadas = await this.reservasService.obtenerPiezasReservadasPeriodo(id, fechaInicio, fechaFin);
-        const piezasMantenimiento = await this.piezasRepo.obtenerCantidadPorPeriodo(id, fechaInicio, fechaFin);
-        cantidadDisponible -= (piezasMantenimiento + piezasReservadas);
-        return (cantidadDisponible > 0) ? cantidadDisponible: 0;
-    }
-
     async ajustarExistencia(dto: AjustarExistenciaDto): Promise<AjusteExistencia> {
         // Verifica la existencia del artículo
         const articulo = await this.articuloRepo.buscarPorId(dto.articuloId);
@@ -71,9 +64,9 @@ export class InventarioService {
 
         // REGLA DE NEGOCIO 05 - PROHIBICION DE DECREMENTO DE EXISTENCIAS
         if (!dto.esIncremento) {
-            const piezasReservadas = await this.reservasService.obtenerPiezasReservadas(dto.articuloId);
-            const piezasMantenimiento = await this.piezasRepo.obtenerCantidad(dto.articuloId);
-            const piezasDisponibles = articulo.existencias - (piezasReservadas + piezasMantenimiento);
+
+            const piezasApartadas = await this.dispoService.obtenerPiezasApartadas(dto.articuloId);
+            const piezasDisponibles = articulo.existencias - piezasApartadas;
             if (piezasDisponibles - dto.cantidad < 0) throw new ReduccionStockInvalidaError();
 
             // No pueden restarse existencias adquiridas
@@ -95,11 +88,24 @@ export class InventarioService {
         return this.ajusteRepo.crear({ ...dto });
     }
 
-    async obtenerCantidadPiezasMantenimiento(articuloId: number): Promise<number> {
-        return this.piezasRepo.obtenerCantidad(articuloId);
-    }
+    async registrarPiezasMantenimiento(dto: CrearPiezaMantenimientoDto): Promise<PiezasMantenimiento> {
+        // Verifica la existencia del artículo
+        const articulo = await this.articuloRepo.buscarPorId(dto.articuloId);
+        if (!articulo) throw new ArticuloNoEncontradoError(dto.articuloId);
 
-    async obtenerCantidadPiezasMantenimientoPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
-        return this.piezasRepo.obtenerCantidadPorPeriodo(articuloId, fechaInicio, fechaFin);
+        // Verifica la existencia del administrador
+        const admin = await this.usuariosService.buscarAdminPorId(dto.adminId);
+        if (!admin) throw new AdminNoEncontradoError(dto.adminId);
+
+        // Verifica la validez de las fechas
+        if (dto.fechaInicio < new Date() || dto.fechaTermino < new Date() || dto.fechaTermino <= dto.fechaInicio) {
+            throw new FechasInvalidasError();
+        };
+
+        // Verifica que se pueda apartar el artículo en el período (similar a la regla de negocio 01)
+        const piezasApartadasPeriodo = await this.dispoService.obtenerPiezasApartadasPeriodo(articulo.id, dto.fechaInicio, dto.fechaTermino) + dto.cantidad;
+        if (piezasApartadasPeriodo > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
+
+        return this.piezasRepo.crear({...dto});
     }
 }

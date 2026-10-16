@@ -95,36 +95,8 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     async eliminar(id: number): Promise<Reserva | null> {
         const reserva = RESERVAS.get(Number(id));
         if (!reserva) return null;
-
         reserva.estado = 'cancelada';
         RESERVAS.set(reserva.id, reserva);
         return reserva;
-    }
-
-    async obtenerPiezasReservadas(articuloId: number): Promise<number> {
-        let piezasReservadas = 0;
-        [...ARTICULOS_RESERVA.values()]
-            .filter((a) => a.articuloId === articuloId && (RESERVAS.get(a.reservaId)?.estado ?? 'apartada') === 'apartada')
-            .forEach((a) => piezasReservadas += a.cantidad);
-        return piezasReservadas;
-    }
-
-    async obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
-        let piezasReservadas = 0;
-        const reservados = [...ARTICULOS_RESERVA.values()]
-            .filter((a) => a.articuloId === articuloId &&
-                (RESERVAS.get(a.reservaId)?.estado ?? 'apartada') === 'apartada' &&
-                (
-                    (
-                        fechaInicio >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) ||
-                        fechaInicio <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
-                    ) ||
-                    (
-                        fechaFin >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) ||
-                        fechaFin <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
-                    )
-                ));
-        reservados.forEach((a) => piezasReservadas += a.cantidad);
-        return piezasReservadas;
     }
 }

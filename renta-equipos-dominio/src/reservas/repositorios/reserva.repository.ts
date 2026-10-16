@@ -8,6 +8,4 @@ export interface ReservaRepository {
     crear(datosReserva: NuevaReserva, datosArticulos: NuevoArticuloReserva[]): Promise<Reserva>;
     actualizar(id: number, datos: Partial<Reserva>): Promise<Reserva | null>;
     eliminar(id: number): Promise<Reserva | null>;
-    obtenerPiezasReservadas(articuloId: number): Promise<number>;
-    obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number>;
 }

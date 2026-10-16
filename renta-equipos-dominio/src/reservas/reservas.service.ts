@@ -10,6 +10,7 @@ import { InventarioService } from 'src/inventario/inventario.service';
 import { ArticuloReserva, DepositoGarantia, NuevaReserva, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva } from 'src/dominio/entidades';
 import { CrearReservaDto } from './dto/crear.reserva.dto';
 import { ArticuloNoEncontradoError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, FechasInvalidasError } from 'src/dominio/errores';
+import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
 
 @Injectable()
 export class ReservasService {
@@ -24,7 +25,8 @@ export class ReservasService {
         private readonly solicitudesRepo: SolicitudCancelacionRepository,
         // Servicios de soporte
         private readonly usuariosService: UsuariosService,
-        private readonly inventarioService: InventarioService
+        private readonly inventarioService: InventarioService,
+        private readonly dispoService: DisponibilidadService
     ){}
 
     listar(): Promise<Reserva[]> {
@@ -67,9 +69,8 @@ export class ReservasService {
 
             if (a.cantidad > articulo.existencias) throw new CantidadExcesivaError(articulo.id, a.cantidad - articulo.existencias);
 
-            const piezasReservadas = await this.reservasRepo.obtenerPiezasReservadasPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
-            const piezasMantenimiento = await this.inventarioService.obtenerCantidadPiezasMantenimientoPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion);
-            if ((piezasReservadas + piezasMantenimiento + a.cantidad) > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
+            const piezasApartadasPeriodo = await this.dispoService.obtenerPiezasApartadasPeriodo(articulo.id, dto.fechaEntrega, dto.fechaRecoleccion) + a.cantidad;
+            if (piezasApartadasPeriodo > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
             const nuevoArticuloReservado = {
                 articuloId: a.articuloId,
                 cantidad: a.cantidad,
@@ -97,14 +98,6 @@ export class ReservasService {
 
     obtenerGarantiaPorReserva(reservaId: number): Promise<DepositoGarantia | null> {
         return this.depositosRepo.buscarPorReserva(reservaId);
-    }
-
-    obtenerPiezasReservadas(articuloId: number): Promise<number> {
-        return this.reservasRepo.obtenerPiezasReservadas(articuloId);
-    }
-
-    obtenerPiezasReservadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
-        return this.reservasRepo.obtenerPiezasReservadasPeriodo(articuloId, fechaInicio, fechaFin);
     }
 
     eliminar(id: number): Promise<Reserva | null> {
