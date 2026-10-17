@@ -9,6 +9,7 @@ import { SolicitudCancelacionMemoriaRepository } from './infra/solicitud.cancela
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { InventarioModule } from 'src/inventario/inventario.module';
 import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
+import { ReservasController } from './reservas.controller';
 
 @Module({
   imports: [UsuariosModule, InventarioModule, DisponibilidadModule],
@@ -25,6 +26,7 @@ import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
     provide: SOLICITUD_CANCELACION_REPOSITORY,
     useClass: SolicitudCancelacionMemoriaRepository
   }],
-  exports: [ReservasService]
+  exports: [ReservasService],
+  controllers: [ReservasController]
 })
 export class ReservasModule {}

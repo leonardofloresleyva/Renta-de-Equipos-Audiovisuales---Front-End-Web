@@ -7,6 +7,7 @@ import { PiezasMantenimientoMemoriaRepository } from './infra/piezas.mantenimien
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { ReservasModule } from 'src/reservas/reservas.module';
 import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
+import { InventarioController } from './inventario.controller';
 
 @Module({
   imports: [UsuariosModule, DisponibilidadModule],
@@ -20,6 +21,7 @@ import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
     provide: PIEZAS_MANTENIMIENTO_REPOSITORY,
     useClass: PiezasMantenimientoMemoriaRepository
   }],
-  exports: [InventarioService]
+  exports: [InventarioService],
+  controllers: [InventarioController]
 })
 export class InventarioModule {}
