@@ -1,0 +1,125 @@
+@baseUrl = http://localhost:3000
+@bitacoraId = {{registrarEntrega.response.body.$.id}}
+
+### Endpoint raíz
+GET {{baseUrl}}/
+
+> {%
+client.test("responde correctamente", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(response.body === "Hello World!", "Respuesta inesperada");
+});
+%}
+
+### Listar bitácoras
+GET {{baseUrl}}/operaciones/bitacoras
+
+> {%
+client.test("lista bitácoras", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(Array.isArray(response.body), "La respuesta debe ser un arreglo");
+});
+%}
+
+### Registrar la entrega de la reserva de ejemplo (reservaId 1)
+# @name registrarEntrega
+POST {{baseUrl}}/operaciones/bitacoras
+Content-Type: application/json
+
+{
+  "reservaId": 1
+}
+
+> {%
+client.test("registra la entrega", function () {
+  client.assert(response.status === 201, "Se esperaba HTTP 201");
+  client.assert(typeof response.body.id === "number", "La respuesta debe incluir el id de la bitácora");
+});
+%}
+
+### Buscar bitácora por ID (usa la respuesta anterior)
+GET {{baseUrl}}/operaciones/bitacoras/{{bitacoraId}}
+
+> {%
+client.test("encuentra la bitácora por ID", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(typeof response.body.id === "number", "La respuesta debe incluir el ID de la bitácora");
+});
+%}
+
+### Buscar bitácora por reserva
+GET {{baseUrl}}/operaciones/bitacoras/reserva/1
+
+> {%
+client.test("encuentra la bitácora por reserva", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(response.body.reservaId === 1, "La reserva no coincide");
+});
+%}
+
+### Registrar la recolección de la bitácora
+PATCH {{baseUrl}}/operaciones/bitacoras/{{bitacoraId}}
+Content-Type: application/json
+
+{
+  "inspeccionesPiezas": [
+    {
+      "articuloReservadoId": 1,
+      "piezasCompletas": 4,
+      "piezasDaniadas": 0,
+      "piezasFaltantes": 0,
+      "montoGarantia": 0
+    }
+  ]
+}
+
+> {%
+client.test("registra la recolección", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(response.body.fechaHoraRecolectada, "Debe registrar la fecha de recolección");
+});
+%}
+
+### Error esperado: ID inválido (400)
+GET {{baseUrl}}/operaciones/bitacoras/0
+
+> {%
+client.test("rechaza un ID inválido", function () {
+  client.assert(response.status === 400, "Se esperaba HTTP 400");
+});
+%}
+
+### Error esperado: bitácora inexistente (404)
+GET {{baseUrl}}/operaciones/bitacoras/99999
+
+> {%
+client.test("responde 404 para una bitácora inexistente", function () {
+  client.assert(response.status === 404, "Se esperaba HTTP 404");
+});
+%}
+
+### Error esperado: falta reservaId (400)
+POST {{baseUrl}}/operaciones/bitacoras
+Content-Type: application/json
+
+{}
+
+> {%
+client.test("valida el cuerpo de la entrega", function () {
+  client.assert(response.status === 400, "Se esperaba HTTP 400");
+});
+%}
+
+### Error esperado: reserva inexistente (404)
+POST {{baseUrl}}/operaciones/bitacoras
+Content-Type: application/json
+
+{
+  "reservaId": 99999
+}
+
+> {%
+client.test("responde 404 para una reserva inexistente", function () {
+  client.assert(response.status === 404, "Se esperaba HTTP 404");
+});
+%}
