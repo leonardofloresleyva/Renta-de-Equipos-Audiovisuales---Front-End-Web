@@ -143,15 +143,15 @@ export class ReservasService {
 
     async crearSolicitud(dto: CrearSolicitudDto): Promise<SolicitudCancelacion> {
         // Verificar la existencia de la reserva
-        const reserva = await this.reservasRepo.buscarPorId(dto.reservadId);
-        if (!reserva) throw new ReservaNoEncontradaError(dto.reservadId);
+        const reserva = await this.reservasRepo.buscarPorId(dto.reservaId);
+        if (!reserva) throw new ReservaNoEncontradaError(dto.reservaId);
 
         // Verificar a cliente asociado
         const cliente = await this.usuariosService.buscarClientePorId(dto.clienteId);
         if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
         const nuevaSolicitud: NuevaSolicitud = {
             clienteId: dto.clienteId,
-            reservadId: dto.reservadId
+            reservadId: dto.reservaId
         };
         return this.solicitudesRepo.crear(nuevaSolicitud);
     }

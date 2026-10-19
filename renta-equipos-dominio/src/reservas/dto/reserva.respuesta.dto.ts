@@ -1,5 +1,4 @@
 import { Reserva } from "src/dominio/entidades";
-import { aArticuloReservaDto, ArticuloReservaRespuestaDto } from "./articulo.reserva.respuesta.dto";
 
 export interface ReservaRespuestaDto {
     id: number;

@@ -2,7 +2,7 @@ import { SolicitudCancelacion } from "src/dominio/entidades";
 
 export interface SolicitudRespuestaDto {
     clienteId: number;
-    reservadId: number;
+    reservaId: number;
     fechaSolicitud: Date;
     estadoSolicitud: string;
 }
@@ -10,7 +10,7 @@ export interface SolicitudRespuestaDto {
 export function aSolicitudDto(s: SolicitudCancelacion): SolicitudRespuestaDto {
     return {
         clienteId: s.clienteId,
-        reservadId: s.reservadId,
+        reservaId: s.reservadId,
         fechaSolicitud: s.fechaSolicitud,
         estadoSolicitud: s.estadoSolicitud
     };

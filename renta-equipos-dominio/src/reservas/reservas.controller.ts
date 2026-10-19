@@ -28,8 +28,9 @@ export class ReservasController {
 
     // Solo admin
     @Get(":id")
-    async buscarPorId(@Param("id") id: string) {
-        const reserva = await this.servicio.buscarPorId(Number(id));
+    async buscarPorId(@Param("id") id: number) {
+        console.log("Hola");
+        const reserva = await this.servicio.buscarPorId(id);
         if (!reserva) {
             throw new NotFoundException(`No existe la reserva ${id}`);
         }
@@ -38,14 +39,14 @@ export class ReservasController {
 
     // Checar el id del cliente con el token
     @Get("clientes/:id")
-    async buscarPorCliente(@Param("id") idCliente: string) {
-        const reservas = await this.servicio.buscarPorCliente(Number(idCliente));
+    async buscarPorCliente(@Param("id") idCliente: number) {
+        const reservas = await this.servicio.buscarPorCliente(idCliente);
         return reservas.map(aReservaDto);
     }
 
     @Get("articulos/:id")
-    async buscarArticulosPorId(@Param("id") reservaId: string) {
-        return this.servicio.buscarArticulosPorReserva(Number(reservaId));
+    async buscarArticulosPorId(@Param("id") reservaId: number) {
+        return this.servicio.buscarArticulosPorReserva(reservaId);
     }
 
     // Falta:
@@ -62,8 +63,8 @@ export class ReservasController {
     }
 
     @Get("garantias/:id")
-    async obtenerGarantiaPorReserva(@Param("id") id: string) {
-        const garantia = await this.servicio.obtenerGarantiaPorReserva(Number(id));
+    async obtenerGarantiaPorReserva(@Param("id") id: number) {
+        const garantia = await this.servicio.obtenerGarantiaPorReserva(id);
         if (!garantia) {
             throw new NotFoundException(`No existe el depósito de garantía ${id}`);
         }
@@ -72,27 +73,27 @@ export class ReservasController {
 
     // Solo admin
     @Patch("entregas/:id")
-    async entregar(@Param("id") id: string) {
-        const entregado = await this.servicio.entregar(Number(id));
+    async entregar(@Param("id") id: number) {
+        const entregado = await this.servicio.entregar(id);
         return aReservaDto(entregado);
     }
 
     // Solo admin
     @Patch("recolecciones/:id")
-    async recolectar(@Param("id") id: string) {
-        const entregado = await this.servicio.recolectar(Number(id));
+    async recolectar(@Param("id") id: number) {
+        const entregado = await this.servicio.recolectar(id);
         return aReservaDto(entregado);
     }
 
     // Solo admin
     @Delete(":id")
-    async cancelar(@Param("id") id: string) {
-        const cancelado = await this.servicio.cancelar(Number(id));
+    async cancelar(@Param("id") id: number) {
+        const cancelado = await this.servicio.cancelar(id);
         return aReservaDto(cancelado);
     }
 
     // Solo admin
-    @Get("solicitudes")
+    @Get("solicitudes/cancelacion")
     async listarSolicitudes(@Body() dto: FiltrosSolicitudesDto) {
         const solicitudes = await this.servicio.listarSolicitudes({
             fechaInicio: dto.fechaInicio,
@@ -103,7 +104,7 @@ export class ReservasController {
     }
 
     // Solo cliente
-    @Post()
+    @Post("solicitudes/cancelacion")
     @HttpCode(201)
     async crearSolicitud(
         @Body() dto: CrearSolicitudDto,
@@ -115,11 +116,10 @@ export class ReservasController {
     }
 
     // Solo admin
-    @Delete("solicitudes/:id")
-    async rechazarSolicitud(@Param("id") id: string) {
-        const solicitud = await this.servicio.rechazarSolicitud(Number(id));
+    @Delete("solicitudes/cancelacion/:id")
+    async rechazarSolicitud(@Param("id") id: number) {
+        const solicitud = await this.servicio.rechazarSolicitud(id);
         if (!solicitud) throw new NotFoundException(`No se encontró la solicitud ${id}`);
-        
         return aSolicitudDto(solicitud);
     }
 
