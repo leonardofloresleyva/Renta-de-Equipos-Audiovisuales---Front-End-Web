@@ -4,8 +4,8 @@ import { BitacoraReserva, InspeccionPieza, NuevoInspeccionPieza } from "src/domi
 
 export class BitacoraReservaMemoriaRepository implements BitacoraReservaRepository {
 
-    private proximoBitacoraId = 1;
-    private proximoInspeccionId = 1;
+    private proximoBitacoraId = Math.max(0, ...BITACORAS.keys()) + 1;
+    private proximoInspeccionId = Math.max(0, ...INSPECIONES_PIEZA.keys()) + 1;
 
     async listar(): Promise<BitacoraReserva[]> {
         return [...BITACORAS.values()];
@@ -30,6 +30,7 @@ export class BitacoraReservaMemoriaRepository implements BitacoraReservaReposito
             montoTotalGarantía: datos.montoTotalGarantía
         };
         BITACORAS.set(id, nuevaBitacora);
+        this.proximoBitacoraId++;
         return nuevaBitacora;
     }
 
@@ -43,7 +44,7 @@ export class BitacoraReservaMemoriaRepository implements BitacoraReservaReposito
             const inspeccionArticulo: InspeccionPieza = {
                 id: id,
                 articuloReservadoId: p.articuloReservadoId,
-                bitacoraReservaId: id,
+                bitacoraReservaId: bitacora.id,
                 piezasCompletas: p.piezasCompletas,
                 piezasDaniadas: p.piezasDaniadas,
                 piezasFaltantes: p.piezasFaltantes,

@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Patch, Post, Res } from '@nestjs/common';
 import { ReservasService } from './reservas.service';
 import { aReservaDto } from './dto/reserva.respuesta.dto';
-import type { CrearReservaDto } from './dto/crear.reserva.dto';
+import { CrearReservaDto } from './dto/crear.reserva.dto';
 import { aDepositoGarantiaDto } from './dto/deposito.garantia.respuesta';
 import { FiltrosReserva } from './dto/filtros.reserva.dto';
 import { FiltrosSolicitudesDto } from './dto/filtros.solicitudes.dto';

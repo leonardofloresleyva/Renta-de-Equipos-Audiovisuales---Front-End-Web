@@ -115,7 +115,7 @@ export const DEPOSITOS_GARANTIA = new Map<number, DepositoGarantia>([[
       id: 1,
       reservaId: 1,
       monto: 920,
-      confirmado: false,
+      confirmado: true,
       devuelto: false
     }
   ], [
