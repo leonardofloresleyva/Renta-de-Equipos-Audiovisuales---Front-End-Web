@@ -13,18 +13,28 @@ export interface NuevaReserva {
   colonia: string;
   montoGarantia: number;
 }
+
+// Tipos de entrada
 export type NuevoArticuloReserva = Omit<ArticuloReserva, 'id' | 'reservaId'>;
 export type RegistroEntradaBitacora = Omit<BitacoraReserva, 'id' | 'fechaHoraRecolectada' | 'fechaHoraEntregada'>;
 export type NuevoInspeccionPieza = Omit<InspeccionPieza, 'id' | 'bitacoraReservaId'>;
 export type NuevoAjusteExistencia = Omit<AjusteExistencia, 'id' | 'creadoEn'>;
 export type NuevaSolicitud = Omit<SolicitudCancelacion, 'id' | 'fechaSolicitud' | 'estadoSolicitud'>;
 
+// Filtros
 export interface FiltrosArticulo {
   nombre?: string;
   descripcion?: string;
   precioMinimo?: number;
   precioMaximo?: number;
   categoria?: string;
+}
+
+export interface FiltrosReserva {
+  nombreCliente?: string;
+  fechaEntrega?: Date;
+  fechaRecoleccion?: Date;
+  estado?: EstadoReserva;
 }
 
 export interface FiltrosAjusteExistencia {
@@ -44,6 +54,12 @@ export interface FiltrosMantenimiento {
   fechaInicio?: Date;
   fechaTermino?: Date;
   motivo?: MotivoBloqueo;
+}
+
+export interface FiltrosSolicitud {
+  fechaInicio?: Date;
+  fechaFin?: Date;
+  estado?: EstadoSolicitud;
 }
 
 // Genera un folio sencillo

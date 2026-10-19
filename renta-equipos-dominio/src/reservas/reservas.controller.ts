@@ -1,4 +1,126 @@
-import { Controller } from '@nestjs/common';
+import type { Response } from 'express';
+import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Patch, Post, Res } from '@nestjs/common';
+import { ReservasService } from './reservas.service';
+import { aReservaDto } from './dto/reserva.respuesta.dto';
+import type { CrearReservaDto } from './dto/crear.reserva.dto';
+import { aDepositoGarantiaDto } from './dto/deposito.garantia.respuesta';
+import { FiltrosReserva } from './dto/filtros.reserva.dto';
+import { FiltrosSolicitudesDto } from './dto/filtros.solicitudes.dto';
+import { aSolicitudDto } from './dto/solicitud.respuesta.dto';
+import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
 @Controller('reservas')
-export class ReservasController {}
+export class ReservasController {
+    constructor(private readonly servicio: ReservasService) {}
+
+    // Solo accesible para el admin
+    // Puede filtrarse
+    @Get()
+    async listar(@Body() dto: FiltrosReserva) {
+        const reservas =  await this.servicio.listar({
+            nombreCliente: dto.nombreCliente,
+            fechaEntrega: dto.fechaEntrega,
+            fechaRecoleccion: dto.fechaRecoleccion,
+            estado: dto.estado
+        });
+        return reservas.map(aReservaDto);
+    }
+
+    // Solo admin
+    @Get(":id")
+    async buscarPorId(@Param("id") id: number) {
+        console.log("Hola");
+        const reserva = await this.servicio.buscarPorId(id);
+        if (!reserva) {
+            throw new NotFoundException(`No existe la reserva ${id}`);
+        }
+        return aReservaDto(reserva);
+    }
+
+    // Checar el id del cliente con el token
+    @Get("clientes/:id")
+    async buscarPorCliente(@Param("id") idCliente: number) {
+        const reservas = await this.servicio.buscarPorCliente(idCliente);
+        return reservas.map(aReservaDto);
+    }
+
+    @Get("articulos/:id")
+    async buscarArticulosPorId(@Param("id") reservaId: number) {
+        return this.servicio.buscarArticulosPorReserva(reservaId);
+    }
+
+    // Falta:
+    // - Validar que solo el cliente puede crear una nueva reserva (token)
+    @Post()
+    @HttpCode(201)
+    async crear(
+        @Body() dto: CrearReservaDto,
+        @Res({passthrough: true}) res: Response
+    ) {
+        const reserva = await this.servicio.crear(dto);
+        res.setHeader("Location", `/reservas/${reserva.id}`);
+        return aReservaDto(reserva);
+    }
+
+    @Get("garantias/:id")
+    async obtenerGarantiaPorReserva(@Param("id") id: number) {
+        const garantia = await this.servicio.obtenerGarantiaPorReserva(id);
+        if (!garantia) {
+            throw new NotFoundException(`No existe el depósito de garantía ${id}`);
+        }
+        return aDepositoGarantiaDto(garantia);
+    }
+
+    // Solo admin
+    @Patch("entregas/:id")
+    async entregar(@Param("id") id: number) {
+        const entregado = await this.servicio.entregar(id);
+        return aReservaDto(entregado);
+    }
+
+    // Solo admin
+    @Patch("recolecciones/:id")
+    async recolectar(@Param("id") id: number) {
+        const entregado = await this.servicio.recolectar(id);
+        return aReservaDto(entregado);
+    }
+
+    // Solo admin
+    @Delete(":id")
+    async cancelar(@Param("id") id: number) {
+        const cancelado = await this.servicio.cancelar(id);
+        return aReservaDto(cancelado);
+    }
+
+    // Solo admin
+    @Get("solicitudes/cancelacion")
+    async listarSolicitudes(@Body() dto: FiltrosSolicitudesDto) {
+        const solicitudes = await this.servicio.listarSolicitudes({
+            fechaInicio: dto.fechaInicio,
+            fechaFin: dto.fechaFin,
+            estado: dto.estado
+        });
+        return solicitudes.map(aSolicitudDto);
+    }
+
+    // Solo cliente
+    @Post("solicitudes/cancelacion")
+    @HttpCode(201)
+    async crearSolicitud(
+        @Body() dto: CrearSolicitudDto,
+        @Res({passthrough: true}) res: Response
+    ) {
+        const nuevaSolicitud = await this.servicio.crearSolicitud(dto);
+        res.setHeader("Location", `reservas/solicitudes/${nuevaSolicitud.id}`);
+        return aSolicitudDto(nuevaSolicitud);
+    }
+
+    // Solo admin
+    @Delete("solicitudes/cancelacion/:id")
+    async rechazarSolicitud(@Param("id") id: number) {
+        const solicitud = await this.servicio.rechazarSolicitud(id);
+        if (!solicitud) throw new NotFoundException(`No se encontró la solicitud ${id}`);
+        return aSolicitudDto(solicitud);
+    }
+
+}

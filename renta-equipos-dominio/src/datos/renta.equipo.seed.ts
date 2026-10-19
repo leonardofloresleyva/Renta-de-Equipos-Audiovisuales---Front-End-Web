@@ -33,8 +33,8 @@ export const RESERVAS = new Map<number, Reserva>([
             clienteId: 1,
             folio: nuevoFolio(),
             montoTotal: 4600,
-            fechaEntrega: new Date('2026-10-10'),
-            fechaRecoleccion: new Date('2026-10-12'),
+            fechaEntrega: new Date('2026-12-10'),
+            fechaRecoleccion: new Date('2026-12-12'),
             creadoEn: new Date('2026-09-20T14:30:00Z'),
             estado: 'apartada',
             direccionEntrega: {
@@ -52,8 +52,8 @@ export const RESERVAS = new Map<number, Reserva>([
             clienteId: 2,
             folio: nuevoFolio(),
             montoTotal: 2550,
-            fechaEntrega: new Date('2026-09-15'),
-            fechaRecoleccion: new Date('2026-09-17'),
+            fechaEntrega: new Date('2026-11-19'),
+            fechaRecoleccion: new Date('2026-11-22'),
             creadoEn: new Date('2026-09-10T11:00:00Z'),
             estado: 'entregada',
             direccionEntrega: {

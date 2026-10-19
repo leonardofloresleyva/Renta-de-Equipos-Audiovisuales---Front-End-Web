@@ -7,10 +7,11 @@ import type { DepositoGarantiaRepository } from './repositorios/deposito.garanti
 import type { SolicitudCancelacionRepository } from './repositorios/solicitud.cancelacion.repository';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { InventarioService } from 'src/inventario/inventario.service';
-import { ArticuloReserva, DepositoGarantia, NuevaReserva, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva } from 'src/dominio/entidades';
+import { ArticuloReserva, DepositoGarantia, FiltrosReserva, FiltrosSolicitud, NuevaReserva, NuevaSolicitud, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva, SolicitudCancelacion } from 'src/dominio/entidades';
 import { CrearReservaDto } from './dto/crear.reserva.dto';
-import { ArticuloNoEncontradoError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, FechasInvalidasError } from 'src/dominio/errores';
+import { ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, EstadoReservaInvalidoError, FechasInvalidasError, ReservaNoEncontradaError, SolicitudNoEncontradaError } from 'src/dominio/errores';
 import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
+import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
 @Injectable()
 export class ReservasService {
@@ -29,8 +30,8 @@ export class ReservasService {
         private readonly dispoService: DisponibilidadService
     ){}
 
-    listar(): Promise<Reserva[]> {
-        return this.reservasRepo.listar();
+    listar(filtros?: FiltrosReserva): Promise<Reserva[]> {
+        return this.reservasRepo.listar(filtros);
     }
 
     buscarPorId(id: number): Promise<Reserva | null> {
@@ -48,9 +49,8 @@ export class ReservasService {
     async crear(dto: CrearReservaDto): Promise<Reserva> {
         // Verificar a cliente asociado
         const cliente = await this.usuariosService.buscarClientePorId(dto.clienteId);
-        if (!cliente) {
-            throw new ClienteNoEncontradoError(dto.clienteId);
-        }
+        if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
+        
 
         // REGLA DE NEGOCIO 02 - VERIFICAR FECHAS VÁlIDAS
         
@@ -100,7 +100,64 @@ export class ReservasService {
         return this.depositosRepo.buscarPorReserva(reservaId);
     }
 
-    eliminar(id: number): Promise<Reserva | null> {
-        return this.reservasRepo.eliminar(id);
+    async entregar(id: number): Promise<Reserva> {
+        // Verificar la existencia de la reserva
+        const reserva = await this.reservasRepo.buscarPorId(id);
+        if (!reserva) throw new ReservaNoEncontradaError(id);
+
+        // Verificar estado de la reserva
+        if (reserva.estado !== 'apartada') throw new EstadoReservaInvalidoError();
+
+        return await this.reservasRepo.entregar(id) ?? reserva; // Temporal por ser repo en memoria
     }
+
+    async recolectar(id: number): Promise<Reserva> {
+        // Verificar la existencia de la reserva
+        const reserva = await this.reservasRepo.buscarPorId(id);
+        if (!reserva) throw new ReservaNoEncontradaError(id);
+        
+        // Verificar estado de la reserva
+        if (reserva.estado !== 'entregada') throw new EstadoReservaInvalidoError();
+
+        return await this.reservasRepo.recolectar(id) ?? reserva; // Temporal por ser repo en memoria
+    }
+
+    async cancelar(id: number): Promise<Reserva> {
+        // Verificar la existencia de la reserva
+        const reserva = await this.reservasRepo.buscarPorId(id);
+        if (!reserva) throw new ReservaNoEncontradaError(id);
+        
+        // Verificar estado de la reserva
+        if (reserva.estado !== 'apartada') throw new EstadoReservaInvalidoError();
+
+        // REGLA DE NEGOCIO 06
+        // Verificar que los artículos de la reserva no hayan sido entregados
+        if (new Date() >= reserva.fechaEntrega) throw new CancelacionReservaInvalidaError();
+
+        return await this.reservasRepo.cancelar(id) ?? reserva; // Temporal por ser repo en memoria
+    }
+
+    async listarSolicitudes(filtros?: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
+        return this.solicitudesRepo.listar(filtros);
+    }
+
+    async crearSolicitud(dto: CrearSolicitudDto): Promise<SolicitudCancelacion> {
+        // Verificar la existencia de la reserva
+        const reserva = await this.reservasRepo.buscarPorId(dto.reservaId);
+        if (!reserva) throw new ReservaNoEncontradaError(dto.reservaId);
+
+        // Verificar a cliente asociado
+        const cliente = await this.usuariosService.buscarClientePorId(dto.clienteId);
+        if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
+        const nuevaSolicitud: NuevaSolicitud = {
+            clienteId: dto.clienteId,
+            reservadId: dto.reservaId
+        };
+        return this.solicitudesRepo.crear(nuevaSolicitud);
+    }
+
+    async rechazarSolicitud(id: number): Promise<SolicitudCancelacion | null> {
+        return await this.solicitudesRepo.rechazar(id); // Temporal por ser repo en memoria
+    }
+
 }

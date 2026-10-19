@@ -1,6 +1,6 @@
-import { ARTICULOS_RESERVA, DEPOSITOS_GARANTIA, RESERVAS } from "src/datos/renta.equipo.seed";
+import { ARTICULOS_RESERVA, CLIENTES, DEPOSITOS_GARANTIA, RESERVAS, SOLICITUDES_CANCELACION } from "src/datos/renta.equipo.seed";
 import { ReservaRepository } from "../repositorios/reserva.repository";
-import { DepositoGarantia, NuevaReserva, NuevoArticuloReserva, Reserva } from "src/dominio/entidades";
+import { DepositoGarantia, FiltrosReserva, NuevaReserva, NuevoArticuloReserva, Reserva } from "src/dominio/entidades";
 
 export class ReservaMemoriaRepository implements ReservaRepository {
 
@@ -9,8 +9,24 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     private proximoIdDireccion = 1;
     private proximoGarantiaId = 3;
 
-    async listar(): Promise<Reserva[]> {
-        return [...RESERVAS.values()];
+    async listar(filtros?: FiltrosReserva): Promise<Reserva[]> {
+        const reservas = [...RESERVAS.values()];
+        
+        if (!filtros || Object.keys(filtros).length === 0) return reservas;
+        
+        return reservas.filter((r) => {
+            if (filtros.nombreCliente) {
+                const nombre = filtros.nombreCliente.toLowerCase();
+                const clientesEncontrados = [...CLIENTES.values()].filter((c) => c.nombre.toLowerCase().includes(nombre));
+                const perteneceAlCliente = clientesEncontrados.some(c => c.id === r.clienteId);
+                if (!perteneceAlCliente) return false;
+            }
+
+            if (filtros.fechaEntrega && r.fechaEntrega !== filtros.fechaEntrega) return false;
+            if (filtros.fechaRecoleccion && r.fechaRecoleccion !== filtros.fechaRecoleccion) return false;
+            if (filtros.estado && r.estado !== filtros.estado) return false;
+            return true;
+        });
     }
 
     async buscarPorId(id: number): Promise<Reserva | null> {
@@ -73,28 +89,33 @@ export class ReservaMemoriaRepository implements ReservaRepository {
         return nuevaReserva;
     }
 
-    async actualizar(id: number, datos: Partial<Reserva>): Promise<Reserva | null> {
-        const reservaExistente = RESERVAS.get(id);
-        if (!reservaExistente) return null;
-
-        const reservaActualizada: Reserva = {
-            ...reservaExistente,
-            ...datos,
-            id: reservaExistente.id,
-            direccionEntrega: datos.direccionEntrega
-                ? { ...reservaExistente.direccionEntrega, ...datos.direccionEntrega }
-                : reservaExistente.direccionEntrega,
-        };
-        RESERVAS.set(id, reservaActualizada);
-        return {
-            ...reservaActualizada,
-            direccionEntrega: { ...reservaActualizada.direccionEntrega },
-        };
-    }
-
-    async eliminar(id: number): Promise<Reserva | null> {
+    async entregar(id: number): Promise<Reserva | null> {
         const reserva = RESERVAS.get(Number(id));
         if (!reserva) return null;
+        reserva.estado = 'entregada';
+        RESERVAS.set(reserva.id, reserva);
+        return reserva;
+    }
+
+    async recolectar(id: number): Promise<Reserva | null> {
+        const reserva = RESERVAS.get(Number(id));
+        if (!reserva) return null;
+        reserva.estado = 'devuelta';
+        RESERVAS.set(reserva.id, reserva);
+        return reserva;
+    }
+
+    async cancelar(id: number): Promise<Reserva | null> {
+        const reserva = RESERVAS.get(Number(id));
+        if (!reserva) return null;
+        
+        // Aprueba la solicitud asociada a la reserva (si existe)
+        const solicitud = [...SOLICITUDES_CANCELACION.values()].find((s) => s.reservadId === reserva.id);
+        if (solicitud) {
+            solicitud.estadoSolicitud = "aprovada";
+            SOLICITUDES_CANCELACION.set(solicitud.id, solicitud);
+        }
+
         reserva.estado = 'cancelada';
         RESERVAS.set(reserva.id, reserva);
         return reserva;
