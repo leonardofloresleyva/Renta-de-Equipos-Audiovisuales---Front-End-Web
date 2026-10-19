@@ -1,4 +1,4 @@
-import { NuevaSolicitud, SolicitudCancelacion } from "src/dominio/entidades";
+import { FiltrosSolicitud, NuevaSolicitud, SolicitudCancelacion } from "src/dominio/entidades";
 import { SolicitudCancelacionRepository } from "../repositorios/solicitud.cancelacion.repository";
 import { SOLICITUDES_CANCELACION } from "src/datos/renta.equipo.seed";
 
@@ -6,13 +6,18 @@ export class SolicitudCancelacionMemoriaRepository implements SolicitudCancelaci
 
     private proximoId = 1;
 
-    async listar(): Promise<SolicitudCancelacion[]> {
-        return [...SOLICITUDES_CANCELACION.values()];
+    async listar(filtros: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
+        return [...SOLICITUDES_CANCELACION.values()].filter((s) => {
+            if (filtros.fechaInicio && s.fechaSolicitud < filtros.fechaInicio) return false;
+            if (filtros.fechaFin && s.fechaSolicitud > filtros.fechaFin) return false;
+            if (filtros.estado && s.estadoSolicitud !== filtros.estado) return false;
+            return true;
+        });
     }
 
     async buscarPorId(id: number): Promise<SolicitudCancelacion | null> {
         const solicitud = SOLICITUDES_CANCELACION.get(id);
-        return (solicitud) ? solicitud: null;
+        return (solicitud) ? solicitud : null;
     }
 
     async buscarPorCliente(idCliente: number): Promise<SolicitudCancelacion[]> {
@@ -37,20 +42,7 @@ export class SolicitudCancelacionMemoriaRepository implements SolicitudCancelaci
         return nuevaSolicitud;
     }
 
-    async actualizar(id: number, datos: Partial<SolicitudCancelacion>): Promise<SolicitudCancelacion | null> {
-        const solicitud = SOLICITUDES_CANCELACION.get(id);
-        if (!solicitud) return null;
-
-        const solicitudActualizada: SolicitudCancelacion = {
-            ...solicitud,
-            ...datos,
-            id: solicitud.id
-        };
-        SOLICITUDES_CANCELACION.set(id, solicitudActualizada);
-        return solicitudActualizada;
-    }
-
-    async eliminar(id: number): Promise<SolicitudCancelacion | null> {
+    async rechazar(id: number): Promise<SolicitudCancelacion | null> {
         const solicitud = SOLICITUDES_CANCELACION.get(id);
         if (!solicitud) return null;
         solicitud.estadoSolicitud = 'rechazada';

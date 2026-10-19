@@ -1,8 +1,10 @@
+export abstract class ErrorDeDominio extends Error {}
+
 /* =========================================================
    Errores de Entidades No Encontradas
    ========================================================= */
 
-export class AdminNoEncontradoError extends Error {
+export class AdminNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -13,7 +15,7 @@ export class AdminNoEncontradoError extends Error {
   }
 }
 
-export class ArticuloNoEncontradoError extends Error {
+export class ArticuloNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -24,7 +26,7 @@ export class ArticuloNoEncontradoError extends Error {
   }
 }
 
-export class ClienteNoEncontradoError extends Error {
+export class ClienteNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -35,7 +37,7 @@ export class ClienteNoEncontradoError extends Error {
   }
 }
 
-export class ReservaNoEncontradaError extends Error {
+export class ReservaNoEncontradaError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -46,11 +48,22 @@ export class ReservaNoEncontradaError extends Error {
   }
 }
 
+export class SolicitudNoEncontradaError extends ErrorDeDominio {
+  constructor(id?: number | string, cancelacion?: boolean) {
+    super(
+      id
+        ? `Solicitud de cancelación con ID ${id} no encontrada.`
+        : 'Solicitud de cancelación no encontrada.'
+    );
+    this.name = 'SolicitudNoEncontradaError';
+  }
+}
+
 /* =========================================================
    Errores de Validación, Duplicidad o Lógica
    ========================================================= */
 
-export class EmailYaRegistradoError extends Error {
+export class EmailYaRegistradoError extends ErrorDeDominio {
   constructor(email?: string) {
     super(
       email
@@ -61,28 +74,28 @@ export class EmailYaRegistradoError extends Error {
   }
 }
 
-export class ClienteYaExisteError extends Error {
+export class ClienteYaExisteError extends ErrorDeDominio {
   constructor(mensaje = 'El cliente ya se encuentra registrado en el sistema.') {
     super(mensaje);
     this.name = 'ClienteYaExisteError';
   }
 }
 
-export class DatosInvalidosError extends Error {
+export class DatosInvalidosError extends ErrorDeDominio {
   constructor(mensaje = 'Los datos proporcionados son inválidos o incompletos.') {
     super(mensaje);
     this.name = 'DatosInvalidosError';
   }
 }
 
-export class CantidadExcesivaError extends Error {
+export class CantidadExcesivaError extends ErrorDeDominio {
   constructor(id: number, diferencia: number) {
     super(`La cantidad seleccionada del artículo de id ${id} supera por ${diferencia} unidades a sus existencias.`);
     this.name = 'CantidadExcesivaError';
   }
 }
 
-export class EstadoAjusteNoValido extends Error {
+export class EstadoAjusteNoValido extends ErrorDeDominio {
   constructor(esIncremento: boolean) {
     super((esIncremento) ? 'No pueden añadirse existencias de artículos dañados o perdidos' : 
     'No pueden restarse existencias en una adquisición');
@@ -97,7 +110,7 @@ export class EstadoAjusteNoValido extends Error {
 /**
  * Regla de negocio 01: No se puede confirmar una reserva si no hay piezas disponibles en el rango.
  */
-export class DisponibilidadInsuficienteError extends Error {
+export class DisponibilidadInsuficienteError extends ErrorDeDominio {
   constructor(articuloNombre?: string) {
     super(
       articuloNombre
@@ -111,7 +124,7 @@ export class DisponibilidadInsuficienteError extends Error {
 /**
  * Regla de negocio 02: Fechas de recolección/entrega inválidas o pasadas (duración mínima de un día).
  */
-export class FechasInvalidasError extends Error {
+export class FechasInvalidasError extends ErrorDeDominio {
   constructor(
     mensaje = 'Las fechas son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.'
   ) {
@@ -123,7 +136,7 @@ export class FechasInvalidasError extends Error {
 /**
  * Regla de negocio 03: Prohibición de confirmar una reserva sin depósito en garantía.
  */
-export class DepositoGarantiaRequeridoError extends Error {
+export class DepositoGarantiaRequeridoError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se puede confirmar la reserva sin haber cubierto el depósito en garantía estimado.'
   ) {
@@ -135,7 +148,7 @@ export class DepositoGarantiaRequeridoError extends Error {
 /**
  * Regla de negocio 04 / 06: Exclusión de disponibilidad y reincorporación por daño o mantenimiento.
  */
-export class ArticuloEnMantenimientoError extends Error {
+export class ArticuloEnMantenimientoError extends ErrorDeDominio {
   constructor(
     mensaje = 'El artículo reporta avería o se encuentra en mantenimiento y no está disponible para renta.'
   ) {
@@ -147,7 +160,7 @@ export class ArticuloEnMantenimientoError extends Error {
 /**
  * Regla de negocio 05: Prohibición de decremento de existencias por debajo de lo ya reservado.
  */
-export class ReduccionStockInvalidaError extends Error {
+export class ReduccionStockInvalidaError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se pueden reducir las existencias de un artículo por debajo de las piezas comprometidas en reservas activas o mantenimiento.'
   ) {
@@ -159,7 +172,7 @@ export class ReduccionStockInvalidaError extends Error {
 /**
  * Regla de negocio 06: Prohibición de cancelar reservas cuyos artículos ya hayan sido entregados.
  */
-export class CancelacionReservaInvalidaError extends Error {
+export class CancelacionReservaInvalidaError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se puede cancelar una reserva cuyos artículos ya han sido entregados o finalizados.'
   ) {
@@ -171,7 +184,7 @@ export class CancelacionReservaInvalidaError extends Error {
 /**
  * Error para cambios de estado no permitidos en el ciclo de vida de la reserva.
  */
-export class EstadoReservaInvalidoError extends Error {
+export class EstadoReservaInvalidoError extends ErrorDeDominio {
   constructor(mensaje = 'La transición solicitada no es válida para el estado actual de la reserva.') {
     super(mensaje);
     this.name = 'EstadoReservaInvalidoError';
