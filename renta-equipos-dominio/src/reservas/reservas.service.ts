@@ -30,7 +30,7 @@ export class ReservasService {
         private readonly dispoService: DisponibilidadService
     ){}
 
-    listar(filtros: FiltrosReserva): Promise<Reserva[]> {
+    listar(filtros?: FiltrosReserva): Promise<Reserva[]> {
         return this.reservasRepo.listar(filtros);
     }
 
@@ -137,7 +137,7 @@ export class ReservasService {
         return await this.reservasRepo.cancelar(id) ?? reserva; // Temporal por ser repo en memoria
     }
 
-    async listarSolicitudes(filtros: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
+    async listarSolicitudes(filtros?: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
         return this.solicitudesRepo.listar(filtros);
     }
 

@@ -9,12 +9,17 @@ export class ReservaMemoriaRepository implements ReservaRepository {
     private proximoIdDireccion = 1;
     private proximoGarantiaId = 3;
 
-    async listar(filtros: FiltrosReserva): Promise<Reserva[]> {
-        return [...RESERVAS.values()].filter((r) => {
+    async listar(filtros?: FiltrosReserva): Promise<Reserva[]> {
+        const reservas = [...RESERVAS.values()];
+        
+        if (!filtros || Object.keys(filtros).length === 0) return reservas;
+        
+        return reservas.filter((r) => {
             if (filtros.nombreCliente) {
                 const nombre = filtros.nombreCliente.toLowerCase();
                 const clientesEncontrados = [...CLIENTES.values()].filter((c) => c.nombre.toLowerCase().includes(nombre));
-                if (clientesEncontrados.length === 0) return false;
+                const perteneceAlCliente = clientesEncontrados.some(c => c.id === r.clienteId);
+                if (!perteneceAlCliente) return false;
             }
 
             if (filtros.fechaEntrega && r.fechaEntrega !== filtros.fechaEntrega) return false;

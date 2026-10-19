@@ -6,8 +6,12 @@ export class SolicitudCancelacionMemoriaRepository implements SolicitudCancelaci
 
     private proximoId = 1;
 
-    async listar(filtros: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
-        return [...SOLICITUDES_CANCELACION.values()].filter((s) => {
+    async listar(filtros?: FiltrosSolicitud): Promise<SolicitudCancelacion[]> {
+        const solicitudes = [...SOLICITUDES_CANCELACION.values()];
+        
+        if (!filtros || Object.keys(solicitudes).length == 0) return solicitudes;
+        
+        return solicitudes.filter((s) => {
             if (filtros.fechaInicio && s.fechaSolicitud < filtros.fechaInicio) return false;
             if (filtros.fechaFin && s.fechaSolicitud > filtros.fechaFin) return false;
             if (filtros.estado && s.estadoSolicitud !== filtros.estado) return false;
