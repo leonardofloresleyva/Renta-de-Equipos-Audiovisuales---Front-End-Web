@@ -11,3 +11,216 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+// ============================================== ENUMS
+
+enum EstadoSolicitud {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+}
+
+enum EstadoReserva {
+  APARTADA
+  ENTREGADA
+  DEVUELTA
+  CANCELADA
+}
+
+enum MotivoAjuste {
+  PERDIDA
+  ADQUISICION
+  DETERIORO
+}
+
+enum MotivoBloqueo {
+  REPARACION
+  LIMPIEZA
+}
+
+// ============================================== USUARIOS Y ROLES
+
+model Usuario {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  
+  // -.-.-.-.-.- Checar esta relación con el diagrama -.-.-.-.-.-
+  cliente       Cliente?
+  administrador Administrador?
+}
+
+model Cliente {
+  id                     Int                    @id @default(autoincrement())
+  nombre                 String
+  telefono               String
+  
+  usuarioId              Int                    @unique
+  usuario                Usuario                @relation(fields: [usuarioId], references: [id])
+  
+  direccionId            Int                    @unique
+  direccion              Direccion              @relation("DireccionCliente", fields: [direccionId], references: [id])
+  
+  reservas               Reserva[]
+  solicitudesCancelacion SolicitudCancelacion[]
+}
+
+model Administrador {
+  id                  Int                   @id @default(autoincrement())
+  nombre              String
+  telefono            String
+  
+  usuarioId           Int                   @unique
+  usuario             Usuario               @relation(fields: [usuarioId], references: [id])
+  
+  ajustesExistencia   AjusteExistencia[]
+  piezasMantenimiento PiezasMantenimiento[]
+}
+
+model Direccion {
+  id             Int       @id @default(autoincrement())
+  numero         String
+  calle          String
+  colonia        String
+
+  // Relaciones inversas
+  cliente        Cliente?  @relation("DireccionCliente")
+  reservas       Reserva[] @relation("DireccionEntrega")
+}
+
+// ============================================== RESERVA, CANCELACION Y DEPOSITO GARANTIA
+
+
+model Reserva {
+  id                   Int                   @id @default(autoincrement())
+  folio                String                @unique
+  montoTotal           Float
+  fechaEntrega         DateTime              @db.Date
+  fechaRecoleccion     DateTime              @db.Date
+  creadoEn             DateTime              @default(now())
+  estado               EstadoReserva
+
+  clienteId            Int
+  cliente              Cliente               @relation(fields: [clienteId], references: [id])
+  
+  direccionEntregaId   Int
+  direccionEntrega     Direccion             @relation("DireccionEntrega", fields: [direccionEntregaId], references: [id])
+
+  // Relaciones 1 a 1 y 1 a N
+  solicitudCancelacion SolicitudCancelacion?
+  depositoGarantia     DepositoGarantia?
+  bitacoraReserva      BitacoraReserva?
+  articulosReserva     ArticuloReserva[]
+}
+
+model SolicitudCancelacion {
+  id              Int             @id @default(autoincrement())
+  fechaSolicitud  DateTime        @db.Date
+  estadoSolicitud EstadoSolicitud
+
+  clienteId       Int
+  cliente         Cliente         @relation(fields: [clienteId], references: [id])
+
+  reservaId       Int             @unique
+  reserva         Reserva         @relation(fields: [reservaId], references: [id])
+}
+
+model DepositoGarantia {
+  id          Int      @id @default(autoincrement())
+  monto       Float
+  confirmado  Boolean  @default(false)
+  devuelto    Boolean  @default(false)
+  
+  reservaId   Int      @unique
+  reserva     Reserva  @relation(fields: [reservaId], references: [id])
+}
+
+// ============================================== BITACORA, INSPECCION
+
+
+model BitacoraReserva {
+  id                   Int               @id @default(autoincrement())
+  fechaHoraRecolectada DateTime
+  fechaHoraEntregada   DateTime
+  montoTotalGarantia   Float
+
+  reservaId            Int               @unique
+  reserva              Reserva           @relation(fields: [reservaId], references: [id])
+
+  inspeccionesPieza    InspeccionPieza[]
+}
+
+model ArticuloReserva {
+  id              Int              @id @default(autoincrement())
+  cantidad        Int
+  precioUnitario  Float
+  subtotal        Float
+
+  articuloId      Int
+  articulo        Articulo         @relation(fields: [articuloId], references: [id])
+
+  reservaId       Int
+  reserva         Reserva          @relation(fields: [reservaId], references: [id])
+
+  inspeccionPieza InspeccionPieza?
+}
+
+model InspeccionPieza {
+  id                  Int             @id @default(autoincrement())
+  piezasCompletas     Int
+  piezasDaniadas      Int
+  piezasFaltantes     Int
+  montoGarantia       Float
+
+  articuloReservadoId Int             @unique
+  articuloReservado   ArticuloReserva @relation(fields: [articuloReservadoId], references: [id])
+
+  bitacoraReservaId   Int
+  bitacoraReserva     BitacoraReserva @relation(fields: [bitacoraReservaId], references: [id])
+}
+
+// ============================================== INVENTARIO Y CATÁLOGO
+
+model Articulo {
+  id                  Int                   @id @default(autoincrement())
+  nombre              String
+  descripcion         String  @db.Text
+  precioPorDia        Float
+  existencias         Int
+  categoria           String
+  
+  // -.-.-.-.-.- Json pq por lo que vi mysql no soporta bien arreglos como String[] -.-.-.-.-.-
+  fotografiasUrl      Json
+
+  articulosReserva    ArticuloReserva[]
+  ajustesExistencia   AjusteExistencia[]
+  piezasMantenimiento PiezasMantenimiento[]
+}
+
+model AjusteExistencia {
+  id           Int           @id @default(autoincrement())
+  cantidad     Int
+  esIncremento Boolean
+  motivo       MotivoAjuste
+  creadoEn     DateTime      @default(now())
+
+  articuloId   Int
+  articulo     Articulo      @relation(fields: [articuloId], references: [id])
+
+  adminId      Int
+  admin        Administrador @relation(fields: [adminId], references: [id])
+}
+
+model PiezasMantenimiento {
+  id           Int           @id @default(autoincrement())
+  cantidad     Int
+  fechaInicio  DateTime      @db.Date
+  fechaTermino DateTime      @db.Date
+  motivo       MotivoBloqueo
+
+  articuloId   Int
+  articulo     Articulo      @relation(fields: [articuloId], references: [id])
+
+  adminId      Int
+  admin        Administrador @relation(fields: [adminId], references: [id])
+}
