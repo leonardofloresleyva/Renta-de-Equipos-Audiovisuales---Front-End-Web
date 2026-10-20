@@ -1,6 +1,6 @@
 import { IsDate, IsIn, IsOptional } from "class-validator";
 
-const ESTADOS = ["pendiente", "aprovada", "rechazada"];
+const ESTADOS = ["pendiente", "aprobada", "rechazada"];
 
 export class FiltrosSolicitudesDto {
     @IsOptional()
@@ -13,5 +13,5 @@ export class FiltrosSolicitudesDto {
 
     @IsOptional()
     @IsIn(ESTADOS)
-    estado?: 'pendiente' | 'aprovada' | 'rechazada';
+    estado?: 'pendiente' | 'aprobada' | 'rechazada';
 }

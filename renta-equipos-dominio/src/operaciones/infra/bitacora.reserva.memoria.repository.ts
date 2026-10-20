@@ -27,7 +27,7 @@ export class BitacoraReservaMemoriaRepository implements BitacoraReservaReposito
             id: id,
             reservaId: datos.reservaId,
             fechaHoraEntregada: new Date(),
-            montoTotalGarantía: datos.montoTotalGarantía
+            montoTotalGarantia: datos.montoTotalGarantia
         };
         BITACORAS.set(id, nuevaBitacora);
         return nuevaBitacora;

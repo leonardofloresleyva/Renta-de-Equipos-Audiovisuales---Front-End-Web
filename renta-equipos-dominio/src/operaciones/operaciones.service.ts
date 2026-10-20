@@ -23,7 +23,7 @@ export class OperacionesService {
 
         const nuevaBitacora: RegistroEntradaBitacora = {
             reservaId: reservaId,
-            montoTotalGarantía: depositoGarantia.monto
+            montoTotalGarantia: depositoGarantia.monto
         };
         return this.bitacoraRepo.entregar(nuevaBitacora);
     }

@@ -110,9 +110,9 @@ export class ReservaMemoriaRepository implements ReservaRepository {
         if (!reserva) return null;
         
         // Aprueba la solicitud asociada a la reserva (si existe)
-        const solicitud = [...SOLICITUDES_CANCELACION.values()].find((s) => s.reservadId === reserva.id);
+        const solicitud = [...SOLICITUDES_CANCELACION.values()].find((s) => s.reservaId === reserva.id);
         if (solicitud) {
-            solicitud.estadoSolicitud = "aprovada";
+            solicitud.estadoSolicitud = "aprobada";
             SOLICITUDES_CANCELACION.set(solicitud.id, solicitud);
         }
 
