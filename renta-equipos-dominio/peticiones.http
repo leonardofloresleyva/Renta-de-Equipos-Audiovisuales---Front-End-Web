@@ -1,0 +1,76 @@
+@baseUrl = http://localhost:3000
+
+
+### Peticiones Módulo - Inventario ###
+### 1. Listar artículos
+GET {{baseUrl}}/inventario/articulos
+Accept: application/json
+
+### 2. Filtrar artículos por categoría y precio máximo
+GET {{baseUrl}}/inventario/articulos?categoria=Audio&precioMaximo=500
+Accept: application/json
+
+### 3. Consultar artículo por ID
+GET {{baseUrl}}/inventario/articulos/1
+Accept: application/json
+
+### 4. Registrar artículo
+POST {{baseUrl}}/inventario/articulos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Bocina Bluetooth Café",
+  "descripcion": "Bocina BBC",
+  "precioPorDia": 500,
+  "existencias": 6,
+  "categoria": "Audio",
+  "fotografiasUrl": [
+    "https://ejemplo.com/bocina.jpg"
+  ]
+}
+
+### 5. Filtro válido sin resultados (200 y [])
+GET {{baseUrl}}/inventario/articulos?categoria=CategoriaInexistente
+Accept: application/json
+
+### 6. Filtro inválido: precio máximo no numérico (400)
+GET {{baseUrl}}/inventario/articulos?precioMaximo=no-es-numero
+Accept: application/json
+
+### 7. Artículo inexistente (404)
+GET {{baseUrl}}/inventario/articulos/999999
+Accept: application/json
+
+### 8. ID de artículo con formato inválido (400)
+GET {{baseUrl}}/inventario/articulos/no-es-un-id
+Accept: application/json
+
+### 9. Alta inválida: precio negativo (400)
+POST {{baseUrl}}/inventario/articulos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Artículo inválido",
+  "descripcion": "Este cuerpo debe rechazarse por el precio negativo",
+  "precioPorDia": -10,
+  "existencias": 2,
+  "categoria": "Pruebas",
+  "fotografiasUrl": []
+}
+
+### 10. Alta inválida: propiedad no permitida (400)
+POST {{baseUrl}}/inventario/articulos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Artículo inválido",
+  "descripcion": "Este cuerpo incluye una propiedad desconocida",
+  "precioPorDia": 100,
+  "existencias": 2,
+  "categoria": "Pruebas",
+  "fotografiasUrl": [],
+  "campoNoPermitido": true
+}
