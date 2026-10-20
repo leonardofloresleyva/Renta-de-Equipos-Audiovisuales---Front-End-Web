@@ -11,8 +11,12 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ArticuloNoEncontradoError } from 'src/dominio/errores';
+import { AjustarExistenciaDto } from './dto/ajustar.existencia.dto';
 import { CrearArticuloDto } from './dto/crear.articulo.dto';
+import { CrearPiezaMantenimientoDto } from './dto/crear.pieza.mantenimiento.dto';
+import { FiltrosAjusteExistenciaDto } from './dto/filtros.ajuste.existencia.dto';
 import { FiltrosArticuloDto } from './dto/filtros.articulo.dto';
+import { FiltrosMantenimientoDto } from './dto/filtros.mantenimiento.dto';
 import { InventarioService } from './inventario.service';
 
 @Controller('inventario')
@@ -43,5 +47,27 @@ export class InventarioController {
     const articulo = await this.inventarioService.crear(dto);
     res.setHeader('Location', `/inventario/articulos/${articulo.id}`);
     return articulo;
+  }
+
+  @Get('ajustes-existencia')
+  listarAjustesExistencia(@Query() filtros: FiltrosAjusteExistenciaDto) {
+    return this.inventarioService.listarAjustesExistencia(filtros);
+  }
+
+  @Post('ajustes-existencia')
+  @HttpCode(201)
+  ajustarExistencia(@Body() dto: AjustarExistenciaDto) {
+    return this.inventarioService.ajustarExistencia(dto);
+  }
+
+  @Get('mantenimientos')
+  listarPiezasMantenimiento(@Query() filtros: FiltrosMantenimientoDto) {
+    return this.inventarioService.listarPiezasMantenimiento(filtros);
+  }
+
+  @Post('mantenimientos')
+  @HttpCode(201)
+  registrarPiezasMantenimiento(@Body() dto: CrearPiezaMantenimientoDto) {
+    return this.inventarioService.registrarPiezasMantenimiento(dto);
   }
 }

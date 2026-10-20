@@ -74,3 +74,46 @@ Accept: application/json
   "fotografiasUrl": [],
   "campoNoPermitido": true
 }
+
+### 11. Consultar historial de ajustes de existencias
+GET {{baseUrl}}/inventario/ajustes-existencia
+Accept: application/json
+
+### 12. Filtrar ajustes por artículo, movimiento y motivo
+GET {{baseUrl}}/inventario/ajustes-existencia?articuloId=1&esIncremento=true&motivo=adquisicion
+Accept: application/json
+
+### 13. Registrar adquisición de existencias
+POST {{baseUrl}}/inventario/ajustes-existencia
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": 1,
+  "cantidad": 2,
+  "esIncremento": true,
+  "motivo": "adquisicion"
+}
+
+### 14. Consultar historial de mantenimientos
+GET {{baseUrl}}/inventario/mantenimientos
+Accept: application/json
+
+### 15. Filtrar mantenimientos por artículo y motivo
+GET {{baseUrl}}/inventario/mantenimientos?articuloId=1&motivo=limpieza
+Accept: application/json
+
+### 16. Bloquear piezas para mantenimiento (fechas futuras)
+POST {{baseUrl}}/inventario/mantenimientos
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": 1,
+  "cantidad": 1,
+  "fechaInicio": "2026-12-20T00:00:00.000Z",
+  "fechaTermino": "2026-12-22T00:00:00.000Z",
+  "motivo": "reparacion"
+}

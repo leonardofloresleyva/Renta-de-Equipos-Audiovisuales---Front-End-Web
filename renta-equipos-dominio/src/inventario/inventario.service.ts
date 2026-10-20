@@ -4,7 +4,14 @@ import type { ArticuloRepository } from './repositorios/articulo.repository';
 import { AJUSTE_EXISTENCIA_REPOSITORY, ARTICULO_REPOSITORY, PIEZAS_MANTENIMIENTO_REPOSITORY } from './inventario.tokens';
 import type { AjusteExistenciaRepository } from './repositorios/ajuste.existencia.repository';
 import type { PiezasMantenimientoRepository } from './repositorios/piezas.mantenimiento.repository';
-import { AjusteExistencia, Articulo, FiltrosArticulo, PiezasMantenimiento } from 'src/dominio/entidades';
+import {
+    AjusteExistencia,
+    Articulo,
+    FiltrosArticulo,
+    FiltrosAjusteExistencia,
+    FiltrosMantenimiento,
+    PiezasMantenimiento
+} from 'src/dominio/entidades';
 import { CrearArticuloDto } from './dto/crear.articulo.dto';
 import { AjustarExistenciaDto } from './dto/ajustar.existencia.dto';
 import { AdminNoEncontradoError, ArticuloNoEncontradoError, DisponibilidadInsuficienteError, EstadoAjusteNoValido, FechasInvalidasError, ReduccionStockInvalidaError } from 'src/dominio/errores';
@@ -36,6 +43,14 @@ export class InventarioService {
 
     busquedaArticulosFiltrada(filtros: FiltrosArticulo): Promise<Articulo[]> {
         return this.articuloRepo.busquedaFiltrada(filtros);
+    }
+
+    listarAjustesExistencia(filtros: FiltrosAjusteExistencia = {}): Promise<AjusteExistencia[]> {
+        return this.ajusteRepo.busquedaFiltrada(filtros);
+    }
+
+    listarPiezasMantenimiento(filtros: FiltrosMantenimiento = {}): Promise<PiezasMantenimiento[]> {
+        return this.piezasRepo.busquedaFiltrada(filtros);
     }
 
     crear(dto: CrearArticuloDto): Promise<Articulo> {
