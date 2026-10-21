@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generado/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generado/prisma"
   moduleFormat = "cjs"
 }
 
@@ -96,8 +96,8 @@ model Direccion {
   calle   String @db.VarChar(100)
   colonia String @db.VarChar(100)
 
-  cliente  Cliente?
-  reservas Reserva[]
+  cliente Cliente?
+  reserva Reserva?
 
   @@map("direcciones")
 }
@@ -116,7 +116,7 @@ model Reserva {
   clienteId Int
   cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  direccionEntregaId Int
+  direccionEntregaId Int       @unique
   direccionEntrega   Direccion @relation(fields: [direccionEntregaId], references: [id])
 
   solicitudCancelacion SolicitudCancelacion?
