@@ -1,13 +1,10 @@
 export abstract class ErrorDeDominio extends Error {}
-export abstract class ErrorNoEncontrado extends ErrorDeDominio {}
-export abstract class ErrorIntegridad extends ErrorDeDominio {}
-export abstract class ErrorReglaDeNegocio extends ErrorDeDominio {}
 
 /* =========================================================
    Errores de Entidades No Encontradas
    ========================================================= */
 
-export class AdminNoEncontradoError extends ErrorNoEncontrado {
+export class AdminNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -18,7 +15,7 @@ export class AdminNoEncontradoError extends ErrorNoEncontrado {
   }
 }
 
-export class ArticuloNoEncontradoError extends ErrorNoEncontrado {
+export class ArticuloNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -29,7 +26,7 @@ export class ArticuloNoEncontradoError extends ErrorNoEncontrado {
   }
 }
 
-export class ClienteNoEncontradoError extends ErrorNoEncontrado {
+export class ClienteNoEncontradoError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -40,7 +37,7 @@ export class ClienteNoEncontradoError extends ErrorNoEncontrado {
   }
 }
 
-export class ReservaNoEncontradaError extends ErrorNoEncontrado {
+export class ReservaNoEncontradaError extends ErrorDeDominio {
   constructor(id?: number | string) {
     super(
       id
@@ -51,7 +48,7 @@ export class ReservaNoEncontradaError extends ErrorNoEncontrado {
   }
 }
 
-export class SolicitudNoEncontradaError extends ErrorNoEncontrado {
+export class SolicitudNoEncontradaError extends ErrorDeDominio {
   constructor(id?: number | string, cancelacion?: boolean) {
     super(
       id
@@ -66,7 +63,7 @@ export class SolicitudNoEncontradaError extends ErrorNoEncontrado {
    Errores de Validación, Duplicidad o Lógica
    ========================================================= */
 
-export class EmailYaRegistradoError extends ErrorIntegridad {
+export class EmailYaRegistradoError extends ErrorDeDominio {
   constructor(email?: string) {
     super(
       email
@@ -77,28 +74,28 @@ export class EmailYaRegistradoError extends ErrorIntegridad {
   }
 }
 
-export class ClienteYaExisteError extends ErrorIntegridad {
+export class ClienteYaExisteError extends ErrorDeDominio {
   constructor(mensaje = 'El cliente ya se encuentra registrado en el sistema.') {
     super(mensaje);
     this.name = 'ClienteYaExisteError';
   }
 }
 
-export class DatosInvalidosError extends ErrorIntegridad {
+export class DatosInvalidosError extends ErrorDeDominio {
   constructor(mensaje = 'Los datos proporcionados son inválidos o incompletos.') {
     super(mensaje);
     this.name = 'DatosInvalidosError';
   }
 }
 
-export class CantidadExcesivaError extends ErrorIntegridad {
+export class CantidadExcesivaError extends ErrorDeDominio {
   constructor(id: number, diferencia: number) {
     super(`La cantidad seleccionada del artículo de id ${id} supera por ${diferencia} unidades a sus existencias.`);
     this.name = 'CantidadExcesivaError';
   }
 }
 
-export class EstadoAjusteNoValido extends ErrorIntegridad {
+export class EstadoAjusteNoValido extends ErrorDeDominio {
   constructor(esIncremento: boolean) {
     super((esIncremento) ? 'No pueden añadirse existencias de artículos dañados o perdidos' : 
     'No pueden restarse existencias en una adquisición');
@@ -113,7 +110,7 @@ export class EstadoAjusteNoValido extends ErrorIntegridad {
 /**
  * Regla de negocio 01: No se puede confirmar una reserva si no hay piezas disponibles en el rango.
  */
-export class DisponibilidadInsuficienteError extends ErrorReglaDeNegocio {
+export class DisponibilidadInsuficienteError extends ErrorDeDominio {
   constructor(articuloNombre?: string) {
     super(
       articuloNombre
@@ -127,7 +124,7 @@ export class DisponibilidadInsuficienteError extends ErrorReglaDeNegocio {
 /**
  * Regla de negocio 02: Fechas de recolección/entrega inválidas o pasadas (duración mínima de un día).
  */
-export class FechasInvalidasError extends ErrorReglaDeNegocio {
+export class FechasInvalidasError extends ErrorDeDominio {
   constructor(
     mensaje = 'Las fechas son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.'
   ) {
@@ -139,7 +136,7 @@ export class FechasInvalidasError extends ErrorReglaDeNegocio {
 /**
  * Regla de negocio 03: Prohibición de confirmar una reserva sin depósito en garantía.
  */
-export class DepositoGarantiaRequeridoError extends ErrorReglaDeNegocio {
+export class DepositoGarantiaRequeridoError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se puede confirmar la reserva sin haber cubierto el depósito en garantía estimado.'
   ) {
@@ -151,7 +148,7 @@ export class DepositoGarantiaRequeridoError extends ErrorReglaDeNegocio {
 /**
  * Regla de negocio 04 / 06: Exclusión de disponibilidad y reincorporación por daño o mantenimiento.
  */
-export class ArticuloEnMantenimientoError extends ErrorReglaDeNegocio {
+export class ArticuloEnMantenimientoError extends ErrorDeDominio {
   constructor(
     mensaje = 'El artículo reporta avería o se encuentra en mantenimiento y no está disponible para renta.'
   ) {
@@ -163,7 +160,7 @@ export class ArticuloEnMantenimientoError extends ErrorReglaDeNegocio {
 /**
  * Regla de negocio 05: Prohibición de decremento de existencias por debajo de lo ya reservado.
  */
-export class ReduccionStockInvalidaError extends ErrorReglaDeNegocio {
+export class ReduccionStockInvalidaError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se pueden reducir las existencias de un artículo por debajo de las piezas comprometidas en reservas activas o mantenimiento.'
   ) {
@@ -172,7 +169,7 @@ export class ReduccionStockInvalidaError extends ErrorReglaDeNegocio {
   }
 }
 
-export class ExistenciasModificadasConcurrentementeError extends ErrorReglaDeNegocio {
+export class ExistenciasModificadasConcurrentementeError extends ErrorDeDominio {
   constructor() {
     super('Las existencias del artículo cambiaron durante el ajuste. Intenta nuevamente.');
     this.name = 'ExistenciasModificadasConcurrentementeError';
@@ -182,7 +179,7 @@ export class ExistenciasModificadasConcurrentementeError extends ErrorReglaDeNeg
 /**
  * Regla de negocio 06: Prohibición de cancelar reservas cuyos artículos ya hayan sido entregados.
  */
-export class CancelacionReservaInvalidaError extends ErrorReglaDeNegocio {
+export class CancelacionReservaInvalidaError extends ErrorDeDominio {
   constructor(
     mensaje = 'No se puede cancelar una reserva cuyos artículos ya han sido entregados o finalizados.'
   ) {
@@ -194,7 +191,7 @@ export class CancelacionReservaInvalidaError extends ErrorReglaDeNegocio {
 /**
  * Error para cambios de estado no permitidos en el ciclo de vida de la reserva.
  */
-export class EstadoReservaInvalidoError extends ErrorReglaDeNegocio {
+export class EstadoReservaInvalidoError extends ErrorDeDominio {
   constructor(mensaje = 'La transición solicitada no es válida para el estado actual de la reserva.') {
     super(mensaje);
     this.name = 'EstadoReservaInvalidoError';

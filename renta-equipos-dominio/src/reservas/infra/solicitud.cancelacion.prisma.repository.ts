@@ -2,7 +2,9 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { SolicitudCancelacionRepository } from "../repositorios/solicitud.cancelacion.repository";
 import { FiltrosSolicitud, NuevaSolicitud, SolicitudCancelacion } from "src/dominio/entidades";
 import { connect } from "http2";
+import { Inject, Injectable } from "@nestjs/common";
 
+@Injectable()
 export class SolicitudCancelacionPrismaRepository implements SolicitudCancelacionRepository {
     constructor(private readonly prisma: PrismaService) {}
 

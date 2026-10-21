@@ -107,7 +107,7 @@ async function main() {
         await tx.usuario.deleteMany();
         await tx.direccion.deleteMany();
 
-        const hash = await bcrypt.hash('gimnasio2026', 10);
+        const hash = await bcrypt.hash('rentas2026', 10);
 
         // Usuarios
         await tx.usuario.createMany({

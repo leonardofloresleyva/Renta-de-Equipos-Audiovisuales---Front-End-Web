@@ -217,3 +217,127 @@ Accept: application/json
   "fechaTermino": "2027-01-22T00:00:00.000Z",
   "motivo": "limpieza"
 }
+
+
+### 1.- métodos que no pide acceso - listarArtículos
+GET {{baseUrl}}/inventario/articulos
+Accept: application/json
+
+### 2.- método que pide acceso -----> registrarReserva
+POST {{baseUrl}}/reservas/
+Content-Type: application/json
+
+{
+  "clienteId": 1,
+  "fechaEntrega": "2026-12-09T00:00:00",
+  "fechaRecoleccion": "2026-12-013T00:00:00",
+  "calle": "Galeana",
+  "colonia": "Valle Dorado",
+  "numero": "123",
+  "articulos" : [
+    {
+      "articuloId": 1,
+      "cantidad": 2
+    }, {
+      "articuloId": 3,
+      "cantidad": 9
+    }, {
+      "articuloId": 2,
+      "cantidad": 1 
+    }
+  ]
+}
+
+### 3.- registro de nuevo cliente ---> registrarCliente
+# @name signInOmar
+POST {{baseUrl}}/auth/registro
+Content-Type: application/json
+
+{ 
+  "correo": "omar@itson.mx", 
+  "password": "sduadu&&68i78" ,
+  "nombre": "Omar García López",
+  "telefono": "6441857493",
+  "calle": "Nueva Calle",
+  "colonia": "Sacramento",
+  "numero": "67"
+}
+
+###
+@signInOmar = {{signInOmar.response.body.data.access_token}}
+
+### 4.- registro de nueva reserva - error - regla de negocio 1 ---> crear
+POST {{baseUrl}}/reservas/
+Content-Type: application/json
+Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+
+{
+  "clienteId": 1,
+  "fechaEntrega": "2026-12-09T00:00:00",
+  "fechaRecoleccion": "2026-12-013T00:00:00",
+  "calle": "Galeana",
+  "colonia": "Valle Dorado",
+  "numero": "123",
+  "articulos" : [
+    {
+      "articuloId": 1,
+      "cantidad": 2
+    }, {
+      "articuloId": 3,
+      "cantidad": 9
+    }, {
+      "articuloId": 2,
+      "cantidad": 1 
+    }
+  ]
+}
+
+### 5.- registro de nueva reserva (caso exitoso) ---> crear
+# @name reserva
+POST {{baseUrl}}/reservas/
+Content-Type: application/json
+Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+
+{
+  "clienteId": 1,
+  "fechaEntrega": "2026-11-09T00:00:00",
+  "fechaRecoleccion": "2026-11-13T00:00:00",
+  "calle": "Galeana",
+  "colonia": "Valle Dorado",
+  "numero": "123",
+  "articulos" : [
+    {
+      "articuloId": 1,
+      "cantidad": 2
+    }, {
+      "articuloId": 3,
+      "cantidad": 9
+    }, {
+      "articuloId": 2,
+      "cantidad": 1 
+    }
+  ]
+}
+
+###
+@idReserva = {{reserva.response.body.data.id}}
+
+### 7.- cancelar reserva - error - rol incorrecto ---> cancelar
+DELETE {{baseUrl}}/reservas/{{idReserva}}
+Content-Type: application/json
+Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+
+### 8.- login de admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "correo": "admin.general@audiorent.mx", "password": "rentas2026"}
+
+###
+@tokenAdmin = {{loginAdmin.response.body.data.access_token}}
+
+### 9.- cancelar reserva - éxito ---> cancelar
+DELETE {{baseUrl}}/reservas/{{idReserva}}
+Content-Type: application/json
+Authorization: Bearer {{tokenAdmin}}

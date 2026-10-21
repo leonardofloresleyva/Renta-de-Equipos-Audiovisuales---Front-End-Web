@@ -1,7 +1,9 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { ArticuloReservaRepository } from "../repositorios/articulo.reserva.repository";
 import { ArticuloReserva } from "src/dominio/entidades";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class ArticuloReservaPrismaRepository implements ArticuloReservaRepository {
     constructor(private readonly prisma: PrismaService){}
 

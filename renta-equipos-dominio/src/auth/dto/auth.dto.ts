@@ -1,5 +1,4 @@
 import { IsEmail, IsString, MaxLength, MinLength } from "class-validator";
-import { Rol } from "src/dominio/entidades";
 
 export class RegistroDto {
     @IsEmail({}, { message: 'el correo no tiene un formato valido' })

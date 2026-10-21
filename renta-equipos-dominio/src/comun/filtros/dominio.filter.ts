@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from "@nestjs/common";
-import { ErrorDeDominio, ErrorIntegridad, ErrorNoEncontrado, ErrorReglaDeNegocio } from "src/dominio/errores";
+import { AdminNoEncontradoError, ArticuloEnMantenimientoError, ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, ClienteYaExisteError, DatosInvalidosError, DepositoGarantiaRequeridoError, DisponibilidadInsuficienteError, EmailYaRegistradoError, ErrorDeDominio, EstadoAjusteNoValido, EstadoReservaInvalidoError, ExistenciasModificadasConcurrentementeError, FechasInvalidasError, ReduccionStockInvalidaError, ReservaNoEncontradaError, SolicitudNoEncontradaError } from "src/dominio/errores";
 import { Response } from 'express';
 
 @Catch(ErrorDeDominio)
@@ -9,9 +9,31 @@ export class DominioExceptionFilter implements ExceptionFilter {
 
     private codigoPara(error: ErrorDeDominio): number {
         
-        if (error instanceof ErrorNoEncontrado) return HttpStatus.NOT_FOUND;
+        if (error instanceof AdminNoEncontradoError || 
+            error instanceof ArticuloNoEncontradoError || 
+            error instanceof ClienteNoEncontradoError ||
+            error instanceof ReservaNoEncontradaError ||
+            error instanceof SolicitudNoEncontradaError
+        ) return HttpStatus.NOT_FOUND;
 
-        if (error instanceof ErrorIntegridad || error instanceof ErrorReglaDeNegocio) return HttpStatus.CONFLICT;
+        if (
+            error instanceof DisponibilidadInsuficienteError ||
+            error instanceof FechasInvalidasError ||
+            error instanceof DepositoGarantiaRequeridoError ||
+            error instanceof ArticuloEnMantenimientoError ||
+            error instanceof ReduccionStockInvalidaError ||
+            error instanceof ExistenciasModificadasConcurrentementeError ||
+            error instanceof CancelacionReservaInvalidaError ||
+            error instanceof EstadoReservaInvalidoError
+         ) return HttpStatus.CONFLICT;
+
+        if (error instanceof EmailYaRegistradoError ||
+            error instanceof ClienteYaExisteError ||
+            error instanceof DatosInvalidosError || 
+            error instanceof CantidadExcesivaError ||
+            error instanceof EstadoAjusteNoValido
+
+        ) return HttpStatus.CONFLICT;
 
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }

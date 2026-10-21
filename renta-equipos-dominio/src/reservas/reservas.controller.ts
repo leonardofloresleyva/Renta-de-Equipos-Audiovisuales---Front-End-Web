@@ -5,7 +5,7 @@ import { Rol } from 'src/dominio/entidades';
 import { Roles } from 'src/auth/decoradores/rol.decorator';
 import { ReservasService } from './reservas.service';
 import { aReservaDto } from './dto/reserva.respuesta.dto';
-import type { CrearReservaDto } from './dto/crear.reserva.dto';
+import { CrearReservaDto } from './dto/crear.reserva.dto';
 import { aDepositoGarantiaDto } from './dto/deposito.garantia.respuesta';
 import { FiltrosReserva } from './dto/filtros.reserva.dto';
 import { FiltrosSolicitudesDto } from './dto/filtros.solicitudes.dto';
@@ -55,8 +55,7 @@ export class ReservasController {
         return this.servicio.buscarArticulosPorReserva(reservaId);
     }
 
-    // Falta:
-    // - Validar que solo el cliente puede crear una nueva reserva (token)
+    
     @Roles(Rol.cliente)
     @Post()
     @HttpCode(201)
@@ -76,22 +75,6 @@ export class ReservasController {
             throw new NotFoundException(`No existe el depósito de garantía ${id}`);
         }
         return aDepositoGarantiaDto(garantia);
-    }
-
-    // Solo admin
-    @Roles(Rol.administrador)
-    @Patch("entregas/:id")
-    async entregar(@Param("id") id: number) {
-        const entregado = await this.servicio.entregar(id);
-        return aReservaDto(entregado);
-    }
-
-    // Solo admin
-    @Roles(Rol.administrador)
-    @Patch("recolecciones/:id")
-    async recolectar(@Param("id") id: number) {
-        const entregado = await this.servicio.recolectar(id);
-        return aReservaDto(entregado);
     }
 
     // Solo admin
