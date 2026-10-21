@@ -1,0 +1,6 @@
+Para levantar el servicio y la base de datos, siga los siguientes pasos:
+
+1.- Ubique el directorio de su terminal en la carpeta "renta-mobiliario-dominio".
+2.- Ejecute el comando "npm i" para instalar las dependencias del proyecto.
+3.- Modifique el archivo ".env.ejemplo": Renómbrelo a ".env" y reemplace el segmento de DATABSE_URL donde dice "TU_PASSWORD" por su contraseña y donde dice "TU_USUARIO" por su usuario, ambos de MySQL. Posteriormente, agregue un texto entre las comillas de JWT_SECRET.
+4.- 

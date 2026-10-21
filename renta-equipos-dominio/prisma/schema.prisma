@@ -14,199 +14,235 @@ datasource db {
 
 // ============================================== ENUMS
 
+enum Rol {
+  cliente
+  administrador
+}
+
 enum EstadoSolicitud {
-  PENDIENTE
-  APROBADA
-  RECHAZADA
+  pendiente
+  aprobada
+  rechazada
 }
 
 enum EstadoReserva {
-  APARTADA
-  ENTREGADA
-  DEVUELTA
-  CANCELADA
+  apartada
+  entregada
+  devuelta
+  cancelada
 }
 
 enum MotivoAjuste {
-  PERDIDA
-  ADQUISICION
-  DETERIORO
+  perdida
+  adquisicion
+  deterioro
 }
 
 enum MotivoBloqueo {
-  REPARACION
-  LIMPIEZA
+  reparacion
+  limpieza
 }
 
 // ============================================== USUARIOS Y ROLES
 
 model Usuario {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  password      String
-  
-  // -.-.-.-.-.- Checar esta relación con el diagrama -.-.-.-.-.-
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(256)
+  passwordHash String   @db.VarChar(256)
+  rol          Rol      @default(cliente)
+  creadoEn     DateTime @default(now())
+
   cliente       Cliente?
   administrador Administrador?
+
+  @@map("usuarios")
 }
 
 model Cliente {
-  id                     Int                    @id
-  nombre                 String
-  telefono               String
-  
-  usuario                Usuario                @relation(fields: [id], references: [id])
-  
-  direccionId            Int                    @unique
-  direccion              Direccion              @relation("DireccionCliente", fields: [direccionId], references: [id])
-  
+  id        Int    @id @default(autoincrement())
+  usuarioId Int    @unique
+  nombre    String @db.VarChar(300)
+  telefono  String @db.VarChar(20)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  direccionId Int       @unique
+  direccion   Direccion @relation(fields: [direccionId], references: [id])
+
   reservas               Reserva[]
   solicitudesCancelacion SolicitudCancelacion[]
+
+  @@map("clientes")
 }
 
 model Administrador {
-  id                  Int                   @id
-  nombre              String
-  telefono            String?
-  
-  usuario             Usuario               @relation(fields: [id], references: [id])
-  
+  id        Int     @id @default(autoincrement())
+  usuarioId Int     @unique
+  nombre    String  @db.VarChar(300)
+  telefono  String? @db.VarChar(20)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
   ajustesExistencia   AjusteExistencia[]
   piezasMantenimiento PiezasMantenimiento[]
+
+  @@map("administradores")
 }
 
 model Direccion {
-  id             Int       @id @default(autoincrement())
-  numero         String
-  calle          String
-  colonia        String
+  id      Int    @id @default(autoincrement())
+  numero  String @db.VarChar(20)
+  calle   String @db.VarChar(100)
+  colonia String @db.VarChar(100)
 
-  // -.-.-.-.-.- Luego veo esto -.-.-.-.-.-
-  cliente        Cliente?  @relation("DireccionCliente")
-  reservas       Reserva[] @relation("DireccionEntrega")
+  cliente  Cliente?
+  reservas Reserva[]
+
+  @@map("direcciones")
 }
 
 // ============================================== RESERVA, CANCELACION Y DEPOSITO GARANTIA
 
-
 model Reserva {
-  id                   Int                   @id @default(autoincrement())
-  folio                String                @unique
-  montoTotal           Float
-  fechaEntrega         DateTime              @db.Date
-  fechaRecoleccion     DateTime              @db.Date
-  creadoEn             DateTime              @default(now())
-  estado               EstadoReserva
+  id               Int           @id @default(autoincrement())
+  folio            String        @unique @db.VarChar(100)
+  montoTotal       Float
+  fechaEntrega     DateTime      @db.Date
+  fechaRecoleccion DateTime      @db.Date
+  creadoEn         DateTime      @default(now())
+  estado           EstadoReserva @default(apartada)
 
-  clienteId            Int
-  cliente              Cliente               @relation(fields: [clienteId], references: [id])
-  
-  direccionEntregaId   Int
-  direccionEntrega     Direccion             @relation("DireccionEntrega", fields: [direccionEntregaId], references: [id])
+  clienteId Int
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  // Relaciones 1 a 1 y 1 a N
+  direccionEntregaId Int
+  direccionEntrega   Direccion @relation(fields: [direccionEntregaId], references: [id])
+
   solicitudCancelacion SolicitudCancelacion?
   depositoGarantia     DepositoGarantia?
   bitacoraReserva      BitacoraReserva?
   articulosReserva     ArticuloReserva[]
+
+  @@map("reservas")
 }
 
 model SolicitudCancelacion {
   id              Int             @id @default(autoincrement())
   fechaSolicitud  DateTime        @db.Date
-  estadoSolicitud EstadoSolicitud
+  estadoSolicitud EstadoSolicitud @default(pendiente)
 
-  clienteId       Int
-  cliente         Cliente         @relation(fields: [clienteId], references: [id])
+  clienteId Int
+  cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  reservaId       Int             @unique
-  reserva         Reserva         @relation(fields: [reservaId], references: [id])
+  reservaId Int     @unique
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
+
+  @@map("solicitudes_cancelacion")
 }
 
 model DepositoGarantia {
-  id          Int      @id @default(autoincrement())
-  monto       Float
-  confirmado  Boolean  @default(false)
-  devuelto    Boolean  @default(false)
-  
-  reservaId   Int      @unique
-  reserva     Reserva  @relation(fields: [reservaId], references: [id])
+  id         Int     @id @default(autoincrement())
+  monto      Float
+  confirmado Boolean @default(false)
+  devuelto   Boolean @default(false)
+
+  reservaId Int     @unique
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
+
+  @@map("depositos_garantia")
 }
 
 // ============================================== BITACORA, INSPECCION
 
-
 model BitacoraReserva {
-  id                   Int               @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   fechaHoraRecolectada DateTime?
   fechaHoraEntregada   DateTime
   montoTotalGarantia   Float
 
-  reservaId            Int               @unique
-  reserva              Reserva           @relation(fields: [reservaId], references: [id])
+  reservaId Int     @unique
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
 
-  inspeccionesPieza    InspeccionPieza[]
+  inspeccionesPieza InspeccionPieza[]
+
+  @@map("bitacoras_reserva")
 }
 
 model ArticuloReserva {
-  id              Int              @id @default(autoincrement())
-  cantidad        Int
-  precioUnitario  Float
-  subtotal        Float
+  id             Int   @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Float
+  subtotal       Float
 
-  articuloId      Int
-  articulo        Articulo         @relation(fields: [articuloId], references: [id])
+  articuloId Int
+  articulo   Articulo @relation(fields: [articuloId], references: [id])
 
-  reservaId       Int
-  reserva         Reserva          @relation(fields: [reservaId], references: [id])
+  reservaId Int
+  reserva   Reserva @relation(fields: [reservaId], references: [id])
 
   inspeccionPieza InspeccionPieza?
+
+  @@map("articulos_reserva")
 }
 
 model InspeccionPieza {
-  id                  Int             @id @default(autoincrement())
-  piezasCompletas     Int
-  piezasDaniadas      Int?
-  piezasFaltantes     Int?
-  montoGarantia       Float?
+  id              Int    @id @default(autoincrement())
+  piezasCompletas Int
+  piezasDaniadas  Int?
+  piezasFaltantes Int?
+  montoGarantia   Float?
 
   articuloReservadoId Int             @unique
   articuloReservado   ArticuloReserva @relation(fields: [articuloReservadoId], references: [id])
 
-  bitacoraReservaId   Int
-  bitacoraReserva     BitacoraReserva @relation(fields: [bitacoraReservaId], references: [id])
+  bitacoraReservaId Int
+  bitacoraReserva   BitacoraReserva @relation(fields: [bitacoraReservaId], references: [id])
+
+  @@map("inspecciones_piezas")
 }
 
 // ============================================== INVENTARIO Y CATÁLOGO
 
 model Articulo {
-  id                  Int                   @id @default(autoincrement())
-  nombre              String
-  descripcion         String  @db.Text
-  precioPorDia        Float
-  existencias         Int
-  categoria           String
-  
-  // -.-.-.-.-.- Json pq por lo que vi mysql no soporta bien arreglos como String[] -.-.-.-.-.-
-  fotografiasUrl      Json
+  id           Int    @id @default(autoincrement())
+  nombre       String @db.VarChar(200)
+  descripcion  String @db.Text
+  precioPorDia Float
+  existencias  Int
+  categoria    String @db.VarChar(100)
 
+  fotografiasUrl      FotografiaUrl[]
   articulosReserva    ArticuloReserva[]
   ajustesExistencia   AjusteExistencia[]
   piezasMantenimiento PiezasMantenimiento[]
+
+  @@map("articulos")
+}
+
+model FotografiaUrl {
+  id  Int    @id @default(autoincrement())
+  url String @db.VarChar(500)
+
+  articuloId Int
+  articulo   Articulo @relation(fields: [articuloId], references: [id])
+
+  @@map("fotografias_url")
 }
 
 model AjusteExistencia {
-  id           Int           @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   cantidad     Int
   esIncremento Boolean
   motivo       MotivoAjuste
-  creadoEn     DateTime      @default(now())
+  creadoEn     DateTime     @default(now())
 
-  articuloId   Int
-  articulo     Articulo      @relation(fields: [articuloId], references: [id])
+  articuloId Int
+  articulo   Articulo @relation(fields: [articuloId], references: [id])
 
-  adminId      Int
-  admin        Administrador @relation(fields: [adminId], references: [id])
+  adminId Int
+  admin   Administrador @relation(fields: [adminId], references: [id])
+
+  @@map("ajustes_existencias")
 }
 
 model PiezasMantenimiento {
@@ -216,9 +252,11 @@ model PiezasMantenimiento {
   fechaTermino DateTime      @db.Date
   motivo       MotivoBloqueo
 
-  articuloId   Int
-  articulo     Articulo      @relation(fields: [articuloId], references: [id])
+  articuloId Int
+  articulo   Articulo @relation(fields: [articuloId], references: [id])
 
-  adminId      Int
-  admin        Administrador @relation(fields: [adminId], references: [id])
+  adminId Int
+  admin   Administrador @relation(fields: [adminId], references: [id])
+
+  @@map("piezas_mantenimiento")
 }
