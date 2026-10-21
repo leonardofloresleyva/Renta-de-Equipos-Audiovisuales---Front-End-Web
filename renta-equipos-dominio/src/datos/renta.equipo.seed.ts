@@ -4,8 +4,8 @@ import * as bcrypt from 'bcryptjs';
 const hash = bcrypt.hashSync('passwordSeguro123', 10);
 
 export const ADMINS = new Map<number, Administrador>([
-    [1, { id: 1, email: 'admin.general@audiorent.mx', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Carlos Mendoza Ramos', telefono: '6441234567' }],
-    [2, { id: 2, email: 'almacen.audiovisual@audiorent.mx', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Valeria Gómez Peña', telefono: '6449876543' }]
+    [1, { id: 1, email: 'admin.general@audiorent.mx', passwordHash: hash, rol: Rol.administrador, creadoEn: new Date(), nombre: 'Carlos Mendoza Ramos', telefono: '6441234567' }],
+    [2, { id: 2, email: 'almacen.audiovisual@audiorent.mx', passwordHash: hash, rol: Rol.administrador, creadoEn: new Date(), nombre: 'Valeria Gómez Peña', telefono: '6449876543' }]
 ]);
 
 export const CLIENTES = new Map<number, Cliente>([

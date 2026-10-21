@@ -11,6 +11,8 @@ import { FiltrosReserva } from './dto/filtros.reserva.dto';
 import { FiltrosSolicitudesDto } from './dto/filtros.solicitudes.dto';
 import { aSolicitudDto } from './dto/solicitud.respuesta.dto';
 import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
+import { Roles } from 'src/auth/decoradores/rol.decorator';
+import { Rol } from 'src/dominio/entidades';
 
 @Controller('reservas')
 @ApiBearerAuth()
@@ -20,6 +22,7 @@ export class ReservasController {
 
     // Solo accesible para el admin
     // Puede filtrarse
+    @Roles(Rol.administrador)
     @Get()
     async listar(@Body() dto: FiltrosReserva) {
         const reservas =  await this.servicio.listar({
@@ -32,6 +35,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Get(":id")
     async buscarPorId(@Param("id") id: number) {
         console.log("Hola");
@@ -53,6 +57,9 @@ export class ReservasController {
         return this.servicio.buscarArticulosPorReserva(reservaId);
     }
 
+    // Falta:
+    // - Validar que solo el cliente puede crear una nueva reserva (token)
+    @Roles(Rol.cliente)
     @Post()
     @HttpCode(201)
     async crear(
@@ -74,6 +81,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Patch("entregas/:id")
     async entregar(@Param("id") id: number) {
         const entregado = await this.servicio.entregar(id);
@@ -81,6 +89,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Patch("recolecciones/:id")
     async recolectar(@Param("id") id: number) {
         const entregado = await this.servicio.recolectar(id);
@@ -88,6 +97,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Delete(":id")
     async cancelar(@Param("id") id: number) {
         const cancelado = await this.servicio.cancelar(id);
@@ -95,6 +105,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Get("solicitudes/cancelacion")
     async listarSolicitudes(@Body() dto: FiltrosSolicitudesDto) {
         const solicitudes = await this.servicio.listarSolicitudes({
@@ -106,6 +117,7 @@ export class ReservasController {
     }
 
     // Solo cliente
+    @Roles(Rol.cliente)
     @Post("solicitudes/cancelacion")
     @HttpCode(201)
     async crearSolicitud(
@@ -118,6 +130,7 @@ export class ReservasController {
     }
 
     // Solo admin
+    @Roles(Rol.administrador)
     @Delete("solicitudes/cancelacion/:id")
     async rechazarSolicitud(@Param("id") id: number) {
         const solicitud = await this.servicio.rechazarSolicitud(id);

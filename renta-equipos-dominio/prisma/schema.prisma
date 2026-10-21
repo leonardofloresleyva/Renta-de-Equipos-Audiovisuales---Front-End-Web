@@ -96,8 +96,8 @@ model Direccion {
   calle   String @db.VarChar(100)
   colonia String @db.VarChar(100)
 
-  cliente  Cliente?
-  reservas Reserva[]
+  cliente Cliente?
+  reserva Reserva?
 
   @@map("direcciones")
 }
@@ -116,7 +116,7 @@ model Reserva {
   clienteId Int
   cliente   Cliente @relation(fields: [clienteId], references: [id])
 
-  direccionEntregaId Int
+  direccionEntregaId Int       @unique
   direccionEntrega   Direccion @relation(fields: [direccionEntregaId], references: [id])
 
   solicitudCancelacion SolicitudCancelacion?
