@@ -12,7 +12,6 @@ datasource db {
   provider = "mysql"
 }
 
-enum MotivoAjusteExistencia {
 // ============================================== ENUMS
 
 enum Rol {
@@ -39,7 +38,6 @@ enum MotivoAjuste {
   deterioro
 }
 
-enum MotivoMantenimiento {
 enum MotivoBloqueo {
   reparacion
   limpieza
@@ -95,6 +93,7 @@ model PiezasMantenimiento {
 
   @@index([articuloId, fechaInicio, fechaTermino])
   @@index([adminId])
+}
 // ============================================== USUARIOS Y ROLES
 
 model Usuario {
