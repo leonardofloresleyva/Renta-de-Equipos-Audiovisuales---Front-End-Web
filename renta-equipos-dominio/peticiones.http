@@ -1,5 +1,6 @@
 @baseUrl = http://localhost:3000
-
+@adminToken = aqui_hay_que_pegar_el_access_token_del_admin
+@adminId = 1
 
 ### Peticiones Módulo - Inventario ###
 ### 1. Listar artículos
@@ -16,6 +17,7 @@ Accept: application/json
 
 ### 4. Registrar artículo
 POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -48,6 +50,7 @@ Accept: application/json
 
 ### 9. Alta inválida: precio negativo (400)
 POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -62,6 +65,7 @@ Accept: application/json
 
 ### 10. Alta inválida: propiedad no permitida (400)
 POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -77,20 +81,23 @@ Accept: application/json
 
 ### 11. Consultar historial de ajustes de existencias
 GET {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 12. Filtrar ajustes por artículo, movimiento y motivo
 GET {{baseUrl}}/inventario/ajustes-existencia?articuloId=1&esIncremento=true&motivo=adquisicion
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 13. Registrar adquisición de existencias
 POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 2,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -98,20 +105,23 @@ Accept: application/json
 
 ### 14. Consultar historial de mantenimientos
 GET {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 15. Filtrar mantenimientos por artículo y motivo
 GET {{baseUrl}}/inventario/mantenimientos?articuloId=1&motivo=limpieza
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 16. Bloquear piezas para mantenimiento (fechas futuras)
 POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 1,
   "fechaInicio": "2026-12-20T00:00:00.000Z",
   "fechaTermino": "2026-12-22T00:00:00.000Z",
@@ -120,20 +130,23 @@ Accept: application/json
 
 ### 17. Filtro de ajustes inválido: motivo desconocido (400)
 GET {{baseUrl}}/inventario/ajustes-existencia?motivo=compra
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 18. Filtro de mantenimiento inválido: cantidad no numérica (400)
 GET {{baseUrl}}/inventario/mantenimientos?cantidadMinima=varias
+Authorization: Bearer {{adminToken}}
 Accept: application/json
 
 ### 19. Ajuste inválido: cantidad igual a cero (400)
 POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 0,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -141,12 +154,13 @@ Accept: application/json
 
 ### 20. Ajuste rechazado por regla de negocio: motivo incompatible con incremento (409)
 POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 1,
   "esIncremento": true,
   "motivo": "perdida"
@@ -154,12 +168,13 @@ Accept: application/json
 
 ### 21. Ajuste rechazado: artículo inexistente (404)
 POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 999999,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 1,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -167,12 +182,13 @@ Accept: application/json
 
 ### 22. Mantenimiento rechazado por regla de negocio: rango de fechas invertido (409)
 POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 1,
   "fechaInicio": "2026-12-22T00:00:00.000Z",
   "fechaTermino": "2026-12-20T00:00:00.000Z",
@@ -181,12 +197,13 @@ Accept: application/json
 
 ### 23. Mantenimiento rechazado: cantidad mayor que las existencias (409)
 POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": 1,
+  "adminId": {{adminId}},
   "cantidad": 999,
   "fechaInicio": "2027-01-20T00:00:00.000Z",
   "fechaTermino": "2027-01-22T00:00:00.000Z",

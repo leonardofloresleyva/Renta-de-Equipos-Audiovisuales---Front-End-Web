@@ -9,7 +9,11 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Rol } from 'src/dominio/entidades';
+import { Roles } from 'src/auth/decoradores/rol.decorator';
+import { Publico } from 'src/auth/decoradores/publico.decorator';
 import { ArticuloNoEncontradoError } from 'src/dominio/errores';
 import { AjustarExistenciaDto } from './dto/ajustar.existencia.dto';
 import { aAjusteExistenciaDto } from './dto/ajuste.existencia.respuesta.dto';
@@ -27,6 +31,8 @@ export class InventarioController {
   constructor(private readonly inventarioService: InventarioService) {}
 
   @Get('articulos')
+  @Publico()
+  @ApiOperation({ security: [] })
   async listarArticulos(@Query() filtros: FiltrosArticuloDto) {
     const articulos =
       await this.inventarioService.busquedaArticulosFiltrada(filtros);
@@ -34,6 +40,8 @@ export class InventarioController {
   }
 
   @Get('articulos/:id')
+  @Publico()
+  @ApiOperation({ security: [] })
   async buscarArticuloPorId(@Param('id', ParseIntPipe) id: number) {
     const articulo = await this.inventarioService.buscarArticuloPorId(id);
     if (!articulo) {
@@ -44,6 +52,8 @@ export class InventarioController {
   }
 
   @Post('articulos')
+  @ApiBearerAuth()
+  @Roles(Rol.administrador)
   @HttpCode(201)
   async crearArticulo(
     @Body() dto: CrearArticuloDto,
@@ -55,6 +65,8 @@ export class InventarioController {
   }
 
   @Get('ajustes-existencia')
+  @ApiBearerAuth()
+  @Roles(Rol.administrador)
   async listarAjustesExistencia(@Query() filtros: FiltrosAjusteExistenciaDto) {
     const ajustes =
       await this.inventarioService.listarAjustesExistencia(filtros);
@@ -62,6 +74,8 @@ export class InventarioController {
   }
 
   @Post('ajustes-existencia')
+  @ApiBearerAuth()
+  @Roles(Rol.administrador)
   @HttpCode(201)
   async ajustarExistencia(@Body() dto: AjustarExistenciaDto) {
     const ajuste = await this.inventarioService.ajustarExistencia(dto);
@@ -69,6 +83,8 @@ export class InventarioController {
   }
 
   @Get('mantenimientos')
+  @ApiBearerAuth()
+  @Roles(Rol.administrador)
   async listarPiezasMantenimiento(@Query() filtros: FiltrosMantenimientoDto) {
     const mantenimientos =
       await this.inventarioService.listarPiezasMantenimiento(filtros);
@@ -76,6 +92,8 @@ export class InventarioController {
   }
 
   @Post('mantenimientos')
+  @ApiBearerAuth()
+  @Roles(Rol.administrador)
   @HttpCode(201)
   async registrarPiezasMantenimiento(
     @Body() dto: CrearPiezaMantenimientoDto,

@@ -1,5 +1,8 @@
 import type { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Patch, Post, Res } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { Rol } from 'src/dominio/entidades';
+import { Roles } from 'src/auth/decoradores/rol.decorator';
 import { ReservasService } from './reservas.service';
 import { aReservaDto } from './dto/reserva.respuesta.dto';
 import type { CrearReservaDto } from './dto/crear.reserva.dto';
@@ -10,6 +13,8 @@ import { aSolicitudDto } from './dto/solicitud.respuesta.dto';
 import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
 @Controller('reservas')
+@ApiBearerAuth()
+@Roles(Rol.administrador)
 export class ReservasController {
     constructor(private readonly servicio: ReservasService) {}
 
@@ -37,7 +42,6 @@ export class ReservasController {
         return aReservaDto(reserva);
     }
 
-    // Checar el id del cliente con el token
     @Get("clientes/:id")
     async buscarPorCliente(@Param("id") idCliente: number) {
         const reservas = await this.servicio.buscarPorCliente(idCliente);
@@ -49,8 +53,6 @@ export class ReservasController {
         return this.servicio.buscarArticulosPorReserva(reservaId);
     }
 
-    // Falta:
-    // - Validar que solo el cliente puede crear una nueva reserva (token)
     @Post()
     @HttpCode(201)
     async crear(
