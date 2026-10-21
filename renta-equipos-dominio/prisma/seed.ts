@@ -20,6 +20,7 @@ const prisma = new PrismaClient({ adapter });
 
 const articulosDePrueba = [
     {
+        id: 1,
         nombre: 'Proyector Láser Epson Pro L1070U 7000 Lúmenes WUXGA',
         descripcion:
             'Proyector láser profesional de alta luminosidad, resolución 1920x1200 con tecnología 3LCD.',
@@ -31,6 +32,7 @@ const articulosDePrueba = [
         ],
     },
     {
+        id: 2,
         nombre: 'Pantalla Inflable Gigante 6x4m con Motor Silencioso',
         descripcion: 'Pantalla gigante para proyecciones al aire libre o salones amplios.',
         precioPorDia: 900,
@@ -41,6 +43,7 @@ const articulosDePrueba = [
         ],
     },
     {
+        id: 3,
         nombre: 'Bafle Activo JBL EON715 15" Bluetooth 1300W',
         descripcion: 'Bafle profesional autoamplificado de 1300W pico con DSP integrado.',
         precioPorDia: 400,
@@ -51,6 +54,7 @@ const articulosDePrueba = [
         ],
     },
     {
+        id: 4,
         nombre: 'Sistema Micrófonos Inalámbricos Doble Shure BLX288/PG58',
         descripcion:
             'Sistema inalámbrico dual de mano con cápsulas PG58, alcance de hasta 100m.',
@@ -62,6 +66,7 @@ const articulosDePrueba = [
         ],
     },
     {
+        id: 5,
         nombre: 'Cabezas Móviles Beam 7R 230W DMX 512',
         descripcion:
             'Iluminación robótica profesional con rueda de colores y prismas giratorios.',
@@ -79,10 +84,10 @@ async function main() {
         // Orden inverso a las dependencias: primero lo que apunta, al
         // final lo apuntado.
         // 1. Nivel más bajo (dependen de múltiples tablas o no tienen hijos)
+        await tx.piezasMantenimiento.deleteMany();
+        await tx.ajusteExistencia.deleteMany();
         await tx.inspeccionPieza.deleteMany();
         await tx.fotografiaUrl.deleteMany();
-        await tx.ajusteExistencia.deleteMany();
-        await tx.piezasMantenimiento.deleteMany();
         await tx.solicitudCancelacion.deleteMany();
         await tx.depositoGarantia.deleteMany();
 
@@ -145,8 +150,7 @@ async function main() {
             const { fotografiasUrl, ...datosArticulo } = datos;
 
             const articulo = await tx.articulo.create({
-                data: datosArticulo,
-                select: { id: true },
+                data: datosArticulo
             });
 
             await tx.fotografiaUrl.createMany({
