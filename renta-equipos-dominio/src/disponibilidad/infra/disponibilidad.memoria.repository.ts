@@ -41,11 +41,11 @@ export class DisponibilidadMemoriaRepository implements DisponibilidadRepository
                 (RESERVAS.get(a.reservaId)?.estado ?? 'apartada') === 'apartada' &&
                 (
                     (
-                        fechaInicio >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) ||
+                        fechaInicio >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) &&
                         fechaInicio <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
                     ) ||
                     (
-                        fechaFin >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) ||
+                        fechaFin >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) &&
                         fechaFin <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
                     )
                 ));

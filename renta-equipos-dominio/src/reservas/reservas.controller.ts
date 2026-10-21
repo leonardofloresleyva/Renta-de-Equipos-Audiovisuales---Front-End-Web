@@ -11,8 +11,6 @@ import { FiltrosReserva } from './dto/filtros.reserva.dto';
 import { FiltrosSolicitudesDto } from './dto/filtros.solicitudes.dto';
 import { aSolicitudDto } from './dto/solicitud.respuesta.dto';
 import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
-import { Roles } from 'src/auth/decoradores/rol.decorator';
-import { Rol } from 'src/dominio/entidades';
 
 @Controller('reservas')
 @ApiBearerAuth()
