@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { randomBytes } from 'node:crypto';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -60,6 +59,18 @@ const articulosDePrueba = [
 ] as const;
 
 async function cargarDatosDeInventario(): Promise<void> {
+  const passwordAdmin = process.env.SEED_ADMIN_PASSWORD;
+  if (!passwordAdmin) {
+    throw new Error(
+      'Define SEED_ADMIN_PASSWORD antes de ejecutar el seed para asignar una contraseña conocida al administrador de prueba.',
+    );
+  }
+  if (passwordAdmin.length < 8) {
+    throw new Error(
+      'SEED_ADMIN_PASSWORD debe tener al menos 8 caracteres, igual que el registro de usuarios.',
+    );
+  }
+
   const prisma = new PrismaService();
 
   try {
@@ -67,14 +78,12 @@ async function cargarDatosDeInventario(): Promise<void> {
 
     const administrador = await prisma.$transaction(async (tx) => {
       const emailAdmin = 'admin.inventario@audiorent.test';
-      const passwordParaHash =
-        process.env.SEED_ADMIN_PASSWORD ?? randomBytes(32).toString('hex');
-      const passwordHash = await bcrypt.hash(passwordParaHash, 12);
+      const passwordHash = await bcrypt.hash(passwordAdmin, 12);
       const usuario = await tx.usuario.upsert({
         where: { email: emailAdmin },
         update: {
           rol: 'administrador',
-          ...(process.env.SEED_ADMIN_PASSWORD ? { passwordHash } : {}),
+          passwordHash,
         },
         create: {
           email: emailAdmin,
@@ -130,11 +139,6 @@ async function cargarDatosDeInventario(): Promise<void> {
     console.info(
       `Datos de inventario cargados: ${articulosDePrueba.length} artículos con sus fotografías y administrador ID ${administrador.id}.`,
     );
-    if (!process.env.SEED_ADMIN_PASSWORD) {
-      console.info(
-        'El administrador usa una contraseña aleatoria no recuperable. Define SEED_ADMIN_PASSWORD antes del seed si necesitas iniciar sesión con esa cuenta.',
-      );
-    }
   } finally {
     await prisma.$disconnect();
   }

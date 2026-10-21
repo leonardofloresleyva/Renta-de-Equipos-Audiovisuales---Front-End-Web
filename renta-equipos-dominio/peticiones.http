@@ -1,6 +1,14 @@
 @baseUrl = http://localhost:3000
-@adminToken = aqui_hay_que_pegar_el_access_token_del_admin
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6ImFkbWluLmludmVudGFyaW9AYXVkaW9yZW50LnRlc3QiLCJyb2wiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzkyNTcwNzYyLCJleHAiOjE3OTI1NzQzNjJ9.QRW3e39yeFbig-NRMGrxo4c2sZSyRAm0A4spQCr6X1U
 @adminId = 1
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin.inventario@audiorent.test",
+  "password": "123test45"
+}
 
 ### Peticiones Módulo - Inventario ###
 ### 1. Listar artículos
