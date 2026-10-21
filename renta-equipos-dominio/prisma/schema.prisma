@@ -11,3 +11,66 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+enum MotivoAjusteExistencia {
+  perdida
+  adquisicion
+  deterioro
+}
+
+enum MotivoMantenimiento {
+  reparacion
+  limpieza
+}
+
+model Articulo {
+  id                Int                   @id @default(autoincrement())
+  nombre            String                @db.VarChar(200)
+  descripcion       String                @db.Text
+  precioPorDia      Decimal               @db.Decimal(10, 2)
+  existencias       Int
+  categoria         String                @db.VarChar(100)
+  fotografias       FotografiaArticulo[]
+  ajustesExistencia AjusteExistencia[]
+  mantenimientos    PiezasMantenimiento[]
+
+  @@index([categoria])
+}
+
+model FotografiaArticulo {
+  id         Int      @id @default(autoincrement())
+  articuloId Int
+  url        String   @db.VarChar(2048)
+  orden      Int
+  articulo   Articulo @relation(fields: [articuloId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([articuloId, orden])
+}
+
+model AjusteExistencia {
+  id           Int                    @id @default(autoincrement())
+  articuloId   Int
+  adminId      Int
+  cantidad     Int
+  esIncremento Boolean
+  motivo       MotivoAjusteExistencia
+  creadoEn     DateTime               @default(now()) @db.DateTime(3)
+  articulo     Articulo               @relation(fields: [articuloId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([articuloId])
+  @@index([adminId])
+}
+
+model PiezasMantenimiento {
+  id           Int                 @id @default(autoincrement())
+  articuloId   Int
+  adminId      Int
+  cantidad     Int
+  fechaInicio  DateTime            @db.DateTime(3)
+  fechaTermino DateTime            @db.DateTime(3)
+  motivo       MotivoMantenimiento
+  articulo     Articulo            @relation(fields: [articuloId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([articuloId, fechaInicio, fechaTermino])
+  @@index([adminId])
+}
