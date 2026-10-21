@@ -20,6 +20,7 @@ export type RegistroEntradaBitacora = Omit<BitacoraReserva, 'id' | 'fechaHoraRec
 export type NuevoInspeccionPieza = Omit<InspeccionPieza, 'id' | 'bitacoraReservaId'>;
 export type NuevoAjusteExistencia = Omit<AjusteExistencia, 'id' | 'creadoEn'>;
 export type NuevaSolicitud = Omit<SolicitudCancelacion, 'id' | 'fechaSolicitud' | 'estadoSolicitud'>;
+export type NuevoUsuario = Omit<Cliente, 'id' | 'creadoEn' | 'rol' | 'direccion'>;
 
 // Filtros
 export interface FiltrosArticulo {
@@ -69,11 +70,17 @@ export function nuevoFolio(): string {
 }
 
 // Entidades de dominio
+export enum Rol {
+  cliente = "cliente",
+  administrador = "administrador"
+}
 
 export interface Usuario {
   readonly id: number;
   readonly email: string;
-  password: string;
+  passwordHash: string;
+  readonly rol: Rol;
+  creadoEn: Date;
 }
 
 export interface Administrador extends Usuario {

@@ -8,9 +8,18 @@ import { ReservasModule } from './reservas/reservas.module';
 import { DisponibilidadModule } from './disponibilidad/disponibilidad.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PeticionIdMiddleware } from './comun/middleware/peticion-id.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [UsuariosModule, InventarioModule, OperacionesModule, ReservasModule, DisponibilidadModule, PrismaModule],
+  imports: [
+    UsuariosModule, 
+    InventarioModule, 
+    OperacionesModule, 
+    ReservasModule, 
+    DisponibilidadModule, 
+    PrismaModule, 
+    AuthModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

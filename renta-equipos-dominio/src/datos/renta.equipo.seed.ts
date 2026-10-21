@@ -1,13 +1,16 @@
-import { Administrador, AjusteExistencia, Articulo, ArticuloReserva, BitacoraReserva, Cliente, DepositoGarantia, InspeccionPieza, nuevoFolio, PiezasMantenimiento, Reserva, SolicitudCancelacion } from "src/dominio/entidades";
+import { Administrador, AjusteExistencia, Articulo, ArticuloReserva, BitacoraReserva, Cliente, DepositoGarantia, InspeccionPieza, nuevoFolio, PiezasMantenimiento, Reserva, Rol, SolicitudCancelacion } from "src/dominio/entidades";
+import * as bcrypt from 'bcryptjs';
+
+const hash = bcrypt.hashSync('passwordSeguro123', 10);
 
 export const ADMINS = new Map<number, Administrador>([
-    [1, { id: 1, email: 'admin.general@audiorent.mx', password: 'passwordSeguro123!', nombre: 'Carlos Mendoza Ramos', telefono: '6441234567' }],
-    [2, { id: 2, email: 'almacen.audiovisual@audiorent.mx', password: 'passwordSeguro456!', nombre: 'Valeria Gómez Peña', telefono: '6449876543' }]
+    [1, { id: 1, email: 'admin.general@audiorent.mx', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Carlos Mendoza Ramos', telefono: '6441234567' }],
+    [2, { id: 2, email: 'almacen.audiovisual@audiorent.mx', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Valeria Gómez Peña', telefono: '6449876543' }]
 ]);
 
 export const CLIENTES = new Map<number, Cliente>([
-    [1, { id: 1, email: 'contacto@eventospro.mx', password: 'passwordCliente123', nombre: 'Producciones Eventos Pro SA de CV', telefono: '6444112233', direccion: { id: 1, numero: '450', calle: 'Av. Miguel Alemán', colonia: 'Centro' } }],
-    [2, { id: 2, email: 'sofia.castro@gmail.com', password: 'passwordCliente456', nombre: 'Sofía Castro Morales', telefono: '6447788990', direccion: { id: 2, numero: '1280-B', calle: 'Blvd. Rodolfo Elías Calles', colonia: 'Náinari del Yaqui', } }]
+    [1, { id: 1, email: 'contacto@eventospro.mx', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Producciones Eventos Pro SA de CV', telefono: '6444112233', direccion: { id: 1, numero: '450', calle: 'Av. Miguel Alemán', colonia: 'Centro' } }],
+    [2, { id: 2, email: 'sofia.castro@gmail.com', passwordHash: hash, rol: Rol.cliente, creadoEn: new Date(), nombre: 'Sofía Castro Morales', telefono: '6447788990', direccion: { id: 2, numero: '1280-B', calle: 'Blvd. Rodolfo Elías Calles', colonia: 'Náinari del Yaqui', } }]
 ]);
 
 export const ARTICULOS = new Map<number, Articulo>([
