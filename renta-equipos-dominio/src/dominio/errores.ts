@@ -172,6 +172,13 @@ export class ReduccionStockInvalidaError extends ErrorReglaDeNegocio {
   }
 }
 
+export class ExistenciasModificadasConcurrentementeError extends ErrorReglaDeNegocio {
+  constructor() {
+    super('Las existencias del artículo cambiaron durante el ajuste. Intenta nuevamente.');
+    this.name = 'ExistenciasModificadasConcurrentementeError';
+  }
+}
+
 /**
  * Regla de negocio 06: Prohibición de cancelar reservas cuyos artículos ya hayan sido entregados.
  */

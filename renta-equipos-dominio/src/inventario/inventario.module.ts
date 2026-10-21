@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { InventarioService } from './inventario.service';
-import { ArticuloMemoriaRepository } from './infra/articulo.memoria.repository';
+import { ArticuloPrismaRepository } from './infra/articulo.prisma.repository';
 import { AJUSTE_EXISTENCIA_REPOSITORY, ARTICULO_REPOSITORY, PIEZAS_MANTENIMIENTO_REPOSITORY } from './inventario.tokens';
-import { AjusteExistenciaMemoriaRepository } from './infra/ajuste.existencia.memoria.repository';
-import { PiezasMantenimientoMemoriaRepository } from './infra/piezas.mantenimiento.memoria.repository';
+import { AjusteExistenciaPrismaRepository } from './infra/ajuste.existencia.prisma.repository';
+import { PiezasMantenimientoPrismaRepository } from './infra/piezas.mantenimiento.prisma.repository';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
 import { ReservasModule } from 'src/reservas/reservas.module';
 import { DisponibilidadModule } from 'src/disponibilidad/disponibilidad.module';
@@ -13,13 +13,13 @@ import { InventarioController } from './inventario.controller';
   imports: [UsuariosModule, DisponibilidadModule],
   providers: [InventarioService, {
     provide: ARTICULO_REPOSITORY,
-    useClass: ArticuloMemoriaRepository
+    useClass: ArticuloPrismaRepository
   }, {
     provide: AJUSTE_EXISTENCIA_REPOSITORY,
-    useClass: AjusteExistenciaMemoriaRepository
+    useClass: AjusteExistenciaPrismaRepository
   }, {
     provide: PIEZAS_MANTENIMIENTO_REPOSITORY,
-    useClass: PiezasMantenimientoMemoriaRepository
+    useClass: PiezasMantenimientoPrismaRepository
   }],
   exports: [InventarioService],
   controllers: [InventarioController]

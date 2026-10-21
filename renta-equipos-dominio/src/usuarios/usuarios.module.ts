@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
-import { AdminMemoriaRepository } from './infra/admin.memoria.repository';
+import { AdminPrismaRepository } from './infra/admin.prisma.repository';
 import { ADMIN_REPOSITORY, CLIENTE_REPOSITORY } from './usuarios.tokens';
 import { ClienteMemoriaRepository } from './infra/cliente.memoria.repository';
 import { UsuariosController } from './usuarios.controller';
@@ -9,7 +9,7 @@ import { UsuariosController } from './usuarios.controller';
   providers: [UsuariosService, 
     {
       provide: ADMIN_REPOSITORY,
-      useClass: AdminMemoriaRepository
+      useClass: AdminPrismaRepository
     },
     {
       provide: CLIENTE_REPOSITORY,

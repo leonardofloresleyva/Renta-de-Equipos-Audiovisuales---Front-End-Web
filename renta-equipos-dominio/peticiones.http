@@ -1,0 +1,219 @@
+@baseUrl = http://localhost:3000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6ImFkbWluLmludmVudGFyaW9AYXVkaW9yZW50LnRlc3QiLCJyb2wiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzkyNTcwNzYyLCJleHAiOjE3OTI1NzQzNjJ9.QRW3e39yeFbig-NRMGrxo4c2sZSyRAm0A4spQCr6X1U
+@adminId = 1
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "correo": "admin.inventario@audiorent.test",
+  "password": "123test45"
+}
+
+### Peticiones Módulo - Inventario ###
+### 1. Listar artículos
+GET {{baseUrl}}/inventario/articulos
+Accept: application/json
+
+### 2. Filtrar artículos por categoría y precio máximo
+GET {{baseUrl}}/inventario/articulos?categoria=Audio&precioMaximo=500
+Accept: application/json
+
+### 3. Consultar artículo por ID
+GET {{baseUrl}}/inventario/articulos/1
+Accept: application/json
+
+### 4. Registrar artículo
+POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Test",
+  "descripcion": "Bocina BBC",
+  "precioPorDia": 500,
+  "existencias": 6,
+  "categoria": "Audio",
+  "fotografiasUrl": [
+    "https://ejemplo.com/bocina.jpg"
+  ]
+}
+
+### 5. Filtro válido sin resultados (200 y [])
+GET {{baseUrl}}/inventario/articulos?categoria=CategoriaInexistente
+Accept: application/json
+
+### 6. Filtro inválido: precio máximo no numérico (400)
+GET {{baseUrl}}/inventario/articulos?precioMaximo=no-es-numero
+Accept: application/json
+
+### 7. Artículo inexistente (404)
+GET {{baseUrl}}/inventario/articulos/999999
+Accept: application/json
+
+### 8. ID de artículo con formato inválido (400)
+GET {{baseUrl}}/inventario/articulos/no-es-un-id
+Accept: application/json
+
+### 9. Alta inválida: precio negativo (400)
+POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Artículo inválido",
+  "descripcion": "Este cuerpo debe rechazarse por el precio negativo",
+  "precioPorDia": -10,
+  "existencias": 2,
+  "categoria": "Pruebas",
+  "fotografiasUrl": []
+}
+
+### 10. Alta inválida: propiedad no permitida (400)
+POST {{baseUrl}}/inventario/articulos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Artículo inválido",
+  "descripcion": "Este cuerpo incluye una propiedad desconocida",
+  "precioPorDia": 100,
+  "existencias": 2,
+  "categoria": "Pruebas",
+  "fotografiasUrl": [],
+  "campoNoPermitido": true
+}
+
+### 11. Consultar historial de ajustes de existencias
+GET {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 12. Filtrar ajustes por artículo, movimiento y motivo
+GET {{baseUrl}}/inventario/ajustes-existencia?articuloId=1&esIncremento=true&motivo=adquisicion
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 13. Registrar adquisición de existencias
+POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 2,
+  "esIncremento": true,
+  "motivo": "adquisicion"
+}
+
+### 14. Consultar historial de mantenimientos
+GET {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 15. Filtrar mantenimientos por artículo y motivo
+GET {{baseUrl}}/inventario/mantenimientos?articuloId=1&motivo=limpieza
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 16. Bloquear piezas para mantenimiento (fechas futuras)
+POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 1,
+  "fechaInicio": "2026-12-20T00:00:00.000Z",
+  "fechaTermino": "2026-12-22T00:00:00.000Z",
+  "motivo": "reparacion"
+}
+
+### 17. Filtro de ajustes inválido: motivo desconocido (400)
+GET {{baseUrl}}/inventario/ajustes-existencia?motivo=compra
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 18. Filtro de mantenimiento inválido: cantidad no numérica (400)
+GET {{baseUrl}}/inventario/mantenimientos?cantidadMinima=varias
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 19. Ajuste inválido: cantidad igual a cero (400)
+POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 0,
+  "esIncremento": true,
+  "motivo": "adquisicion"
+}
+
+### 20. Ajuste rechazado por regla de negocio: motivo incompatible con incremento (409)
+POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 1,
+  "esIncremento": true,
+  "motivo": "perdida"
+}
+
+### 21. Ajuste rechazado: artículo inexistente (404)
+POST {{baseUrl}}/inventario/ajustes-existencia
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 999999,
+  "adminId": {{adminId}},
+  "cantidad": 1,
+  "esIncremento": true,
+  "motivo": "adquisicion"
+}
+
+### 22. Mantenimiento rechazado por regla de negocio: rango de fechas invertido (409)
+POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 1,
+  "fechaInicio": "2026-12-22T00:00:00.000Z",
+  "fechaTermino": "2026-12-20T00:00:00.000Z",
+  "motivo": "reparacion"
+}
+
+### 23. Mantenimiento rechazado: cantidad mayor que las existencias (409)
+POST {{baseUrl}}/inventario/mantenimientos
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "articuloId": 1,
+  "adminId": {{adminId}},
+  "cantidad": 999,
+  "fechaInicio": "2027-01-20T00:00:00.000Z",
+  "fechaTermino": "2027-01-22T00:00:00.000Z",
+  "motivo": "limpieza"
+}

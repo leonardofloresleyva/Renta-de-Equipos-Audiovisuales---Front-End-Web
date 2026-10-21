@@ -1,6 +1,8 @@
 import { AjusteExistencia, FiltrosAjusteExistencia, NuevoAjusteExistencia } from "src/dominio/entidades";
 import { AjusteExistenciaRepository } from "../repositorios/ajuste.existencia.repository";
 import { AJUSTES_EXISTENCIA } from "src/datos/renta.equipo.seed";
+import { ARTICULOS } from "src/datos/renta.equipo.seed";
+import { ExistenciasModificadasConcurrentementeError } from "src/dominio/errores";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -45,5 +47,19 @@ export class AjusteExistenciaMemoriaRepository implements AjusteExistenciaReposi
         };
         AJUSTES_EXISTENCIA.set(id, nuevoAjuste);
         return nuevoAjuste;
+    }
+
+    async crearConActualizacionExistencias(
+        datos: NuevoAjusteExistencia,
+        existenciasActuales: number,
+        existenciasNuevas: number
+    ): Promise<AjusteExistencia> {
+        const articulo = ARTICULOS.get(datos.articuloId);
+        if (!articulo || articulo.existencias !== existenciasActuales) {
+            throw new ExistenciasModificadasConcurrentementeError();
+        }
+
+        ARTICULOS.set(articulo.id, { ...articulo, existencias: existenciasNuevas });
+        return this.crear(datos);
     }
 }

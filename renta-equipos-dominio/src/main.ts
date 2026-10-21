@@ -6,6 +6,9 @@ import { LoggingInterceptor } from './comun/interceptores/loggin.interceptor';
 import { SobreInterceptor } from './comun/interceptores/sobre.interceptor';
 import { DominioExceptionFilter } from './comun/filtros/dominio.filter';
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { Reflector } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,14 +32,13 @@ async function bootstrap() {
   app.useGlobalFilters(new DominioExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor(), new SobreInterceptor());
 
-  // const reflector = app.get(Reflector);
-  // app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
+  const reflector = app.get(Reflector);
+  app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   const config = new DocumentBuilder()
     .setTitle('API del Gimnasio')          // titulo que sale arriba de /docs
     .setVersion('1.0')
-    .addBearerAuth()                       // agrega el boton Authorize
-    .addSecurityRequirements('bearer')     // pone el candado en todas las rutas
+    .addBearerAuth()
     .build();
   const documento = SwaggerModule.createDocument(app, config); // recorre controllers y DTO
   SwaggerModule.setup('docs', app, documento);

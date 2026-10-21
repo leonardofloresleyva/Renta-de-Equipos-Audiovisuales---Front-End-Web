@@ -31,6 +31,16 @@
 $ npm install
 ```
 
+## Prisma (inventario)
+
+El esquema actual define los modelos de inventario. Para generar el cliente de Prisma sin crear ni modificar tablas:
+
+```bash
+$ npx prisma generate
+```
+
+El comando usa `prisma/schema.prisma` y genera el cliente en `generated/prisma`. Configura `DATABASE_URL` en tu `.env` local antes de ejecutarlo; no publiques ese archivo. No ejecutes migraciones hasta que el equipo lo acuerde.
+
 ## Compile and run the project
 
 ```bash
