@@ -5,6 +5,7 @@ import type {
   FiltrosAjusteExistencia,
   NuevoAjusteExistencia,
 } from 'src/dominio/entidades';
+import { ExistenciasModificadasConcurrentementeError } from 'src/dominio/errores';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { AjusteExistenciaRepository } from '../repositorios/ajuste.existencia.repository';
 
@@ -56,5 +57,27 @@ export class AjusteExistenciaPrismaRepository
 
   crear(datos: NuevoAjusteExistencia): Promise<AjusteExistencia> {
     return this.prisma.ajusteExistencia.create({ data: datos });
+  }
+
+  crearConActualizacionExistencias(
+    datos: NuevoAjusteExistencia,
+    existenciasActuales: number,
+    existenciasNuevas: number,
+  ): Promise<AjusteExistencia> {
+    return this.prisma.$transaction(async (transaccion) => {
+      const actualizacion = await transaccion.articulo.updateMany({
+        where: {
+          id: datos.articuloId,
+          existencias: existenciasActuales,
+        },
+        data: { existencias: existenciasNuevas },
+      });
+
+      if (actualizacion.count !== 1) {
+        throw new ExistenciasModificadasConcurrentementeError();
+      }
+
+      return transaccion.ajusteExistencia.create({ data: datos });
+    });
   }
 }

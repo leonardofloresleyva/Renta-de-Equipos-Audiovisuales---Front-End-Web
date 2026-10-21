@@ -5,4 +5,9 @@ export interface AjusteExistenciaRepository {
     buscarPorId(id: number): Promise<AjusteExistencia | null>;
     busquedaFiltrada(filtros: FiltrosAjusteExistencia): Promise<AjusteExistencia[]>;
     crear(datos: NuevoAjusteExistencia): Promise<AjusteExistencia>;
+    crearConActualizacionExistencias(
+        datos: NuevoAjusteExistencia,
+        existenciasActuales: number,
+        existenciasNuevas: number
+    ): Promise<AjusteExistencia>;
 }

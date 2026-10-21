@@ -97,10 +97,11 @@ export class InventarioService {
             existencias += dto.cantidad;
         }
 
-        // Se actualiza el artículo con las nuevas existencias
-        await this.articuloRepo.actualizar(articulo.id, { existencias: existencias });
-
-        return this.ajusteRepo.crear({ ...dto });
+        return this.ajusteRepo.crearConActualizacionExistencias(
+            { ...dto },
+            articulo.existencias,
+            existencias
+        );
     }
 
     async registrarPiezasMantenimiento(dto: CrearPiezaMantenimientoDto): Promise<PiezasMantenimiento> {

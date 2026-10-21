@@ -20,7 +20,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "nombre": "Bocina Bluetooth Café",
+  "nombre": "Test",
   "descripcion": "Bocina BBC",
   "precioPorDia": 500,
   "existencias": 6,

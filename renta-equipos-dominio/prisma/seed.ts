@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { randomBytes } from 'node:crypto';
+import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 const articulosDePrueba = [
@@ -57,13 +59,43 @@ const articulosDePrueba = [
   },
 ] as const;
 
-async function cargarArticulosDePrueba(): Promise<void> {
+async function cargarDatosDeInventario(): Promise<void> {
   const prisma = new PrismaService();
 
   try {
     await prisma.$connect();
 
-    await prisma.$transaction(async (tx) => {
+    const administrador = await prisma.$transaction(async (tx) => {
+      const emailAdmin = 'admin.inventario@audiorent.test';
+      const passwordParaHash =
+        process.env.SEED_ADMIN_PASSWORD ?? randomBytes(32).toString('hex');
+      const passwordHash = await bcrypt.hash(passwordParaHash, 12);
+      const usuario = await tx.usuario.upsert({
+        where: { email: emailAdmin },
+        update: {
+          rol: 'administrador',
+          ...(process.env.SEED_ADMIN_PASSWORD ? { passwordHash } : {}),
+        },
+        create: {
+          email: emailAdmin,
+          passwordHash,
+          rol: 'administrador',
+        },
+      });
+      const administrador = await tx.administrador.upsert({
+        where: { usuarioId: usuario.id },
+        update: {
+          nombre: 'Administrador de Inventario',
+          telefono: '6441234567',
+        },
+        create: {
+          usuarioId: usuario.id,
+          nombre: 'Administrador de Inventario',
+          telefono: '6441234567',
+        },
+        select: { id: true },
+      });
+
       for (const datos of articulosDePrueba) {
         const { fotografiasUrl, ...datosArticulo } = datos;
         const articuloExistente = await tx.articulo.findFirst({
@@ -91,17 +123,24 @@ async function cargarArticulosDePrueba(): Promise<void> {
           })),
         });
       }
+
+      return administrador;
     });
 
     console.info(
-      `Datos de inventario cargados: ${articulosDePrueba.length} artículos con sus fotografías.`,
+      `Datos de inventario cargados: ${articulosDePrueba.length} artículos con sus fotografías y administrador ID ${administrador.id}.`,
     );
+    if (!process.env.SEED_ADMIN_PASSWORD) {
+      console.info(
+        'El administrador usa una contraseña aleatoria no recuperable. Define SEED_ADMIN_PASSWORD antes del seed si necesitas iniciar sesión con esa cuenta.',
+      );
+    }
   } finally {
     await prisma.$disconnect();
   }
 }
 
-cargarArticulosDePrueba().catch((error: unknown) => {
-  console.error('No fue posible cargar los artículos de prueba:', error);
+cargarDatosDeInventario().catch((error: unknown) => {
+  console.error('No fue posible cargar los datos de inventario:', error);
   process.exitCode = 1;
 });
