@@ -151,7 +151,7 @@ export class ReservasService {
         if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
         const nuevaSolicitud: NuevaSolicitud = {
             clienteId: dto.clienteId,
-            reservadId: dto.reservaId
+            reservaId: dto.reservaId
         };
         return this.solicitudesRepo.crear(nuevaSolicitud);
     }

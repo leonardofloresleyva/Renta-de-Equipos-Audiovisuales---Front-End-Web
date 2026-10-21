@@ -10,7 +10,7 @@ export interface SolicitudRespuestaDto {
 export function aSolicitudDto(s: SolicitudCancelacion): SolicitudRespuestaDto {
     return {
         clienteId: s.clienteId,
-        reservaId: s.reservadId,
+        reservaId: s.reservaId,
         fechaSolicitud: s.fechaSolicitud,
         estadoSolicitud: s.estadoSolicitud
     };

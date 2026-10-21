@@ -174,15 +174,15 @@ export interface BitacoraReserva {
   readonly reservaId: number;
   fechaHoraRecolectada?: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
   fechaHoraEntregada: Date; // DATE TAMBIÉN PUEDE INCLUIR LA HORA
-  montoTotalGarantía: number;
+  montoTotalGarantia: number;
 }
 
-export type EstadoSolicitud = 'pendiente' | 'aprovada' | 'rechazada';
+export type EstadoSolicitud = 'pendiente' | 'aprobada' | 'rechazada';
 
 export interface SolicitudCancelacion {
   readonly id: number;
   readonly clienteId: number;
-  readonly reservadId: number;
+  readonly reservaId: number;
   fechaSolicitud: Date;
   estadoSolicitud: EstadoSolicitud;
 }

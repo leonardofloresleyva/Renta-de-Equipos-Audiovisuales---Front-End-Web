@@ -29,7 +29,7 @@ export class SolicitudCancelacionMemoriaRepository implements SolicitudCancelaci
     }
 
     async buscarPorReserva(idReserva: number): Promise<SolicitudCancelacion | null> {
-        const solicitud = [...SOLICITUDES_CANCELACION.values()].find((s) => s.reservadId === idReserva);
+        const solicitud = [...SOLICITUDES_CANCELACION.values()].find((s) => s.reservaId === idReserva);
         return (solicitud) ? solicitud : null;
     }
 
@@ -38,7 +38,7 @@ export class SolicitudCancelacionMemoriaRepository implements SolicitudCancelaci
         const nuevaSolicitud: SolicitudCancelacion = {
             id: id,
             clienteId: datos.clienteId,
-            reservadId: datos.reservadId,
+            reservaId: datos.reservaId,
             fechaSolicitud: new Date(),
             estadoSolicitud: 'pendiente'
         };
