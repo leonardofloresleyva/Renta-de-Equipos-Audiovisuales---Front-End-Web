@@ -82,7 +82,7 @@ export class ReservaPrismaRepository implements ReservaRepository {
                 });
             }
             // Se crea el depósito de la garantía
-            tx.depositoGarantia.create({
+            await tx.depositoGarantia.create({
                 data: {
                     reservaId: reserva.id,
                     monto: datosReserva.montoGarantia

@@ -4,7 +4,10 @@ import { BitacoraReserva, NuevoInspeccionPieza } from 'src/dominio/entidades';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BitacoraReservaRepository } from '../repositorios/bitacora.reserva.repository';
 
-type BitacoraPrisma = Prisma.BitacoraReservaGetPayload<object>;
+type BitacoraPrisma = Omit<
+  Prisma.BitacoraReservaGetPayload<object>,
+  'montoTotalGarantia'
+> & { montoTotalGarantia: number };
 
 function aDominio(bitacora: BitacoraPrisma): BitacoraReserva {
   return {
@@ -12,7 +15,7 @@ function aDominio(bitacora: BitacoraPrisma): BitacoraReserva {
     reservaId: bitacora.reservaId,
     fechaHoraEntregada: bitacora.fechaHoraEntregada,
     fechaHoraRecolectada: bitacora.fechaHoraRecolectada ?? undefined,
-    montoTotalGarantía: Number(bitacora.montoTotalGarantia),
+    montoTotalGarantia: Number(bitacora.montoTotalGarantia),
   };
 }
 
@@ -50,7 +53,8 @@ export class BitacoraReservaPrismaRepository implements BitacoraReservaRepositor
     const bitacora = await this.prisma.bitacoraReserva.create({
       data: {
         reservaId: datos.reservaId,
-        montoTotalGarantia: datos.montoTotalGarantía,
+        fechaHoraEntregada: new Date(),
+        montoTotalGarantia: datos.montoTotalGarantia,
       },
     });
     return aDominio(bitacora);

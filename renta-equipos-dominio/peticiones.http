@@ -1,13 +1,14 @@
 @baseUrl = http://localhost:3000
 @adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6ImFkbWluLmludmVudGFyaW9AYXVkaW9yZW50LnRlc3QiLCJyb2wiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzkyNTcwNzYyLCJleHAiOjE3OTI1NzQzNjJ9.QRW3e39yeFbig-NRMGrxo4c2sZSyRAm0A4spQCr6X1U
 @adminId = 1
+@bitacoraId = {{registrarEntrega.response.body.$.data.id}}
 
 POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-  "correo": "admin.inventario@audiorent.test",
-  "password": "123test45"
+  "correo": "admin.general@audiorent.mx",
+  "password": "rentas2026"
 }
 
 ### Peticiones Módulo - Inventario ###
@@ -335,9 +336,119 @@ Content-Type: application/json
 { "correo": "admin.general@audiorent.mx", "password": "rentas2026"}
 
 ###
-@tokenAdmin = {{loginAdmin.response.body.data.access_token}}
+@tokenAdmin = {{loginAdmin.response.body.$.data.access_token}}
 
 ### 9.- cancelar reserva - éxito ---> cancelar
 DELETE {{baseUrl}}/reservas/{{idReserva}}
 Content-Type: application/json
 Authorization: Bearer {{tokenAdmin}}
+
+GET {{baseUrl}}/
+
+> {%
+client.test("responde correctamente", function () {
+  client.assert(response.status === 200, "Se esperaba HTTP 200");
+  client.assert(response.body === "Hello World!", "Respuesta inesperada");
+});
+%}
+
+### Crear una reserva de ejemplo
+# @name loginCliente
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "correo": "contacto@eventospro.mx", "password": "rentas2026" }
+
+###
+@tokenCliente = {{loginCliente.response.body.$.data.access_token}}
+
+# @name crearReserva
+POST {{baseUrl}}/reservas
+Authorization: Bearer {{tokenCliente}}
+Content-Type: application/json
+
+{
+  "clienteId": 1,
+  "fechaEntrega": "2030-12-10T10:00:00.000Z",
+  "fechaRecoleccion": "2030-12-12T10:00:00.000Z",
+  "calle": "Av. Miguel Alemán",
+  "numero": "450",
+  "colonia": "Centro",
+  "articulos": [
+    {
+      "articuloId": 1,
+      "cantidad": 1
+    }
+  ]
+}
+
+###
+@reservaBitacoraId = {{crearReserva.response.body.$.data.id}}
+
+### Consultar los artículos reservados (admin)
+# @name articulosDeReserva
+GET {{baseUrl}}/reservas/articulos/{{reservaBitacoraId}}
+
+###
+@articuloReservadoId = {{articulosDeReserva.response.body.$.data[0].id}}
+
+### Listar bitácoras
+GET {{baseUrl}}/operaciones/bitacoras
+
+### Registrar la entrega (requiere reserva apartada y depósito confirmado)
+# @name registrarEntrega
+POST {{baseUrl}}/operaciones/bitacoras
+Content-Type: application/json
+
+{
+  "reservaId": {{reservaBitacoraId}}
+}
+
+### Buscar bitácora por ID (usa la respuesta anterior)
+GET {{baseUrl}}/operaciones/bitacoras/{{bitacoraId}}
+Authorization: Bearer {{tokenAdmin}}
+
+### Buscar bitácora por reserva
+GET {{baseUrl}}/operaciones/bitacoras/reserva/{{reservaBitacoraId}}
+Authorization: Bearer {{tokenAdmin}}
+
+### Registrar la recolección de la bitácora (inspeccionar cada artículo reservado)
+PATCH {{baseUrl}}/operaciones/bitacoras/{{bitacoraId}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "inspeccionesPiezas": [
+    {
+      "articuloReservadoId": {{articuloReservadoId}},
+      "piezasCompletas": 1,
+      "piezasDaniadas": 0,
+      "piezasFaltantes": 0
+    }
+  ]
+}
+
+### Error esperado: ID no entero (400)
+GET {{baseUrl}}/operaciones/bitacoras/no-es-entero
+Authorization: Bearer {{tokenAdmin}}
+
+### Error esperado: bitácora inexistente (404)
+GET {{baseUrl}}/operaciones/bitacoras/99999
+Authorization: Bearer {{tokenAdmin}}
+
+### Error esperado: falta reservaId (400)
+POST {{baseUrl}}/operaciones/bitacoras
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{}
+
+
+### Error esperado: reserva inexistente (404)
+POST {{baseUrl}}/operaciones/bitacoras
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "reservaId": 99999
+}

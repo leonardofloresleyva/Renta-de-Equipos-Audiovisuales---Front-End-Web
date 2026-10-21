@@ -18,6 +18,6 @@ export function aBitacoraReservaDto(
     ...(bitacora.fechaHoraRecolectada && {
       fechaHoraRecolectada: bitacora.fechaHoraRecolectada,
     }),
-    montoTotalGarantía: bitacora.montoTotalGarantía,
+    montoTotalGarantía: bitacora.montoTotalGarantia,
   };
 }
