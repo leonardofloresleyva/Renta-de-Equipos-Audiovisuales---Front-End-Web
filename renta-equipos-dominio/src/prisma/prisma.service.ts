@@ -1,51 +1,43 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+// El puente entre NestJS y Prisma.
+//
+// Prisma 7 ya no trae un motor binario propio: habla con MySQL a
+// traves de un "driver adapter". Dos cosas que sorprenden, probadas
+// contra MySQL 8:
+//
+//   1. El paquete se llama @prisma/adapter-mariadb pero ES el
+//      adaptador de MySQL (usa el driver `mariadb` de npm, que habla
+//      el protocolo de MySQL). No estamos usando MariaDB.
+//   2. Ese driver no acepta una URL que empiece con "mysql://", asi
+//      que la DATABASE_URL se desarma con `new URL(...)`.
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import 'dotenv/config';
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '../generado/prisma/client';
 
-function crearAdaptadorMariaDb(): PrismaMariaDb {
-  const cadenaConexion = process.env.DATABASE_URL;
-  if (!cadenaConexion) {
-    throw new Error('La variable de entorno DATABASE_URL es obligatoria.');
-  }
-
-  const url = new URL(cadenaConexion);
-  if (!['mysql:', 'mariadb:'].includes(url.protocol)) {
-    throw new Error(
-      'DATABASE_URL debe usar el protocolo mysql:// o mariadb://.',
-    );
-  }
-
-  const baseDatos = decodeURIComponent(url.pathname.replace(/^\//, ''));
-  if (!url.hostname || !baseDatos) {
-    throw new Error(
-      'DATABASE_URL debe incluir el host y el nombre de la base de datos.',
-    );
-  }
-
-  return new PrismaMariaDb({
-    host: url.hostname,
-    port: url.port ? Number(url.port) : 3306,
-    user: decodeURIComponent(url.username),
-    password: decodeURIComponent(url.password),
-    database: baseDatos,
-  });
+function configDelDriver(databaseUrl: string) {
+  const u = new URL(databaseUrl);
+  return {
+    host: u.hostname,
+    port: Number(u.port || 3306),
+    user: decodeURIComponent(u.username),
+    password: decodeURIComponent(u.password),
+    database: u.pathname.replace(/^\//, ''),
+    // Obligatorio con MySQL 8: sin esta bandera el driver responde
+    // ER_CANNOT_RETRIEVE_RSA_KEY y no conecta nunca.
+    allowPublicKeyRetrieval: true,
+  };
 }
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
-    super({ adapter: crearAdaptadorMariaDb() });
+    const url = process.env.DATABASE_URL;
+    if (!url) {
+      throw new Error('Falta DATABASE_URL. Revisa el archivo .env');
+    }
+    super({ adapter: new PrismaMariaDb(configDelDriver(url)) });
   }
 
-  async onModuleInit(): Promise<void> {
+  async onModuleInit() {
     await this.$connect();
-  }
-
-  async onModuleDestroy(): Promise<void> {
-    await this.$disconnect();
   }
 }
