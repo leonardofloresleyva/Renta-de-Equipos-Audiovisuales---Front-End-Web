@@ -5,10 +5,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { USUARIO_REPOSITORY } from './repo/usuario.repository';
-import { UsuarioMemoriaRepository } from './infra/usuario.memoria.repository';
+import { UsuarioPrismaRepository } from './infra/usuario.prisma.repository';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
+    PrismaModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
@@ -19,9 +21,7 @@ import { UsuarioMemoriaRepository } from './infra/usuario.memoria.repository';
   providers: [
     AuthService,
     JwtStrategy,
-    // Cambiar UsuarioMemoriaRepository por UsuarioPrismaRepository.
-    // Es la UNICA linea que cambia; el Service no se entera.
-    { provide: USUARIO_REPOSITORY, useClass: UsuarioMemoriaRepository },
+    { provide: USUARIO_REPOSITORY, useClass: UsuarioPrismaRepository },
   ],
 })
 export class AuthModule {}

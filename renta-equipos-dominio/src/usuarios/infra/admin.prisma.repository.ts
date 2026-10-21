@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
 import { Prisma } from '../../generado/prisma/client';
-import type { Administrador } from 'src/dominio/entidades';
+import { Rol, type Administrador } from 'src/dominio/entidades';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { AdminRepository } from '../repositorios/admin.repository';
 
@@ -19,7 +18,12 @@ function aAdministradorDominio(
   return {
     id: administrador.id,
     email: administrador.usuario.email,
-    password: administrador.usuario.passwordHash,
+    passwordHash: administrador.usuario.passwordHash,
+    rol:
+      administrador.usuario.rol === 'administrador'
+        ? Rol.administrador
+        : Rol.cliente,
+    creadoEn: administrador.usuario.creadoEn,
     nombre: administrador.nombre,
     telefono: administrador.telefono ?? undefined,
   };
@@ -54,7 +58,6 @@ export class AdminPrismaRepository implements AdminRepository {
   }
 
   async crear(datos: Omit<Administrador, 'id'>): Promise<Administrador> {
-    const passwordHash = await bcrypt.hash(datos.password, 12);
     const administrador = await this.prisma.administrador.create({
       data: {
         nombre: datos.nombre,
@@ -62,7 +65,7 @@ export class AdminPrismaRepository implements AdminRepository {
         usuario: {
           create: {
             email: datos.email,
-            passwordHash,
+            passwordHash: datos.passwordHash,
             rol: 'administrador',
           },
         },
@@ -99,8 +102,8 @@ export class AdminPrismaRepository implements AdminRepository {
 
       const datosUsuario: Prisma.UsuarioUpdateInput = {};
       if (datos.email !== undefined) datosUsuario.email = datos.email;
-      if (datos.password !== undefined) {
-        datosUsuario.passwordHash = await bcrypt.hash(datos.password, 12);
+      if (datos.passwordHash !== undefined) {
+        datosUsuario.passwordHash = datos.passwordHash;
       }
       if (Object.keys(datosUsuario).length > 0) {
         await transaccion.usuario.update({
