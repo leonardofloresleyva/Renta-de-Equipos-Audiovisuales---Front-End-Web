@@ -31,6 +31,25 @@
 $ npm install
 ```
 
+## Persistencia de operaciones con Prisma
+
+El módulo de operaciones guarda bitácoras e inspecciones en MySQL. Los módulos de
+reservas, usuarios e inventario siguen usando sus repositorios en memoria; por
+eso `reservaId` y `articuloReservadoId` se guardan como identificadores, sin
+relaciones de clave foránea hacia esas entidades.
+
+1. Copia `.env.ejemplo` a `.env` y configura `DATABASE_URL` con las credenciales
+   de tu base MySQL.
+2. Instala las dependencias con `npm install`; el cliente Prisma se genera durante
+   la instalación.
+3. Crea las tablas aplicando la migración inicial:
+
+   ```bash
+   npm run prisma:migrate -- --name init
+   ```
+
+También puedes regenerar el cliente manualmente con `npm run prisma:generate`.
+
 ## Compile and run the project
 
 ```bash

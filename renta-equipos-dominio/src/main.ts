@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
@@ -12,7 +13,7 @@ async function bootstrap() {
     origin: ['http://localhost:5173'],
     exposedHeaders: ['Location', 'X-Request-Id'],
   });
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

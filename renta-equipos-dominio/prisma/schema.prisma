@@ -11,3 +11,28 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+model BitacoraReserva {
+  id                   Int               @id @default(autoincrement())
+  reservaId            Int               @unique
+  fechaHoraEntregada   DateTime          @default(now())
+  fechaHoraRecolectada DateTime?
+  montoTotalGarantia   Decimal           @db.Decimal(10, 2)
+  inspeccionesPieza    InspeccionPieza[]
+
+  @@map("bitacoras_reserva")
+}
+
+model InspeccionPieza {
+  id                  Int             @id @default(autoincrement())
+  articuloReservadoId Int
+  bitacoraReservaId   Int
+  piezasCompletas     Int
+  piezasDaniadas      Int?
+  piezasFaltantes     Int?
+  montoGarantia       Decimal?        @db.Decimal(10, 2)
+  bitacoraReserva     BitacoraReserva @relation(fields: [bitacoraReservaId], references: [id], onDelete: Cascade)
+
+  @@index([articuloReservadoId])
+  @@map("inspecciones_pieza")
+}
