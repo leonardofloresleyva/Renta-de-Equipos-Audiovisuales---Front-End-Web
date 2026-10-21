@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '../../generado/prisma/client';
 import type { Articulo, FiltrosArticulo } from 'src/dominio/entidades';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { ArticuloRepository } from '../repositorios/articulo.repository';
 
 const ARTICULO_CON_FOTOGRAFIAS = {
-  fotografias: { orderBy: { orden: 'asc' } },
+  fotografiasUrl: { orderBy: { id: 'asc' } },
 } satisfies Prisma.ArticuloInclude;
 
 type ArticuloConFotografias = Prisma.ArticuloGetPayload<{
@@ -20,7 +20,7 @@ function aArticuloDominio(articulo: ArticuloConFotografias): Articulo {
     precioPorDia: Number(articulo.precioPorDia),
     existencias: articulo.existencias,
     categoria: articulo.categoria,
-    fotografiasUrl: articulo.fotografias.map((fotografia) => fotografia.url),
+    fotografiasUrl: articulo.fotografiasUrl.map((fotografia) => fotografia.url),
   };
 }
 
@@ -82,8 +82,8 @@ export class ArticuloPrismaRepository implements ArticuloRepository {
         precioPorDia: datos.precioPorDia,
         existencias: datos.existencias,
         categoria: datos.categoria,
-        fotografias: {
-          create: datos.fotografiasUrl.map((url, orden) => ({ url, orden })),
+        fotografiasUrl: {
+          create: datos.fotografiasUrl.map((url) => ({ url })),
         },
       },
       include: ARTICULO_CON_FOTOGRAFIAS,
@@ -118,9 +118,9 @@ export class ArticuloPrismaRepository implements ArticuloRepository {
         datosActualizacion.categoria = datos.categoria;
       }
       if (datos.fotografiasUrl !== undefined) {
-        datosActualizacion.fotografias = {
+        datosActualizacion.fotografiasUrl = {
           deleteMany: {},
-          create: datos.fotografiasUrl.map((url, orden) => ({ url, orden })),
+          create: datos.fotografiasUrl.map((url) => ({ url })),
         };
       }
 

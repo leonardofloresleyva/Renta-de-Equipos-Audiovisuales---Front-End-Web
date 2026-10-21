@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '../../generado/prisma/client';
 import type {
   FiltrosMantenimiento,
   PiezasMantenimiento,
