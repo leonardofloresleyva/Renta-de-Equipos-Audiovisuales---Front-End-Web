@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../../generated/prisma/client';
 import { BitacoraReserva, NuevoInspeccionPieza } from 'src/dominio/entidades';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { BitacoraReservaRepository } from '../repositorios/bitacora.reserva.repository';
+import { Prisma } from 'src/generado/prisma/client';
 
 type BitacoraPrisma = Omit<
   Prisma.BitacoraReservaGetPayload<object>,
