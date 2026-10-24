@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../generado/prisma/client';
 import { Rol, type Administrador } from 'src/dominio/entidades';
+import {
+  AdministradorConRegistrosError,
+  EmailYaRegistradoError,
+} from 'src/dominio/errores';
 import { PrismaService } from 'src/prisma/prisma.service';
 import type { AdminRepository } from '../repositorios/admin.repository';
 
@@ -29,6 +33,13 @@ function aAdministradorDominio(
   };
 }
 
+function esErrorPrisma(error: unknown, codigo: string): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === codigo
+  );
+}
+
 @Injectable()
 export class AdminPrismaRepository implements AdminRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -51,88 +62,111 @@ export class AdminPrismaRepository implements AdminRepository {
 
   async buscarPorEmail(email: string): Promise<Administrador | null> {
     const administrador = await this.prisma.administrador.findFirst({
-      where: { usuario: { email } },
+      where: { usuario: { email: email.toLowerCase() } },
       include: ADMINISTRADOR_CON_USUARIO,
     });
     return administrador ? aAdministradorDominio(administrador) : null;
   }
 
   async crear(datos: Omit<Administrador, 'id'>): Promise<Administrador> {
-    const administrador = await this.prisma.administrador.create({
-      data: {
-        nombre: datos.nombre,
-        telefono: datos.telefono,
-        usuario: {
-          create: {
-            email: datos.email,
-            passwordHash: datos.passwordHash,
-            rol: 'administrador',
+    try {
+      const administrador = await this.prisma.administrador.create({
+        data: {
+          nombre: datos.nombre,
+          telefono: datos.telefono,
+          usuario: {
+            create: {
+              email: datos.email.toLowerCase(),
+              passwordHash: datos.passwordHash,
+              rol: 'administrador',
+            },
           },
         },
-      },
-      include: ADMINISTRADOR_CON_USUARIO,
-    });
-    return aAdministradorDominio(administrador);
+        include: ADMINISTRADOR_CON_USUARIO,
+      });
+      return aAdministradorDominio(administrador);
+    } catch (error) {
+      if (esErrorPrisma(error, 'P2002')) {
+        throw new EmailYaRegistradoError(datos.email);
+      }
+      throw error;
+    }
   }
 
   async actualizar(
     id: number,
     datos: Partial<Administrador>,
   ): Promise<Administrador | null> {
-    return this.prisma.$transaction(async (transaccion) => {
-      const existente = await transaccion.administrador.findUnique({
-        where: { id },
-        include: ADMINISTRADOR_CON_USUARIO,
-      });
-      if (!existente) return null;
-
-      const datosAdministrador: Prisma.AdministradorUpdateInput = {};
-      if (datos.nombre !== undefined) {
-        datosAdministrador.nombre = datos.nombre;
-      }
-      if (datos.telefono !== undefined) {
-        datosAdministrador.telefono = datos.telefono;
-      }
-      if (Object.keys(datosAdministrador).length > 0) {
-        await transaccion.administrador.update({
+    return this.prisma
+      .$transaction(async (transaccion) => {
+        const existente = await transaccion.administrador.findUnique({
           where: { id },
-          data: datosAdministrador,
+          include: ADMINISTRADOR_CON_USUARIO,
         });
-      }
+        if (!existente) return null;
 
-      const datosUsuario: Prisma.UsuarioUpdateInput = {};
-      if (datos.email !== undefined) datosUsuario.email = datos.email;
-      if (datos.passwordHash !== undefined) {
-        datosUsuario.passwordHash = datos.passwordHash;
-      }
-      if (Object.keys(datosUsuario).length > 0) {
-        await transaccion.usuario.update({
-          where: { id: existente.usuarioId },
-          data: datosUsuario,
+        const datosAdministrador: Prisma.AdministradorUpdateInput = {};
+        if (datos.nombre !== undefined) {
+          datosAdministrador.nombre = datos.nombre;
+        }
+        if (datos.telefono !== undefined) {
+          datosAdministrador.telefono = datos.telefono;
+        }
+        if (Object.keys(datosAdministrador).length > 0) {
+          await transaccion.administrador.update({
+            where: { id },
+            data: datosAdministrador,
+          });
+        }
+
+        const datosUsuario: Prisma.UsuarioUpdateInput = {};
+        if (datos.email !== undefined) {
+          datosUsuario.email = datos.email.toLowerCase();
+        }
+        if (datos.passwordHash !== undefined) {
+          datosUsuario.passwordHash = datos.passwordHash;
+        }
+        if (Object.keys(datosUsuario).length > 0) {
+          await transaccion.usuario.update({
+            where: { id: existente.usuarioId },
+            data: datosUsuario,
+          });
+        }
+
+        const actualizado = await transaccion.administrador.findUnique({
+          where: { id },
+          include: ADMINISTRADOR_CON_USUARIO,
         });
-      }
-
-      const actualizado = await transaccion.administrador.findUniqueOrThrow({
-        where: { id },
-        include: ADMINISTRADOR_CON_USUARIO,
+        return actualizado ? aAdministradorDominio(actualizado) : null;
+      })
+      .catch((error: unknown) => {
+        if (esErrorPrisma(error, 'P2002')) {
+          throw new EmailYaRegistradoError(datos.email);
+        }
+        throw error;
       });
-      return aAdministradorDominio(actualizado);
-    });
   }
 
   async eliminar(id: number): Promise<Administrador | null> {
-    return this.prisma.$transaction(async (transaccion) => {
-      const administrador = await transaccion.administrador.findUnique({
-        where: { id },
-        include: ADMINISTRADOR_CON_USUARIO,
-      });
-      if (!administrador) return null;
+    try {
+      return await this.prisma.$transaction(async (transaccion) => {
+        const administrador = await transaccion.administrador.findUnique({
+          where: { id },
+          include: ADMINISTRADOR_CON_USUARIO,
+        });
+        if (!administrador) return null;
 
-      await transaccion.administrador.delete({ where: { id } });
-      await transaccion.usuario.delete({
-        where: { id: administrador.usuarioId },
+        await transaccion.administrador.delete({ where: { id } });
+        await transaccion.usuario.delete({
+          where: { id: administrador.usuarioId },
+        });
+        return aAdministradorDominio(administrador);
       });
-      return aAdministradorDominio(administrador);
-    });
+    } catch (error) {
+      if (esErrorPrisma(error, 'P2003')) {
+        throw new AdministradorConRegistrosError(id);
+      }
+      throw error;
+    }
   }
 }

@@ -12,7 +12,7 @@ export class AdminNoEncontradoError extends ErrorNoEncontrado {
     super(
       id
         ? `Administrador con ID ${id} no encontrado.`
-        : 'Administrador no encontrado.'
+        : 'Administrador no encontrado.',
     );
     this.name = 'AdminNoEncontradoError';
   }
@@ -21,9 +21,7 @@ export class AdminNoEncontradoError extends ErrorNoEncontrado {
 export class ArticuloNoEncontradoError extends ErrorNoEncontrado {
   constructor(id?: number | string) {
     super(
-      id
-        ? `Artículo con ID ${id} no encontrado.`
-        : 'Artículo no encontrado.'
+      id ? `Artículo con ID ${id} no encontrado.` : 'Artículo no encontrado.',
     );
     this.name = 'ArticuloNoEncontradoError';
   }
@@ -32,9 +30,7 @@ export class ArticuloNoEncontradoError extends ErrorNoEncontrado {
 export class ClienteNoEncontradoError extends ErrorNoEncontrado {
   constructor(id?: number | string) {
     super(
-      id
-        ? `Cliente con ID ${id} no encontrado.`
-        : 'Cliente no encontrado.'
+      id ? `Cliente con ID ${id} no encontrado.` : 'Cliente no encontrado.',
     );
     this.name = 'ClienteNoEncontradoError';
   }
@@ -43,9 +39,7 @@ export class ClienteNoEncontradoError extends ErrorNoEncontrado {
 export class ReservaNoEncontradaError extends ErrorNoEncontrado {
   constructor(id?: number | string) {
     super(
-      id
-        ? `Reserva con ID ${id} no encontrada.`
-        : 'Reserva no encontrada.'
+      id ? `Reserva con ID ${id} no encontrada.` : 'Reserva no encontrada.',
     );
     this.name = 'ReservaNoEncontradaError';
   }
@@ -56,7 +50,7 @@ export class SolicitudNoEncontradaError extends ErrorNoEncontrado {
     super(
       id
         ? `Solicitud de cancelación con ID ${id} no encontrada.`
-        : 'Solicitud de cancelación no encontrada.'
+        : 'Solicitud de cancelación no encontrada.',
     );
     this.name = 'SolicitudNoEncontradaError';
   }
@@ -71,21 +65,25 @@ export class EmailYaRegistradoError extends ErrorIntegridad {
     super(
       email
         ? `El correo electrónico '${email}' ya se encuentra registrado.`
-        : 'El correo electrónico ya se encuentra registrado.'
+        : 'El correo electrónico ya se encuentra registrado.',
     );
     this.name = 'EmailYaRegistradoError';
   }
 }
 
 export class ClienteYaExisteError extends ErrorIntegridad {
-  constructor(mensaje = 'El cliente ya se encuentra registrado en el sistema.') {
+  constructor(
+    mensaje = 'El cliente ya se encuentra registrado en el sistema.',
+  ) {
     super(mensaje);
     this.name = 'ClienteYaExisteError';
   }
 }
 
 export class DatosInvalidosError extends ErrorIntegridad {
-  constructor(mensaje = 'Los datos proporcionados son inválidos o incompletos.') {
+  constructor(
+    mensaje = 'Los datos proporcionados son inválidos o incompletos.',
+  ) {
     super(mensaje);
     this.name = 'DatosInvalidosError';
   }
@@ -93,15 +91,20 @@ export class DatosInvalidosError extends ErrorIntegridad {
 
 export class CantidadExcesivaError extends ErrorIntegridad {
   constructor(id: number, diferencia: number) {
-    super(`La cantidad seleccionada del artículo de id ${id} supera por ${diferencia} unidades a sus existencias.`);
+    super(
+      `La cantidad seleccionada del artículo de id ${id} supera por ${diferencia} unidades a sus existencias.`,
+    );
     this.name = 'CantidadExcesivaError';
   }
 }
 
 export class EstadoAjusteNoValido extends ErrorIntegridad {
   constructor(esIncremento: boolean) {
-    super((esIncremento) ? 'No pueden añadirse existencias de artículos dañados o perdidos' : 
-    'No pueden restarse existencias en una adquisición');
+    super(
+      esIncremento
+        ? 'No pueden añadirse existencias de artículos dañados o perdidos'
+        : 'No pueden restarse existencias en una adquisición',
+    );
     this.name = 'EstadoAjusteNoValido';
   }
 }
@@ -118,7 +121,7 @@ export class DisponibilidadInsuficienteError extends ErrorReglaDeNegocio {
     super(
       articuloNombre
         ? `No hay suficientes piezas disponibles del artículo '${articuloNombre}' para el período solicitado.`
-        : 'No hay piezas disponibles de alguno de los artículos seleccionados para el período solicitado.'
+        : 'No hay piezas disponibles de alguno de los artículos seleccionados para el período solicitado.',
     );
     this.name = 'DisponibilidadInsuficienteError';
   }
@@ -129,7 +132,7 @@ export class DisponibilidadInsuficienteError extends ErrorReglaDeNegocio {
  */
 export class FechasInvalidasError extends ErrorReglaDeNegocio {
   constructor(
-    mensaje = 'Las fechas son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.'
+    mensaje = 'Las fechas son inválidas. La fecha de fin debe ser posterior a la de inicio y no puede ser una fecha pasada.',
   ) {
     super(mensaje);
     this.name = 'FechasReservaInvalidasError';
@@ -141,7 +144,7 @@ export class FechasInvalidasError extends ErrorReglaDeNegocio {
  */
 export class DepositoGarantiaRequeridoError extends ErrorReglaDeNegocio {
   constructor(
-    mensaje = 'No se puede confirmar la reserva sin haber cubierto el depósito en garantía estimado.'
+    mensaje = 'No se puede confirmar la reserva sin haber cubierto el depósito en garantía estimado.',
   ) {
     super(mensaje);
     this.name = 'DepositoGarantiaRequeridoError';
@@ -153,7 +156,7 @@ export class DepositoGarantiaRequeridoError extends ErrorReglaDeNegocio {
  */
 export class ArticuloEnMantenimientoError extends ErrorReglaDeNegocio {
   constructor(
-    mensaje = 'El artículo reporta avería o se encuentra en mantenimiento y no está disponible para renta.'
+    mensaje = 'El artículo reporta avería o se encuentra en mantenimiento y no está disponible para renta.',
   ) {
     super(mensaje);
     this.name = 'ArticuloEnMantenimientoError';
@@ -165,7 +168,7 @@ export class ArticuloEnMantenimientoError extends ErrorReglaDeNegocio {
  */
 export class ReduccionStockInvalidaError extends ErrorReglaDeNegocio {
   constructor(
-    mensaje = 'No se pueden reducir las existencias de un artículo por debajo de las piezas comprometidas en reservas activas o mantenimiento.'
+    mensaje = 'No se pueden reducir las existencias de un artículo por debajo de las piezas comprometidas en reservas activas o mantenimiento.',
   ) {
     super(mensaje);
     this.name = 'ReduccionStockInvalidaError';
@@ -174,7 +177,9 @@ export class ReduccionStockInvalidaError extends ErrorReglaDeNegocio {
 
 export class ExistenciasModificadasConcurrentementeError extends ErrorReglaDeNegocio {
   constructor() {
-    super('Las existencias del artículo cambiaron durante el ajuste. Intenta nuevamente.');
+    super(
+      'Las existencias del artículo cambiaron durante el ajuste. Intenta nuevamente.',
+    );
     this.name = 'ExistenciasModificadasConcurrentementeError';
   }
 }
@@ -184,7 +189,7 @@ export class ExistenciasModificadasConcurrentementeError extends ErrorReglaDeNeg
  */
 export class CancelacionReservaInvalidaError extends ErrorReglaDeNegocio {
   constructor(
-    mensaje = 'No se puede cancelar una reserva cuyos artículos ya han sido entregados o finalizados.'
+    mensaje = 'No se puede cancelar una reserva cuyos artículos ya han sido entregados o finalizados.',
   ) {
     super(mensaje);
     this.name = 'CancelacionReservaInvalidaError';
@@ -195,8 +200,43 @@ export class CancelacionReservaInvalidaError extends ErrorReglaDeNegocio {
  * Error para cambios de estado no permitidos en el ciclo de vida de la reserva.
  */
 export class EstadoReservaInvalidoError extends ErrorReglaDeNegocio {
-  constructor(mensaje = 'La transición solicitada no es válida para el estado actual de la reserva.') {
+  constructor(
+    mensaje = 'La transición solicitada no es válida para el estado actual de la reserva.',
+  ) {
     super(mensaje);
     this.name = 'EstadoReservaInvalidoError';
+  }
+}
+
+/* =========================================================
+   Errores de gestión de usuarios
+   ========================================================= */
+
+export class NoSePuedeEliminarPropiaCuentaError extends ErrorReglaDeNegocio {
+  constructor() {
+    super('No puedes eliminar tu propia cuenta de administrador.');
+    this.name = 'NoSePuedeEliminarPropiaCuentaError';
+  }
+}
+
+export class ClienteConRegistrosError extends ErrorIntegridad {
+  constructor(id?: number) {
+    super(
+      id
+        ? `No se puede eliminar el cliente con ID ${id} porque tiene reservas o solicitudes asociadas.`
+        : 'No se puede eliminar el cliente porque tiene reservas o solicitudes asociadas.',
+    );
+    this.name = 'ClienteConRegistrosError';
+  }
+}
+
+export class AdministradorConRegistrosError extends ErrorIntegridad {
+  constructor(id?: number) {
+    super(
+      id
+        ? `No se puede eliminar el administrador con ID ${id} porque tiene ajustes o mantenimientos asociados.`
+        : 'No se puede eliminar el administrador porque tiene ajustes o mantenimientos asociados.',
+    );
+    this.name = 'AdministradorConRegistrosError';
   }
 }

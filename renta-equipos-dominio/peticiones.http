@@ -1,14 +1,27 @@
 @baseUrl = http://localhost:3000
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6ImFkbWluLmludmVudGFyaW9AYXVkaW9yZW50LnRlc3QiLCJyb2wiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzkyNTcwNzYyLCJleHAiOjE3OTI1NzQzNjJ9.QRW3e39yeFbig-NRMGrxo4c2sZSyRAm0A4spQCr6X1U
-@adminId = 1
 
-POST http://localhost:3000/auth/login
+### 0. Login (ejecutar primero: el token del resto del archivo se toma de esta respuesta)
+# @name login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "correo": "admin.inventario@audiorent.test",
-  "password": "123test45"
+  "password": "gimnasio2026"
 }
+
+### 0b. Listar administradores para resolver el id del admin de sesión (ejecutar después del login)
+# El JWT trae el id de Usuario, pero las peticiones necesitan el id de Administrador.
+# Tras correr los seeds, admin.inventario es el 3er administrador de la lista
+# (los ids 1 y 2 los crea prisma/seed.ts; el de inventario lo crea inventario.seed.ts).
+# @name adminSesion
+GET {{baseUrl}}/usuarios/administradores
+Authorization: Bearer {{login.response.body.$.data.access_token}}
+Accept: application/json
+
+### Variables de sesión (se resuelven con las respuestas de 0 y 0b; el token expira en 1h: si da 401, re-ejecuta el login)
+@adminToken = {{login.response.body.$.data.access_token}}
+@adminId = {{adminSesion.response.body.$.data[2].id}}
 
 ### Peticiones Módulo - Inventario ###
 ### 1. Listar artículos
@@ -217,3 +230,123 @@ Accept: application/json
   "fechaTermino": "2027-01-22T00:00:00.000Z",
   "motivo": "limpieza"
 }
+
+### Peticiones Módulo - Usuarios ###
+### 24. Listar administradores
+GET {{baseUrl}}/usuarios/administradores
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 25. Consultar administrador por ID
+GET {{baseUrl}}/usuarios/administradores/1
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 26. Registrar administrador
+# @name registrarAdmin
+POST {{baseUrl}}/usuarios/administradores
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "correo": "admin.nuevo@audiorent.test",
+  "password": "prueba12345",
+  "nombre": "Administrador Nuevo",
+  "telefono": "6440000001"
+}
+
+### 27. Actualizar administrador (el recién registrado por el request 26)
+PATCH {{baseUrl}}/usuarios/administradores/{{registrarAdmin.response.body.$.data.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nombre": "Administrador Actualizado",
+  "telefono": "6440000099"
+}
+
+### 28. Eliminar administrador (el recién registrado por el request 26)
+DELETE {{baseUrl}}/usuarios/administradores/{{registrarAdmin.response.body.$.data.id}}
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 29. Listar clientes
+GET {{baseUrl}}/usuarios/clientes
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 30. Consultar cliente por ID
+GET {{baseUrl}}/usuarios/clientes/1
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 31. Registrar cliente
+# @name registrarCliente
+POST {{baseUrl}}/usuarios/clientes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "correo": "cliente.nuevo@audiorent.test",
+  "password": "prueba12345",
+  "nombre": "Cliente Nuevo",
+  "telefono": "6440000002",
+  "direccion": {
+    "calle": "Calle Prueba",
+    "colonia": "Centro",
+    "numero": "123"
+  }
+}
+
+### 32. Actualizar cliente (el recién registrado por el request 31)
+PATCH {{baseUrl}}/usuarios/clientes/{{registrarCliente.response.body.$.data.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "telefono": "6440000099",
+  "direccion": {
+    "colonia": "Nueva Colonia"
+  }
+}
+
+### 33. Eliminar cliente (el recién registrado por el request 31)
+DELETE {{baseUrl}}/usuarios/clientes/{{registrarCliente.response.body.$.data.id}}
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 34. Correo duplicado (409)
+POST {{baseUrl}}/usuarios/clientes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "correo": "contacto@eventospro.mx",
+  "password": "prueba12345",
+  "nombre": "Cliente Duplicado",
+  "telefono": "6440000003",
+  "direccion": {
+    "calle": "Calle",
+    "colonia": "Centro",
+    "numero": "1"
+  }
+}
+
+### 35. Eliminar cliente con reservas (409)
+DELETE {{baseUrl}}/usuarios/clientes/1
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 36. Autoeliminación de administrador (409) - debe apuntar al admin del token ({{adminId}})
+DELETE {{baseUrl}}/usuarios/administradores/{{adminId}}
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### 37. Sin token (401)
+GET {{baseUrl}}/usuarios/administradores
+Accept: application/json

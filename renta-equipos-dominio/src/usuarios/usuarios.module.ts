@@ -2,21 +2,22 @@ import { Module } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { AdminPrismaRepository } from './infra/admin.prisma.repository';
 import { ADMIN_REPOSITORY, CLIENTE_REPOSITORY } from './usuarios.tokens';
-import { ClienteMemoriaRepository } from './infra/cliente.memoria.repository';
+import { ClientePrismaRepository } from './infra/cliente.prisma.repository';
 import { UsuariosController } from './usuarios.controller';
 
 @Module({
-  providers: [UsuariosService, 
+  providers: [
+    UsuariosService,
     {
       provide: ADMIN_REPOSITORY,
-      useClass: AdminPrismaRepository
+      useClass: AdminPrismaRepository,
     },
     {
       provide: CLIENTE_REPOSITORY,
-      useClass: ClienteMemoriaRepository
-    }
+      useClass: ClientePrismaRepository,
+    },
   ],
   exports: [UsuariosService],
-  controllers: [UsuariosController]
+  controllers: [UsuariosController],
 })
 export class UsuariosModule {}
