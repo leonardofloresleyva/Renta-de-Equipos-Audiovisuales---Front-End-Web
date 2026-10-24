@@ -1,7 +1,9 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { DepositoGarantiaRepository } from "../repositorios/deposito.garantia.repository";
 import { DepositoGarantia } from "src/dominio/entidades";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class DepositoGarantiaPrismaRepository implements DepositoGarantiaRepository {
     constructor(private readonly prisma: PrismaService) {}
 

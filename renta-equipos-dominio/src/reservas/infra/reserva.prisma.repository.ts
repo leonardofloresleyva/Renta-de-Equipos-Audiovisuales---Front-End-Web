@@ -1,9 +1,9 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { ReservaRepository } from "../repositorios/reserva.repository";
 import { FiltrosReserva, NuevaReserva, NuevoArticuloReserva, Reserva } from "src/dominio/entidades";
-import { create } from "domain";
+import { Injectable } from "@nestjs/common";
 
-
+@Injectable()
 export class ReservaPrismaRepository implements ReservaRepository {
     constructor(private readonly prisma: PrismaService) { }
 
@@ -82,7 +82,7 @@ export class ReservaPrismaRepository implements ReservaRepository {
                 });
             }
             // Se crea el depósito de la garantía
-            tx.depositoGarantia.create({
+            await tx.depositoGarantia.create({
                 data: {
                     reservaId: reserva.id,
                     monto: datosReserva.montoGarantia
@@ -125,14 +125,16 @@ export class ReservaPrismaRepository implements ReservaRepository {
         if (!reserva) return null;
         return this.prisma.$transaction(async (tx) => {
             // Aprueba la solicitud asociada a la reserva (si existe)
-            await this.prisma.solicitudCancelacion.update({
-                where: { reservaId: reserva.id },
-                data: {
-                    estadoSolicitud: "aprobada"
-                }
-            });
+            if (await tx.solicitudCancelacion.findUnique({ where: { reservaId: reserva.id } })) {
+                await tx.solicitudCancelacion.update({
+                    where: { reservaId: reserva.id },
+                    data: {
+                        estadoSolicitud: "aprobada"
+                    }
+                });
+            }
             // Cancela la reserva y la devuelve
-            return this.prisma.reserva.update({
+            return tx.reserva.update({
                 where: { id },
                 data: {
                     estado: "cancelada"
