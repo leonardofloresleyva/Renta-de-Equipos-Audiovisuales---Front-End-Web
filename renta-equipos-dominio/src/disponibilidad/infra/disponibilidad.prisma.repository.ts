@@ -66,18 +66,17 @@ export class DisponibilidadPrismaRepository
       where: {
         articuloId: articuloId,
         reserva: {
-          estado: "apartada"
-        },
-        OR: [
-          {
-            AND: [{ reserva: { fechaEntrega: { lt: fechaInicio } } }, { reserva: { fechaRecoleccion: { gt: fechaInicio } } }]
+          estado: "apartada",
+          fechaEntrega: {
+            lte: fechaFin
           },
-          {
-            AND: [{ reserva: { fechaEntrega: { lt: fechaFin } } }, { reserva: { fechaRecoleccion: { gt: fechaFin } } }]
+          fechaRecoleccion: {
+            gte: fechaInicio
           }
-        ]
+        }
       }
     });
+
     return resultado._sum.cantidad ?? 0;
   }
 }

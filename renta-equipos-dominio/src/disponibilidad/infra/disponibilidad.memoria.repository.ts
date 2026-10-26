@@ -19,8 +19,7 @@ export class DisponibilidadMemoriaRepository implements DisponibilidadRepository
         let cantidadPiezas = 0;
         const piezas = [...PIEZAS_MANTENIMIENTO.values()]
             .filter((p) => p.articuloId === articuloId && (
-                (fechaInicio >= p.fechaInicio && fechaInicio <= p.fechaTermino) ||
-                (fechaFin >= p.fechaInicio && fechaFin <= p.fechaTermino)
+                (p.fechaInicio <= fechaFin) && (p.fechaTermino >= fechaInicio)
             ));
         piezas.forEach((p) => cantidadPiezas += p.cantidad);
         return cantidadPiezas;
@@ -40,14 +39,8 @@ export class DisponibilidadMemoriaRepository implements DisponibilidadRepository
             .filter((a) => a.articuloId === articuloId &&
                 (RESERVAS.get(a.reservaId)?.estado ?? 'apartada') === 'apartada' &&
                 (
-                    (
-                        fechaInicio >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) &&
-                        fechaInicio <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
-                    ) ||
-                    (
-                        fechaFin >= (RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) &&
-                        fechaFin <= (RESERVAS.get(a.reservaId)?.fechaRecoleccion ?? new Date())
-                    )
+                    ((RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) <= fechaFin) &&
+                    ((RESERVAS.get(a.reservaId)?.fechaEntrega ?? new Date()) >= fechaInicio)
                 ));
         reservados.forEach((a) => piezasReservadas += a.cantidad);
         return piezasReservadas;

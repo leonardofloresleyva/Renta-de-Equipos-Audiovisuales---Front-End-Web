@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { DisponibilidadService } from './disponibilidad.service';
 import { DISPONIBILIDAD_REPOSITORY } from './disponibilidad.tokens';
-import { DisponibilidadMemoriaRepository } from './infra/disponibilidad.memoria.repository';
 import { DisponibilidadController } from './disponibilidad.controller';
+import { DisponibilidadPrismaRepository } from './infra/disponibilidad.prisma.repository';
 
 @Module({
   providers: [DisponibilidadService, {
     provide: DISPONIBILIDAD_REPOSITORY,
-    useClass: DisponibilidadMemoriaRepository
+    useClass: DisponibilidadPrismaRepository
   }],
   exports: [DisponibilidadService],
   controllers: [DisponibilidadController]

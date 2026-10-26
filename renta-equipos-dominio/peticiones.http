@@ -382,33 +382,28 @@ Content-Type: application/json
   ]
 }
 
-### 3.- registro de nuevo cliente ---> registrarCliente
-# @name signInOmar
-POST {{baseUrl}}/auth/registro
+### 3.- inicio de sesión de cliente
+# @name loginSofia
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
-{ 
-  "correo": "omar@itson.mx", 
-  "password": "sduadu&&68i78" ,
-  "nombre": "Omar García López",
-  "telefono": "6441857493",
-  "calle": "Nueva Calle",
-  "colonia": "Sacramento",
-  "numero": "67"
-}
+{ "correo": "sofia.castro@gmail.com", "password": "rentas2026"}
 
 ###
-@signInOmar = {{signInOmar.response.body.data.access_token}}
+@tokenSofia = {{loginSofia.response.body.data.access_token}}
+
+###
+@clienteId = 2
 
 ### 4.- registro de nueva reserva - error - regla de negocio 1 ---> crear
 POST {{baseUrl}}/reservas/
 Content-Type: application/json
-Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+Authorization: Bearer {{tokenSofia}}
 
 {
-  "clienteId": 1,
+  "clienteId": {{clienteId}},
   "fechaEntrega": "2026-12-09T00:00:00",
-  "fechaRecoleccion": "2026-12-013T00:00:00",
+  "fechaRecoleccion": "2026-12-13T00:00:00",
   "calle": "Galeana",
   "colonia": "Valle Dorado",
   "numero": "123",
@@ -417,11 +412,11 @@ Authorization: Bearer {{signInOmar.response.body.data.access_token}}
       "articuloId": 1,
       "cantidad": 2
     }, {
-      "articuloId": 3,
+      "articuloId": 4,
       "cantidad": 9
     }, {
-      "articuloId": 2,
-      "cantidad": 1 
+      "articuloId": 5,
+      "cantidad": 11 
     }
   ]
 }
@@ -430,7 +425,7 @@ Authorization: Bearer {{signInOmar.response.body.data.access_token}}
 # @name reserva
 POST {{baseUrl}}/reservas/
 Content-Type: application/json
-Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+Authorization: Bearer {{tokenSofia}}
 
 {
   "clienteId": 1,
@@ -459,7 +454,7 @@ Authorization: Bearer {{signInOmar.response.body.data.access_token}}
 ### 7.- cancelar reserva - error - rol incorrecto ---> cancelar
 DELETE {{baseUrl}}/reservas/{{idReserva}}
 Content-Type: application/json
-Authorization: Bearer {{signInOmar.response.body.data.access_token}}
+Authorization: Bearer {{tokenSofia}}
 
 ### 8.- login de admin
 # @name loginAdmin

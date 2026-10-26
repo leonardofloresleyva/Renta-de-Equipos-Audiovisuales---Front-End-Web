@@ -42,8 +42,7 @@ export class DominioExceptionFilter implements ExceptionFilter {
       error instanceof ClienteNoEncontradoError ||
       error instanceof ReservaNoEncontradaError ||
       error instanceof SolicitudNoEncontradaError
-    )
-      return HttpStatus.NOT_FOUND;
+    ) { return HttpStatus.NOT_FOUND; }
 
     if (
       error instanceof DisponibilidadInsuficienteError ||
@@ -54,8 +53,7 @@ export class DominioExceptionFilter implements ExceptionFilter {
       error instanceof ExistenciasModificadasConcurrentementeError ||
       error instanceof CancelacionReservaInvalidaError ||
       error instanceof EstadoReservaInvalidoError
-    )
-      return HttpStatus.CONFLICT;
+    ) { return HttpStatus.CONFLICT; }
 
     if (
       error instanceof EmailYaRegistradoError ||
@@ -66,8 +64,7 @@ export class DominioExceptionFilter implements ExceptionFilter {
       error instanceof NoSePuedeEliminarPropiaCuentaError ||
       error instanceof ClienteConRegistrosError ||
       error instanceof AdministradorConRegistrosError
-    )
-      return HttpStatus.CONFLICT;
+    ) { return HttpStatus.CONFLICT; }
 
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }

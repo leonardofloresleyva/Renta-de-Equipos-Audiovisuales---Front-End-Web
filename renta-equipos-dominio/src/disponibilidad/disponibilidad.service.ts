@@ -33,6 +33,7 @@ export class DisponibilidadService {
     async obtenerPiezasApartadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
         const piezasMantenimiento = await this.dispoRepo.obtenerPiezasMantenimientoPeriodo(articuloId, fechaInicio, fechaFin);
         const piezasReservadas = await this.dispoRepo.obtenerPiezasReservadasPeriodo(articuloId, fechaInicio, fechaFin);
+        console.log(`${piezasReservadas} piezas reservadas del artículo ${articuloId} con período ${fechaInicio.toISOString()} - ${fechaFin.toISOString()}`);
         return piezasMantenimiento + piezasReservadas;
     }
 
