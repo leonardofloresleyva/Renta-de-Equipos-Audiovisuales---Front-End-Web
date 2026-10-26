@@ -10,7 +10,6 @@ export class DisponibilidadService {
         @Inject(DISPONIBILIDAD_REPOSITORY)
         private readonly dispoRepo: DisponibilidadRepository
     ) {}
-    // Se pueden resumir en dos métodos que devuelvan la disponibilidad en general y ya
 
     // REGLA DE NEGOCIO 07
     async obtenerDisponibilidadPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
@@ -33,7 +32,6 @@ export class DisponibilidadService {
     async obtenerPiezasApartadasPeriodo(articuloId: number, fechaInicio: Date, fechaFin: Date): Promise<number> {
         const piezasMantenimiento = await this.dispoRepo.obtenerPiezasMantenimientoPeriodo(articuloId, fechaInicio, fechaFin);
         const piezasReservadas = await this.dispoRepo.obtenerPiezasReservadasPeriodo(articuloId, fechaInicio, fechaFin);
-        console.log(`${piezasReservadas} piezas reservadas del artículo ${articuloId} con período ${fechaInicio.toISOString()} - ${fechaFin.toISOString()}`);
         return piezasMantenimiento + piezasReservadas;
     }
 
