@@ -36,7 +36,7 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   const config = new DocumentBuilder()
-    .setTitle('API del Gimnasio')          // titulo que sale arriba de /docs
+    .setTitle('API de Renta de Equipos')          // titulo que sale arriba de /docs
     .setVersion('1.0')
     .addBearerAuth()
     .build();

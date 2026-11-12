@@ -14,12 +14,9 @@ import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
 @Controller('reservas')
 @ApiBearerAuth()
-@Roles(Rol.administrador)
 export class ReservasController {
     constructor(private readonly servicio: ReservasService) {}
 
-    // Solo accesible para el admin
-    // Puede filtrarse
     @Roles(Rol.administrador)
     @Get()
     async listar(@Body() dto: FiltrosReserva) {
@@ -32,7 +29,6 @@ export class ReservasController {
         return reservas.map(aReservaDto);
     }
 
-    // Solo admin
     @Roles(Rol.administrador)
     @Get(":id")
     async buscarPorId(@Param("id") id: number) {
@@ -44,12 +40,14 @@ export class ReservasController {
         return aReservaDto(reserva);
     }
 
+    @Roles(Rol.cliente, Rol.administrador)
     @Get("clientes/:id")
     async buscarPorCliente(@Param("id") idCliente: number) {
         const reservas = await this.servicio.buscarPorCliente(idCliente);
         return reservas.map(aReservaDto);
     }
 
+    @Roles(Rol.cliente, Rol.administrador)
     @Get("articulos/:id")
     async buscarArticulosPorId(@Param("id") reservaId: number) {
         return this.servicio.buscarArticulosPorReserva(reservaId);
@@ -68,6 +66,7 @@ export class ReservasController {
         return aReservaDto(reserva);
     }
 
+    @Roles(Rol.cliente, Rol.administrador)
     @Get("garantias/:id")
     async obtenerGarantiaPorReserva(@Param("id") id: number) {
         const garantia = await this.servicio.obtenerGarantiaPorReserva(id);
@@ -77,7 +76,6 @@ export class ReservasController {
         return aDepositoGarantiaDto(garantia);
     }
 
-    // Solo admin
     @Roles(Rol.administrador)
     @Delete(":id")
     async cancelar(@Param("id") id: number) {
@@ -85,7 +83,6 @@ export class ReservasController {
         return aReservaDto(cancelado);
     }
 
-    // Solo admin
     @Roles(Rol.administrador)
     @Get("solicitudes/cancelacion")
     async listarSolicitudes(@Body() dto: FiltrosSolicitudesDto) {
@@ -97,7 +94,6 @@ export class ReservasController {
         return solicitudes.map(aSolicitudDto);
     }
 
-    // Solo cliente
     @Roles(Rol.cliente)
     @Post("solicitudes/cancelacion")
     @HttpCode(201)
@@ -110,7 +106,6 @@ export class ReservasController {
         return aSolicitudDto(nuevaSolicitud);
     }
 
-    // Solo admin
     @Roles(Rol.administrador)
     @Delete("solicitudes/cancelacion/:id")
     async rechazarSolicitud(@Param("id") id: number) {

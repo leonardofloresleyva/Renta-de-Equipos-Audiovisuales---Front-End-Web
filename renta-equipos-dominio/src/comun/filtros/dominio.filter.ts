@@ -66,6 +66,11 @@ export class DominioExceptionFilter implements ExceptionFilter {
       error instanceof AdministradorConRegistrosError
     ) { return HttpStatus.CONFLICT; }
 
+    if (
+      error instanceof DatosInvalidosError ||
+      error instanceof CantidadExcesivaError
+    ) { return HttpStatus.BAD_REQUEST; }
+
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 

@@ -3,8 +3,11 @@ import { aBitacoraReservaDto } from './dto/bitacora-reserva.respuesta.dto';
 import { RegistrarEntregaDto } from './dto/registrar-entrega.dto';
 import { RegistrarRecoleccionDto } from './dto/registrar-recoleccion.dto';
 import { OperacionesService } from './operaciones.service';
+import { Roles } from 'src/auth/decoradores/rol.decorator';
+import { Rol } from 'src/dominio/entidades';
 
 @Controller('operaciones')
+@Roles(Rol.administrador)
 export class OperacionesController {
   constructor(private readonly operacionesService: OperacionesService) {}
 
