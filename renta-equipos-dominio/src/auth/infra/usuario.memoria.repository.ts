@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { UsuarioRepository } from "../repo/usuario.repository";
 import { ADMINS, CLIENTES } from "src/datos/renta.equipo.seed";
-import { Cliente, Direccion, NuevoUsuario, Rol, Usuario } from "src/dominio/entidades";
+import { Cliente, Direccion, NuevoUsuario, Rol } from "src/dominio/entidades";
+import type { UsuarioAutenticado } from "../repo/usuario.repository";
 
 @Injectable()
 export class UsuarioMemoriaRepository implements UsuarioRepository {
@@ -9,15 +10,15 @@ export class UsuarioMemoriaRepository implements UsuarioRepository {
 
     constructor() {}
 
-    async buscarPorCorreo(correo: string): Promise<Usuario | null> {
+    buscarPorCorreo(correo: string): Promise<UsuarioAutenticado | null> {
         const buscado = correo.toLowerCase();
         const admin = [...ADMINS.values()].find((a) => a.email === buscado) ?? null;
-        if (admin) return { id: admin.id, email: admin.email, passwordHash: admin.passwordHash, rol: admin.rol, creadoEn: admin.creadoEn };
+        if (admin) return Promise.resolve({ usuarioId: admin.id, perfilId: admin.id, email: admin.email, passwordHash: admin.passwordHash, rol: admin.rol, creadoEn: admin.creadoEn });
         const cliente = [...CLIENTES.values()].find((c) => c.email === buscado) ?? null;
-        return (cliente) ? { id: cliente.id, email: cliente.email, passwordHash: cliente.passwordHash, rol: cliente.rol, creadoEn: cliente.creadoEn } : null;
+        return Promise.resolve((cliente) ? { usuarioId: cliente.id, perfilId: cliente.id, email: cliente.email, passwordHash: cliente.passwordHash, rol: cliente.rol, creadoEn: cliente.creadoEn } : null);
     }
 
-    async registrarCliente(nuevo: NuevoUsuario, nuevaDireccion: Omit<Direccion, "id">): Promise<Cliente> {
+    registrarCliente(nuevo: NuevoUsuario, nuevaDireccion: Omit<Direccion, "id">): Promise<UsuarioAutenticado> {
         const id = this.siguienteId++;
         const nuevoCliente: Cliente = {
             id,
@@ -27,6 +28,13 @@ export class UsuarioMemoriaRepository implements UsuarioRepository {
             creadoEn: new Date()
         };
         CLIENTES.set(id, nuevoCliente);
-        return nuevoCliente;
+        return Promise.resolve({
+            usuarioId: id,
+            perfilId: id,
+            email: nuevoCliente.email,
+            passwordHash: nuevoCliente.passwordHash,
+            rol: nuevoCliente.rol,
+            creadoEn: nuevoCliente.creadoEn,
+        });
     }
 }

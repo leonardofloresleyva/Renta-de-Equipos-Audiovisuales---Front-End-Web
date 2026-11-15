@@ -14,11 +14,11 @@ export const CLIENTES = new Map<number, Cliente>([
 ]);
 
 export const ARTICULOS = new Map<number, Articulo>([
-    [1, { id: 1, nombre: 'Proyector Láser Epson Pro L1070U 7000 Lúmenes WUXGA', descripcion: 'Proyector láser profesional de alta luminosidad, resolución 1920x1200 con tecnología 3LCD.', precioPorDia: 1500, existencias: 8, categoria: 'Proyectores', fotografiasUrl: ['https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80'] }],
-    [2, { id: 2, nombre: 'Pantalla Inflable Gigante 6x4m con Motor Silencioso', descripcion: 'Pantalla gigante para proyecciones al aire libre o salones amplios.', precioPorDia: 900, existencias: 4, categoria: 'Pantallas', fotografiasUrl: ['https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=800&q=80'] }],
-    [3, { id: 3, nombre: 'Bafle Activo JBL EON715 15" Bluetooth 1300W', descripcion: 'Bafle profesional autoamplificado de 1300W pico con DSP integrado.', precioPorDia: 400, existencias: 16, categoria: 'Audio', fotografiasUrl: ['https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80'] }],
-    [4, { id: 4, nombre: 'Sistema Micrófonos Inalámbricos Doble Shure BLX288/PG58', descripcion: 'Sistema inalámbrico dual de mano con cápsulas PG58, alcance de hasta 100m.', precioPorDia: 350, existencias: 10, categoria: 'Audio', fotografiasUrl: ['https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80'] }],
-    [5, { id: 5, nombre: 'Cabezas Móviles Beam 7R 230W DMX 512', descripcion: 'Iluminación robótica profesional con rueda de colores y prismas giratorios.', precioPorDia: 550, existencias: 32, categoria: 'Iluminación', fotografiasUrl: ['https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80'] }]
+    [1, { id: 1, nombre: 'Proyector Láser Epson Pro L1070U 7000 Lúmenes WUXGA', descripcion: 'Proyector láser profesional de alta luminosidad, resolución 1920x1200 con tecnología 3LCD.', precioPorDia: 1500, existencias: 8, categoria: 'Proyectores', fotografiasUrl: ['/uploads/seed/articulo-seed-proyector.png'] }],
+    [2, { id: 2, nombre: 'Pantalla Inflable Gigante 6x4m con Motor Silencioso', descripcion: 'Pantalla gigante para proyecciones al aire libre o salones amplios.', precioPorDia: 900, existencias: 4, categoria: 'Pantallas', fotografiasUrl: ['/uploads/seed/articulo-seed-pantalla.png'] }],
+    [3, { id: 3, nombre: 'Bafle Activo JBL EON715 15" Bluetooth 1300W', descripcion: 'Bafle profesional autoamplificado de 1300W pico con DSP integrado.', precioPorDia: 400, existencias: 16, categoria: 'Audio', fotografiasUrl: ['/uploads/seed/articulo-seed-bafle.png'] }],
+    [4, { id: 4, nombre: 'Sistema Micrófonos Inalámbricos Doble Shure BLX288/PG58', descripcion: 'Sistema inalámbrico dual de mano con cápsulas PG58, alcance de hasta 100m.', precioPorDia: 350, existencias: 10, categoria: 'Audio', fotografiasUrl: ['/uploads/seed/articulo-seed-microfonos.png'] }],
+    [5, { id: 5, nombre: 'Cabezas Móviles Beam 7R 230W DMX 512', descripcion: 'Iluminación robótica profesional con rueda de colores y prismas giratorios.', precioPorDia: 550, existencias: 32, categoria: 'Iluminación', fotografiasUrl: ['/uploads/seed/articulo-seed-iluminacion.png'] }]
 ]);
 
 export const AJUSTES_EXISTENCIA = new Map<number, AjusteExistencia>();

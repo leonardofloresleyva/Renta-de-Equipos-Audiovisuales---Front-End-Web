@@ -53,26 +53,25 @@ export class InventarioService {
         return this.piezasRepo.busquedaFiltrada(filtros);
     }
 
-    crear(dto: CrearArticuloDto): Promise<Articulo> {
-        // Faltaría almacenar las imágenes en disco
+    crear(dto: CrearArticuloDto, fotografiasUrl: string[]): Promise<Articulo> {
         return this.articuloRepo.crear({
             nombre: dto.nombre,
             descripcion: dto.descripcion,
             precioPorDia: dto.precioPorDia,
             existencias: dto.existencias,
             categoria: dto.categoria,
-            fotografiasUrl: dto.fotografiasUrl
+            fotografiasUrl
         });
     }
 
-    async ajustarExistencia(dto: AjustarExistenciaDto): Promise<AjusteExistencia> {
+    async ajustarExistencia(dto: AjustarExistenciaDto, adminId: number): Promise<AjusteExistencia> {
         // Verifica la existencia del artículo
         const articulo = await this.articuloRepo.buscarPorId(dto.articuloId);
         if (!articulo) throw new ArticuloNoEncontradoError(dto.articuloId);
 
         // Verifica la existencia del administrador
-        const admin = await this.usuariosService.buscarAdminPorId(dto.adminId);
-        if (!admin) throw new AdminNoEncontradoError(dto.adminId);
+        const admin = await this.usuariosService.buscarAdminPorId(adminId);
+        if (!admin) throw new AdminNoEncontradoError(adminId);
 
         // Nuevas existencias del artículo
         let existencias = articulo.existencias;
@@ -98,20 +97,20 @@ export class InventarioService {
         }
 
         return this.ajusteRepo.crearConActualizacionExistencias(
-            { ...dto },
+            { ...dto, adminId },
             articulo.existencias,
             existencias
         );
     }
 
-    async registrarPiezasMantenimiento(dto: CrearPiezaMantenimientoDto): Promise<PiezasMantenimiento> {
+    async registrarPiezasMantenimiento(dto: CrearPiezaMantenimientoDto, adminId: number): Promise<PiezasMantenimiento> {
         // Verifica la existencia del artículo
         const articulo = await this.articuloRepo.buscarPorId(dto.articuloId);
         if (!articulo) throw new ArticuloNoEncontradoError(dto.articuloId);
 
         // Verifica la existencia del administrador
-        const admin = await this.usuariosService.buscarAdminPorId(dto.adminId);
-        if (!admin) throw new AdminNoEncontradoError(dto.adminId);
+        const admin = await this.usuariosService.buscarAdminPorId(adminId);
+        if (!admin) throw new AdminNoEncontradoError(adminId);
 
         // Verifica la validez de las fechas
         if (dto.fechaInicio < new Date() || dto.fechaTermino < new Date() || dto.fechaTermino <= dto.fechaInicio) {
@@ -122,6 +121,6 @@ export class InventarioService {
         const piezasApartadasPeriodo = await this.dispoService.obtenerPiezasApartadasPeriodo(articulo.id, dto.fechaInicio, dto.fechaTermino) + dto.cantidad;
         if (piezasApartadasPeriodo > articulo.existencias) throw new DisponibilidadInsuficienteError(articulo.nombre);
 
-        return this.piezasRepo.crear({...dto});
+        return this.piezasRepo.crear({...dto, adminId});
     }
 }

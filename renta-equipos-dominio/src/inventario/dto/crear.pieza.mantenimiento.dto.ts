@@ -13,10 +13,6 @@ export class CrearPiezaMantenimientoDto {
   @IsPositive({ message: 'El ID del artículo debe ser positivo.' })
   articuloId!: number;
 
-  @IsInt({ message: 'El ID del administrador debe ser un número entero.' })
-  @IsPositive({ message: 'El ID del administrador debe ser positivo.' })
-  adminId!: number;
-
   @IsInt({ message: 'La cantidad debe ser un número entero.' })
   @IsPositive({ message: 'La cantidad debe ser mayor que cero.' })
   cantidad!: number;

@@ -1,10 +1,7 @@
 import {
-  ArrayMaxSize,
-  IsArray,
   IsNotEmpty,
   IsNumber,
   IsString,
-  IsUrl,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -42,17 +39,4 @@ export class CrearArticuloDto {
     message: 'La categoría no puede superar los 100 caracteres.',
   })
   categoria!: string;
-
-  @IsArray({ message: 'Las fotografías deben enviarse como una lista de URLs.' })
-  @ArrayMaxSize(5, {
-    message: 'No se pueden registrar más de 5 fotografías por artículo.',
-  })
-  @IsUrl(
-    {},
-    {
-      each: true,
-      message: 'Cada fotografía debe tener una URL válida.',
-    },
-  )
-  fotografiasUrl!: string[];
 }

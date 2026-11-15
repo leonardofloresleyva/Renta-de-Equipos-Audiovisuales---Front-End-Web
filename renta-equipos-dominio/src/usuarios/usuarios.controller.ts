@@ -91,7 +91,7 @@ export class UsuariosController {
     const administrador = await this.usuarios.buscarAdminPorId(id);
     if (!administrador) throw new AdminNoEncontradoError(id);
 
-    if (administrador.email.toLowerCase() === usuario.correo.toLowerCase()) {
+    if (administrador.id === usuario.perfilId) {
       throw new NoSePuedeEliminarPropiaCuentaError();
     }
 
