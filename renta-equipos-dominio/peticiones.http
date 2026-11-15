@@ -1,6 +1,4 @@
 @baseUrl = http://localhost:3000
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImNvcnJlbyI6ImFkbWluLmludmVudGFyaW9AYXVkaW9yZW50LnRlc3QiLCJyb2wiOiJhZG1pbmlzdHJhZG9yIiwiaWF0IjoxNzkyNTcwNzYyLCJleHAiOjE3OTI1NzQzNjJ9.QRW3e39yeFbig-NRMGrxo4c2sZSyRAm0A4spQCr6X1U
-@adminId = 1
 @bitacoraId = {{registrarEntrega.response.body.$.data.id}}
 
 ### 0. Login (ejecutar primero: el token del resto del archivo se toma de esta respuesta)
@@ -13,15 +11,13 @@ Content-Type: application/json
   "password": "rentas2026"
 }
 
-### 0b. Listar administradores para resolver el id del admin de sesión (ejecutar después del login)
-# El JWT trae el id de Usuario, pero las peticiones necesitan el id de Administrador.
-# Tras correr prisma/seed.ts, admin.general es el 1er administrador de la lista (data[0]).
+### 0b. Listar administradores para probar el endpoint de autoeliminación (ejecutar después del login)
 # @name adminSesion
 GET {{baseUrl}}/usuarios/administradores
 Authorization: Bearer {{login.response.body.$.data.access_token}}
 Accept: application/json
 
-### Variables de sesión (se resuelven con las respuestas de 0 y 0b; el token expira en 1h: si da 401, re-ejecuta el login)
+### Variables de sesión (el token incluye el ID del perfil y expira en 1h)
 @adminToken = {{login.response.body.$.data.access_token}}
 @adminId = {{adminSesion.response.body.$.data[0].id}}
 
@@ -38,22 +34,38 @@ Accept: application/json
 GET {{baseUrl}}/inventario/articulos/1
 Accept: application/json
 
-### 4. Registrar artículo
+### 4. Registrar artículo (multipart; máximo 5 imágenes JPEG/PNG/WebP, 5 MB cada una)
 POST {{baseUrl}}/inventario/articulos
 Authorization: Bearer {{adminToken}}
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=----RentaEquipoBoundary
 Accept: application/json
 
-{
-  "nombre": "Test",
-  "descripcion": "Bocina BBC",
-  "precioPorDia": 500,
-  "existencias": 6,
-  "categoria": "Audio",
-  "fotografiasUrl": [
-    "https://ejemplo.com/bocina.jpg"
-  ]
-}
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="nombre"
+
+Bocina de prueba
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="descripcion"
+
+Bocina para verificar la carga local de fotografías.
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="precioPorDia"
+
+500
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="existencias"
+
+6
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="categoria"
+
+Audio
+------RentaEquipoBoundary
+Content-Disposition: form-data; name="fotografias"; filename="articulo-proyector.png"
+Content-Type: image/png
+
+< ./uploads/seed/articulo-proyector.png
+------RentaEquipoBoundary--
 
 ### 5. Filtro válido sin resultados (200 y [])
 GET {{baseUrl}}/inventario/articulos?categoria=CategoriaInexistente
@@ -71,19 +83,18 @@ Accept: application/json
 GET {{baseUrl}}/inventario/articulos/no-es-un-id
 Accept: application/json
 
-### 9. Alta inválida: precio negativo (400)
+### 9. Alta inválida: no adjuntar fotografía (400)
 POST {{baseUrl}}/inventario/articulos
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 Accept: application/json
 
 {
-  "nombre": "Artículo inválido",
-  "descripcion": "Este cuerpo debe rechazarse por el precio negativo",
-  "precioPorDia": -10,
+  "nombre": "Artículo sin foto",
+  "descripcion": "El alta debe rechazarse porque no adjunta ninguna imagen.",
+  "precioPorDia": 100,
   "existencias": 2,
-  "categoria": "Pruebas",
-  "fotografiasUrl": []
+  "categoria": "Pruebas"
 }
 
 ### 10. Alta inválida: propiedad no permitida (400)
@@ -98,7 +109,6 @@ Accept: application/json
   "precioPorDia": 100,
   "existencias": 2,
   "categoria": "Pruebas",
-  "fotografiasUrl": [],
   "campoNoPermitido": true
 }
 
@@ -120,7 +130,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 2,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -144,7 +153,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 1,
   "fechaInicio": "2026-12-20T00:00:00.000Z",
   "fechaTermino": "2026-12-22T00:00:00.000Z",
@@ -169,7 +177,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 0,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -183,7 +190,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 1,
   "esIncremento": true,
   "motivo": "perdida"
@@ -197,7 +203,6 @@ Accept: application/json
 
 {
   "articuloId": 999999,
-  "adminId": {{adminId}},
   "cantidad": 1,
   "esIncremento": true,
   "motivo": "adquisicion"
@@ -211,7 +216,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 1,
   "fechaInicio": "2026-12-22T00:00:00.000Z",
   "fechaTermino": "2026-12-20T00:00:00.000Z",
@@ -226,7 +230,6 @@ Accept: application/json
 
 {
   "articuloId": 1,
-  "adminId": {{adminId}},
   "cantidad": 999,
   "fechaInicio": "2027-01-20T00:00:00.000Z",
   "fechaTermino": "2027-01-22T00:00:00.000Z",
@@ -360,9 +363,9 @@ Accept: application/json
 ### 2.- método que pide acceso -----> registrarReserva
 POST {{baseUrl}}/reservas/
 Content-Type: application/json
+Authorization: Bearer {{tokenSofia}}
 
 {
-  "clienteId": 1,
   "fechaEntrega": "2026-12-09T00:00:00",
   "fechaRecoleccion": "2026-12-013T00:00:00",
   "calle": "Galeana",
@@ -393,7 +396,10 @@ Content-Type: application/json
 @tokenSofia = {{loginSofia.response.body.data.access_token}}
 
 ###
-@clienteId = 2
+### Consultar las reservas propias (el ID se toma del token)
+GET {{baseUrl}}/reservas/mias
+Authorization: Bearer {{tokenSofia}}
+Accept: application/json
 
 ### 4.- registro de nueva reserva - error - regla de negocio 1 ---> crear
 POST {{baseUrl}}/reservas/
@@ -401,7 +407,6 @@ Content-Type: application/json
 Authorization: Bearer {{tokenSofia}}
 
 {
-  "clienteId": {{clienteId}},
   "fechaEntrega": "2026-12-09T00:00:00",
   "fechaRecoleccion": "2026-12-13T00:00:00",
   "calle": "Galeana",
@@ -428,9 +433,8 @@ Content-Type: application/json
 Authorization: Bearer {{tokenSofia}}
 
 {
-  "clienteId": 1,
-  "fechaEntrega": "2026-11-09T00:00:00",
-  "fechaRecoleccion": "2026-11-13T00:00:00",
+  "fechaEntrega": "2027-01-19T00:00:00",
+  "fechaRecoleccion": "2027-01-22T00:00:00",
   "calle": "Galeana",
   "colonia": "Valle Dorado",
   "numero": "123",
@@ -496,7 +500,6 @@ Authorization: Bearer {{tokenCliente}}
 Content-Type: application/json
 
 {
-  "clienteId": 1,
   "fechaEntrega": "2030-12-10T10:00:00.000Z",
   "fechaRecoleccion": "2030-12-12T10:00:00.000Z",
   "calle": "Av. Miguel Alemán",
@@ -516,6 +519,7 @@ Content-Type: application/json
 ### Consultar los artículos reservados (admin)
 # @name articulosDeReserva
 GET {{baseUrl}}/reservas/articulos/{{reservaBitacoraId}}
+Authorization: Bearer {{tokenCliente}}
 
 ###
 @articuloReservadoId = {{articulosDeReserva.response.body.$.data[0].id}}

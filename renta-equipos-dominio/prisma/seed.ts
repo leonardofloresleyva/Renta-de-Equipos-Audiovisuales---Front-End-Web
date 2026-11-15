@@ -28,7 +28,7 @@ const articulosDePrueba = [
         existencias: 8,
         categoria: 'Proyectores',
         fotografiasUrl: [
-            'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=800&q=80',
+            '/uploads/seed/articulo-proyector.png',
         ],
     },
     {
@@ -39,7 +39,7 @@ const articulosDePrueba = [
         existencias: 4,
         categoria: 'Pantallas',
         fotografiasUrl: [
-            'https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=800&q=80',
+            '/uploads/seed/articulo-pantalla.png',
         ],
     },
     {
@@ -50,7 +50,7 @@ const articulosDePrueba = [
         existencias: 16,
         categoria: 'Audio',
         fotografiasUrl: [
-            'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80',
+            '/uploads/seed/articulo-bafle.png',
         ],
     },
     {
@@ -62,7 +62,7 @@ const articulosDePrueba = [
         existencias: 10,
         categoria: 'Audio',
         fotografiasUrl: [
-            'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80',
+            '/uploads/seed/articulo-microfonos.png',
         ],
     },
     {
@@ -74,8 +74,78 @@ const articulosDePrueba = [
         existencias: 32,
         categoria: 'Iluminación',
         fotografiasUrl: [
-            'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=800&q=80',
+            '/uploads/seed/articulo-iluminacion.png',
         ],
+    },
+    {
+        id: 6,
+        nombre: 'Cámara de video mirrorless 4K',
+        descripcion:
+            'Cámara compacta con grabación 4K y enfoque automático para registrar eventos y presentaciones.',
+        precioPorDia: 1200,
+        existencias: 5,
+        categoria: 'Cámaras',
+        fotografiasUrl: ['/uploads/seed/articulo-camara.png'],
+    },
+    {
+        id: 7,
+        nombre: 'Lente zoom profesional 24-70 mm',
+        descripcion:
+            'Lente versátil para fotografía y video con apertura luminosa y rango de zoom estándar.',
+        precioPorDia: 450,
+        existencias: 4,
+        categoria: 'Accesorios',
+        fotografiasUrl: ['/uploads/seed/articulo-lente.png'],
+    },
+    {
+        id: 8,
+        nombre: 'Consola de mezcla de 16 canales',
+        descripcion:
+            'Consola de audio con entradas para micrófonos e instrumentos, ecualización y efectos integrados.',
+        precioPorDia: 650,
+        existencias: 3,
+        categoria: 'Audio',
+        fotografiasUrl: ['/uploads/seed/articulo-consola.png'],
+    },
+    {
+        id: 9,
+        nombre: 'Subwoofer activo de 18 pulgadas',
+        descripcion:
+            'Subwoofer autoamplificado para reforzar las frecuencias graves en salones y escenarios.',
+        precioPorDia: 700,
+        existencias: 6,
+        categoria: 'Audio',
+        fotografiasUrl: ['/uploads/seed/articulo-subwoofer.png'],
+    },
+    {
+        id: 10,
+        nombre: 'Kit de cuatro luces LED PAR RGBW',
+        descripcion:
+            'Juego de luminarias LED de colores para ambientar escenarios, salones y pistas de baile.',
+        precioPorDia: 350,
+        existencias: 8,
+        categoria: 'Iluminación',
+        fotografiasUrl: ['/uploads/seed/articulo-luces-par.png'],
+    },
+    {
+        id: 11,
+        nombre: 'Truss de aluminio de 2 metros',
+        descripcion:
+            'Sección ligera de estructura para montar iluminación y equipo en eventos.',
+        precioPorDia: 300,
+        existencias: 12,
+        categoria: 'Escenarios',
+        fotografiasUrl: ['/uploads/seed/articulo-truss.png'],
+    },
+    {
+        id: 12,
+        nombre: 'Monitor de escenario activo de 12 pulgadas',
+        descripcion:
+            'Bocina de monitoreo activa para que músicos y presentadores escuchen el audio en escenario.',
+        precioPorDia: 500,
+        existencias: 6,
+        categoria: 'Audio',
+        fotografiasUrl: ['/uploads/seed/articulo-monitor.png'],
     },
 ] as const;
 
