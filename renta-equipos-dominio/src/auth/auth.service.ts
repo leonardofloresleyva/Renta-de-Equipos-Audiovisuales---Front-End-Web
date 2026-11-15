@@ -52,6 +52,11 @@ export class AuthService {
             access_token: await this.jwt.signAsync(payload), // header.payload.firma
             token_type: 'Bearer',
             expires_in: 3600, // 1 hora, igual que en auth.module.ts
+            usuario: {
+                correo: usuario.email,
+                nombre: usuario.nombre,
+                rol: usuario.rol,
+            },
         };
     }
 }

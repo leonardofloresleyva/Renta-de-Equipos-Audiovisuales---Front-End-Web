@@ -17,6 +17,11 @@ import { AjustarExistenciaDto } from './dto/ajustar.existencia.dto';
 import { AdminNoEncontradoError, ArticuloNoEncontradoError, DisponibilidadInsuficienteError, EstadoAjusteNoValido, FechasInvalidasError, ReduccionStockInvalidaError } from 'src/dominio/errores';
 import { CrearPiezaMantenimientoDto } from './dto/crear.pieza.mantenimiento.dto';
 import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
+import {
+    eliminarFotografiasArticulo,
+    guardarFotografiasArticulo,
+    type ArchivoFotografiaArticulo,
+} from './almacenamiento-fotografias';
 
 @Injectable()
 export class InventarioService {
@@ -53,15 +58,31 @@ export class InventarioService {
         return this.piezasRepo.busquedaFiltrada(filtros);
     }
 
-    crear(dto: CrearArticuloDto, fotografiasUrl: string[]): Promise<Articulo> {
-        return this.articuloRepo.crear({
-            nombre: dto.nombre,
-            descripcion: dto.descripcion,
-            precioPorDia: dto.precioPorDia,
-            existencias: dto.existencias,
-            categoria: dto.categoria,
-            fotografiasUrl
-        });
+    async crear(
+        dto: CrearArticuloDto,
+        fotografias: ArchivoFotografiaArticulo[] | undefined,
+    ): Promise<Articulo> {
+        const fotografiasUrl = await guardarFotografiasArticulo(fotografias);
+        try {
+            return await this.articuloRepo.crear({
+                nombre: dto.nombre,
+                descripcion: dto.descripcion,
+                precioPorDia: dto.precioPorDia,
+                existencias: dto.existencias,
+                categoria: dto.categoria,
+                fotografiasUrl
+            });
+        } catch (error) {
+            try {
+                await eliminarFotografiasArticulo(fotografiasUrl);
+            } catch (errorRollback) {
+                throw new AggregateError(
+                    [error, errorRollback],
+                    'No se pudo crear el artículo ni revertir sus fotografías.',
+                );
+            }
+            throw error;
+        }
     }
 
     async ajustarExistencia(dto: AjustarExistenciaDto, adminId: number): Promise<AjusteExistencia> {

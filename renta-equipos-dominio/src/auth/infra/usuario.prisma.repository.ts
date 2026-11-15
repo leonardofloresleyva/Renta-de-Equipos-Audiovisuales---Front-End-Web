@@ -11,24 +11,23 @@ export class UsuarioPrismaRepository implements UsuarioRepository {
         const fila = await this.prisma.usuario.findUnique({
             where: { email: correo.toLowerCase() },
             include: {
-                cliente: { select: { id: true } },
-                administrador: { select: { id: true } },
+                cliente: { select: { id: true, nombre: true } },
+                administrador: { select: { id: true, nombre: true } },
             },
         });
         if (!fila) return null;
 
-        const perfilId =
-            fila.rol === 'administrador'
-                ? fila.administrador?.id
-                : fila.cliente?.id;
-        if (perfilId === undefined) {
+        const perfil =
+            fila.rol === 'administrador' ? fila.administrador : fila.cliente;
+        if (!perfil) {
             throw new Error(`El usuario ${fila.id} no tiene un perfil asociado a su rol.`);
         }
 
         return {
             usuarioId: fila.id,
-            perfilId,
+            perfilId: perfil.id,
             email: fila.email,
+            nombre: perfil.nombre,
             passwordHash: fila.passwordHash,
             rol: fila.rol as Rol,
             creadoEn: fila.creadoEn,
@@ -63,6 +62,7 @@ export class UsuarioPrismaRepository implements UsuarioRepository {
             usuarioId: fila.usuario.id,
             perfilId: fila.id,
             email: fila.usuario.email,
+            nombre: fila.nombre,
             passwordHash: fila.usuario.passwordHash,
             rol: fila.usuario.rol as Rol,
             creadoEn: fila.usuario.creadoEn,

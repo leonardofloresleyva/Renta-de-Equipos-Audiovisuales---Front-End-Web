@@ -4,6 +4,7 @@ export interface UsuarioAutenticado {
     usuarioId: number;
     perfilId: number;
     email: string;
+    nombre: string;
     passwordHash: string;
     rol: Rol;
     creadoEn: Date;

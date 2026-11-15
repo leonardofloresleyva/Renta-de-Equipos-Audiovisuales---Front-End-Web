@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, open, unlink } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
@@ -20,23 +20,6 @@ const EXTENSIONES_POR_TIPO: Record<string, string> = {
 export interface ArchivoFotografiaArticulo {
   mimetype: string;
   buffer: Buffer;
-}
-
-export function filtrarFotografiaArticulo(
-  _peticion: unknown,
-  archivo: ArchivoFotografiaArticulo,
-  callback: (error: Error | null, aceptarArchivo: boolean) => void,
-): void {
-  if (!EXTENSIONES_POR_TIPO[archivo.mimetype]) {
-    callback(
-      new BadRequestException(
-        'Las fotografías deben ser archivos JPEG, PNG o WebP.',
-      ),
-      false,
-    );
-    return;
-  }
-  callback(null, true);
 }
 
 function tieneFirmaValida(archivo: ArchivoFotografiaArticulo): boolean {
@@ -60,10 +43,27 @@ function tieneFirmaValida(archivo: ArchivoFotografiaArticulo): boolean {
 }
 
 export async function guardarFotografiasArticulo(
-  archivos: ArchivoFotografiaArticulo[],
+  archivos: ArchivoFotografiaArticulo[] | undefined,
 ): Promise<string[]> {
-  if (archivos.length === 0) {
+  if (!archivos?.length) {
     throw new BadRequestException('Debes adjuntar al menos una fotografía.');
+  }
+  if (archivos.length > MAX_FOTOGRAFIAS_ARTICULO) {
+    throw new BadRequestException(
+      `No puedes adjuntar más de ${MAX_FOTOGRAFIAS_ARTICULO} fotografías.`,
+    );
+  }
+  if (
+    archivos.some((archivo) => archivo.buffer.length > MAX_TAMANO_FOTOGRAFIA)
+  ) {
+    throw new BadRequestException(
+      'Cada fotografía debe pesar como máximo 5 MB.',
+    );
+  }
+  if (archivos.some((archivo) => !EXTENSIONES_POR_TIPO[archivo.mimetype])) {
+    throw new BadRequestException(
+      'Las fotografías deben ser archivos JPEG, PNG o WebP.',
+    );
   }
   if (archivos.some((archivo) => !tieneFirmaValida(archivo))) {
     throw new BadRequestException(
@@ -79,11 +79,23 @@ export async function guardarFotografiasArticulo(
       const extension = EXTENSIONES_POR_TIPO[archivo.mimetype];
       const nombre = `articulo-${randomUUID()}.${extension}`;
       const ruta = join(DIRECTORIO_FOTOGRAFIAS, nombre);
-      await writeFile(ruta, archivo.buffer, { flag: 'wx' });
+      const manejador = await open(ruta, 'wx');
       guardadas.push(ruta);
+      try {
+        await manejador.writeFile(archivo.buffer);
+      } finally {
+        await manejador.close();
+      }
     }
   } catch (error) {
-    await eliminarRutasFotografias(guardadas);
+    try {
+      await eliminarRutasFotografias(guardadas);
+    } catch (errorRollback) {
+      throw new AggregateError(
+        [error, errorRollback],
+        'No se pudieron guardar todas las fotografías ni revertir las parciales.',
+      );
+    }
     throw error;
   }
 
@@ -99,13 +111,20 @@ export async function eliminarFotografiasArticulo(
 }
 
 async function eliminarRutasFotografias(rutas: string[]): Promise<void> {
-  await Promise.all(
-    rutas.map(async (ruta) => {
-      try {
-        await unlink(ruta);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+  const errores: unknown[] = [];
+  for (const ruta of rutas) {
+    try {
+      await unlink(ruta);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        errores.push(error);
       }
-    }),
-  );
+    }
+  }
+  if (errores.length) {
+    throw new AggregateError(
+      errores,
+      'No se pudieron eliminar todas las fotografías.',
+    );
+  }
 }

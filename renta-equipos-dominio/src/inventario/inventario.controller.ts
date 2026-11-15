@@ -1,6 +1,5 @@
 import {
   Body,
-  BadRequestException,
   Controller,
   Get,
   HttpCode,
@@ -20,7 +19,6 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
-import type { Articulo } from 'src/dominio/entidades';
 import { Rol } from 'src/dominio/entidades';
 import { Roles } from 'src/auth/decoradores/rol.decorator';
 import { Publico } from 'src/auth/decoradores/publico.decorator';
@@ -28,9 +26,6 @@ import { UsuarioActual } from 'src/auth/decoradores/usuario-actual.decorator';
 import type { PayloadJwt } from 'src/auth/dominio/payload.jwt';
 import { ArticuloNoEncontradoError } from 'src/dominio/errores';
 import {
-  eliminarFotografiasArticulo,
-  filtrarFotografiaArticulo,
-  guardarFotografiasArticulo,
   MAX_FOTOGRAFIAS_ARTICULO,
   MAX_TAMANO_FOTOGRAFIA,
   type ArchivoFotografiaArticulo,
@@ -108,25 +103,14 @@ export class InventarioController {
         files: MAX_FOTOGRAFIAS_ARTICULO,
         fileSize: MAX_TAMANO_FOTOGRAFIA,
       },
-      fileFilter: filtrarFotografiaArticulo,
     }),
   )
   async crearArticulo(
     @Body() dto: CrearArticuloDto,
-    @UploadedFiles() fotografias: ArchivoFotografiaArticulo[],
+    @UploadedFiles() fotografias: ArchivoFotografiaArticulo[] | undefined,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!fotografias?.length) {
-      throw new BadRequestException('Debes adjuntar al menos una fotografía.');
-    }
-    const fotografiasUrl = await guardarFotografiasArticulo(fotografias);
-    let articulo: Articulo;
-    try {
-      articulo = await this.inventarioService.crear(dto, fotografiasUrl);
-    } catch (error) {
-      await eliminarFotografiasArticulo(fotografiasUrl);
-      throw error;
-    }
+    const articulo = await this.inventarioService.crear(dto, fotografias);
     res.setHeader('Location', `/inventario/articulos/${articulo.id}`);
     return aArticuloDto(articulo);
   }

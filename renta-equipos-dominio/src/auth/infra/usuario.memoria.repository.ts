@@ -13,9 +13,9 @@ export class UsuarioMemoriaRepository implements UsuarioRepository {
     buscarPorCorreo(correo: string): Promise<UsuarioAutenticado | null> {
         const buscado = correo.toLowerCase();
         const admin = [...ADMINS.values()].find((a) => a.email === buscado) ?? null;
-        if (admin) return Promise.resolve({ usuarioId: admin.id, perfilId: admin.id, email: admin.email, passwordHash: admin.passwordHash, rol: admin.rol, creadoEn: admin.creadoEn });
+        if (admin) return Promise.resolve({ usuarioId: admin.id, perfilId: admin.id, email: admin.email, nombre: admin.nombre, passwordHash: admin.passwordHash, rol: admin.rol, creadoEn: admin.creadoEn });
         const cliente = [...CLIENTES.values()].find((c) => c.email === buscado) ?? null;
-        return Promise.resolve((cliente) ? { usuarioId: cliente.id, perfilId: cliente.id, email: cliente.email, passwordHash: cliente.passwordHash, rol: cliente.rol, creadoEn: cliente.creadoEn } : null);
+        return Promise.resolve((cliente) ? { usuarioId: cliente.id, perfilId: cliente.id, email: cliente.email, nombre: cliente.nombre, passwordHash: cliente.passwordHash, rol: cliente.rol, creadoEn: cliente.creadoEn } : null);
     }
 
     registrarCliente(nuevo: NuevoUsuario, nuevaDireccion: Omit<Direccion, "id">): Promise<UsuarioAutenticado> {
@@ -32,6 +32,7 @@ export class UsuarioMemoriaRepository implements UsuarioRepository {
             usuarioId: id,
             perfilId: id,
             email: nuevoCliente.email,
+            nombre: nuevoCliente.nombre,
             passwordHash: nuevoCliente.passwordHash,
             rol: nuevoCliente.rol,
             creadoEn: nuevoCliente.creadoEn,
