@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
 import { useDemostracion } from '../estado/useDemostracion.ts';
 import { ListaRentaPanel } from './ListaRenta.tsx';
+import { useReservas } from '../reservas/useReservas.ts';
 
 function claseEnlace({ isActive }: { isActive: boolean }) {
   return isActive ? 'barra__enlace barra__enlace--activo' : 'barra__enlace';
@@ -9,6 +10,7 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 
 export function Encabezado() {
   const { totalPiezas } = useDemostracion();
+  const { reservas } = useReservas();
   const [listaAbierta, setListaAbierta] = useState(false);
 
   return (
@@ -31,6 +33,9 @@ export function Encabezado() {
           <span className="barra__separador" aria-hidden="true" />
           <nav className="barra__enlaces" aria-label="Navegación principal">
             <NavLink to="/catalogo" className={claseEnlace}>Catálogo</NavLink>
+            <NavLink to="/reservas" className={claseEnlace}>
+              Reservas <span className="barra__enlace-contador">{reservas.length}</span>
+            </NavLink>
           </nav>
 
           <div className="barra__sesion">

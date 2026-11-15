@@ -7,6 +7,8 @@ const PaginaCatalogo = lazy(() => import('./catalogo/PaginaCatalogo.tsx'));
 const PaginaArticulo = lazy(() => import('./articulos/PaginaArticulo.tsx'));
 const PaginaLogin = lazy(() => import('./auth/PaginaLogin.tsx'));
 const PaginaRegistro = lazy(() => import('./auth/PaginaRegistro.tsx'));
+const PaginaReservas = lazy(() => import('./reservas/PaginaReservas.tsx'));
+const PaginaReserva = lazy(() => import('./reservas/PaginaReserva.tsx'));
 
 export default function App() {
   return (
@@ -15,6 +17,8 @@ export default function App() {
         <Route index element={<Navigate to="/catalogo" replace />} />
         <Route path="catalogo" element={<PaginaCatalogo />} />
         <Route path="articulos/:id" element={<PaginaArticulo />} />
+        <Route path="reservas" element={<PaginaReservas />} />
+        <Route path="reservas/:id" element={<PaginaReserva />} />
         <Route path="login" element={<PaginaLogin />} />
         <Route path="registro" element={<PaginaRegistro />} />
         <Route path="*" element={<NoEncontrado />} />
