@@ -61,10 +61,10 @@ Content-Disposition: form-data; name="categoria"
 
 Audio
 ------RentaEquipoBoundary
-Content-Disposition: form-data; name="fotografias"; filename="articulo-seed-proyector.png"
+Content-Disposition: form-data; name="fotografias"; filename="articulo-proyector.png"
 Content-Type: image/png
 
-< ./uploads/seed/articulo-seed-proyector.png
+< ./uploads/seed/articulo-proyector.png
 ------RentaEquipoBoundary--
 
 ### 5. Filtro válido sin resultados (200 y [])

@@ -72,7 +72,7 @@ Por defecto, la API escucha en `http://localhost:3000`. La documentación intera
 Las imágenes originales de demostración están en `uploads/seed` y los artículos de Prisma seed las referencian como `/uploads/seed/...`. El servidor expone `uploads` en la ruta `/uploads`, por ejemplo:
 
 ```text
-http://localhost:3000/uploads/seed/articulo-seed-proyector.png
+http://localhost:3000/uploads/seed/articulo-proyector.png
 ```
 
 Para registrar un artículo desde PowerShell con una sesión de administrador:
@@ -92,7 +92,7 @@ curl.exe -X POST http://localhost:3000/inventario/articulos `
   -F "precioPorDia=500" `
   -F "existencias=2" `
   -F "categoria=Proyectores" `
-  -F "fotografias=@.\uploads\seed\articulo-seed-proyector.png;type=image/png"
+  -F "fotografias=@.\uploads\seed\articulo-proyector.png;type=image/png"
 ```
 
 La respuesta incluye `fotografiasUrl`; abre esa ruta en `http://localhost:3000` para confirmar que el archivo quedó disponible. En una interfaz servida desde otro puerto, combina la ruta con el origen de la API. Para probar con el archivo de solicitudes de VS Code, usa el ejemplo 4 de `peticiones.http`.
@@ -101,6 +101,33 @@ Los archivos cargados durante la ejecución se guardan en `uploads/articulos` y 
 
 Para crear una reserva o pedir su cancelación ya no se debe enviar `clienteId`; el cliente se determina desde el JWT. El endpoint `GET /reservas/mias` lista las reservas de la sesión actual.
 Los tokens emitidos antes de este cambio no tienen el claim `perfilId`; inicia sesión otra vez si recibes `401`.
+
+## Comprobar los IDs del JWT
+
+El claim `sub` es el ID de `Usuario`; `perfilId` es el ID de la tabla `Cliente` o `Administrador`, según el rol. Puedes decodificar el payload localmente en PowerShell (esto no verifica la firma, solo permite inspeccionar los claims):
+
+```powershell
+function Get-ClaimsJwt($token) {
+  $segmento = $token.Split('.')[1].Replace('-', '+').Replace('_', '/')
+  $segmento += '=' * ((4 - $segmento.Length % 4) % 4)
+  [Text.Encoding]::UTF8.GetString(
+    [Convert]::FromBase64String($segmento)
+  ) | ConvertFrom-Json
+}
+
+$loginCliente = Invoke-RestMethod `
+  -Uri http://localhost:3000/auth/login `
+  -Method Post `
+  -ContentType 'application/json' `
+  -Body '{"correo":"sofia.castro@gmail.com","password":"rentas2026"}'
+$tokenCliente = $loginCliente.data.access_token
+$claimsCliente = Get-ClaimsJwt $tokenCliente
+$claimsCliente | Select-Object sub, perfilId, rol
+```
+
+Con el seed de demostración, Sofía tiene `sub = 4` y `perfilId = 2`. Consulta `GET /reservas/mias` con `Authorization: Bearer $tokenCliente`; todas las reservas devueltas deben tener ese `clienteId`. Para comprobarlo al crear una reserva, envía un cuerpo **sin** `clienteId` y verifica que `respuesta.data.clienteId` sea igual a `$claimsCliente.perfilId`. Si envías `clienteId` o `adminId` en estos cuerpos, la validación los rechaza.
+
+Para comprobar que el ID del administrador tampoco se toma del cuerpo, inicia sesión con `admin.general@audiorent.mx` (`rentas2026`), crea otro administrador desde `POST /usuarios/administradores`, inicia sesión con esa nueva cuenta y decodifica su token. Al tener `sub` y `perfilId` distintos, puedes enviar un ajuste a `POST /inventario/ajustes-existencia` sin `adminId` y verificar que `respuesta.data.adminId` coincida con `perfilId` (y no con `sub`). Estos pasos escriben datos; hazlos en una base local de pruebas.
 
 ## Comandos útiles
 

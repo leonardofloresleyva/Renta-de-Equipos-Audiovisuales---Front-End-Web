@@ -19,9 +19,7 @@ export const articulosDemo: ArticuloDemo[] = [
     precioPorDia: 1500,
     existencias: 8,
     categoria: 'Proyectores',
-    fotografiasUrl: [
-      'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1200&q=85',
-    ],
+    fotografiasUrl: ['/images/articulos/articulo-proyector.png'],
     resumen: '7000 lúmenes · WUXGA · Láser',
     especificaciones: ['7000 lúmenes', 'Resolución WUXGA', 'Tecnología láser'],
   },
@@ -33,9 +31,7 @@ export const articulosDemo: ArticuloDemo[] = [
     precioPorDia: 900,
     existencias: 4,
     categoria: 'Pantallas',
-    fotografiasUrl: [
-      'https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=1200&q=85',
-    ],
+    fotografiasUrl: ['/images/articulos/articulo-pantalla.png'],
     resumen: '6 × 4 m · Motor silencioso',
     especificaciones: ['Formato 6 × 4 m', 'Motor silencioso', 'Uso interior o exterior'],
   },
@@ -47,9 +43,7 @@ export const articulosDemo: ArticuloDemo[] = [
     precioPorDia: 400,
     existencias: 16,
     categoria: 'Audio',
-    fotografiasUrl: [
-      'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=85',
-    ],
+    fotografiasUrl: ['/images/articulos/articulo-bafle.png'],
     resumen: '15 pulgadas · Bluetooth · 1300 W',
     especificaciones: ['Woofer de 15 pulgadas', 'Bluetooth', '1300 W pico'],
   },
@@ -61,9 +55,7 @@ export const articulosDemo: ArticuloDemo[] = [
     precioPorDia: 350,
     existencias: 10,
     categoria: 'Audio',
-    fotografiasUrl: [
-      'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=1200&q=85',
-    ],
+    fotografiasUrl: ['/images/articulos/articulo-microfonos.png'],
     resumen: '2 micrófonos · Inalámbrico',
     especificaciones: ['Dos transmisores de mano', 'Cápsulas PG58', 'Alcance hasta 100 m'],
   },
@@ -75,11 +67,93 @@ export const articulosDemo: ArticuloDemo[] = [
     precioPorDia: 550,
     existencias: 32,
     categoria: 'Iluminación',
-    fotografiasUrl: [
-      'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1200&q=85',
-    ],
+    fotografiasUrl: ['/images/articulos/articulo-iluminacion.png'],
     resumen: '230 W · DMX 512 · Beam',
     especificaciones: ['Lámpara de 230 W', 'Control DMX 512', 'Prismas giratorios'],
+  },
+  {
+    id: 6,
+    nombre: 'Cámara de video mirrorless 4K',
+    descripcion:
+      'Cámara compacta con grabación 4K y enfoque automático para registrar eventos y presentaciones.',
+    precioPorDia: 1200,
+    existencias: 5,
+    categoria: 'Cámaras',
+    fotografiasUrl: ['/images/articulos/articulo-camara.png'],
+    resumen: 'Video 4K · Enfoque automático',
+    especificaciones: ['Grabación 4K', 'Enfoque automático', 'Cuerpo compacto'],
+  },
+  {
+    id: 7,
+    nombre: 'Lente zoom profesional 24-70 mm',
+    descripcion:
+      'Lente versátil para fotografía y video con apertura luminosa y rango de zoom estándar.',
+    precioPorDia: 450,
+    existencias: 4,
+    categoria: 'Accesorios',
+    fotografiasUrl: ['/images/articulos/articulo-lente.png'],
+    resumen: 'Zoom 24-70 mm · Apertura luminosa',
+    especificaciones: ['Rango 24-70 mm', 'Apertura luminosa', 'Para foto y video'],
+  },
+  {
+    id: 8,
+    nombre: 'Consola de mezcla de 16 canales',
+    descripcion:
+      'Consola de audio con entradas para micrófonos e instrumentos, ecualización y efectos integrados.',
+    precioPorDia: 650,
+    existencias: 3,
+    categoria: 'Audio',
+    fotografiasUrl: ['/images/articulos/articulo-consola.png'],
+    resumen: '16 canales · Ecualizador · Efectos',
+    especificaciones: ['16 canales', 'Entradas para micrófono', 'Efectos integrados'],
+  },
+  {
+    id: 9,
+    nombre: 'Subwoofer activo de 18 pulgadas',
+    descripcion:
+      'Subwoofer autoamplificado para reforzar las frecuencias graves en salones y escenarios.',
+    precioPorDia: 700,
+    existencias: 6,
+    categoria: 'Audio',
+    fotografiasUrl: ['/images/articulos/articulo-subwoofer.png'],
+    resumen: '18 pulgadas · Autoamplificado',
+    especificaciones: ['Bocina de 18 pulgadas', 'Amplificación integrada', 'Refuerzo de graves'],
+  },
+  {
+    id: 10,
+    nombre: 'Kit de cuatro luces LED PAR RGBW',
+    descripcion:
+      'Juego de luminarias LED de colores para ambientar escenarios, salones y pistas de baile.',
+    precioPorDia: 350,
+    existencias: 8,
+    categoria: 'Iluminación',
+    fotografiasUrl: ['/images/articulos/articulo-luces-par.png'],
+    resumen: '4 luminarias · RGBW',
+    especificaciones: ['Cuatro luminarias', 'Colores RGBW', 'Montaje en escenario'],
+  },
+  {
+    id: 11,
+    nombre: 'Truss de aluminio de 2 metros',
+    descripcion:
+      'Sección ligera de estructura para montar iluminación y equipo en eventos.',
+    precioPorDia: 300,
+    existencias: 12,
+    categoria: 'Escenarios',
+    fotografiasUrl: ['/images/articulos/articulo-truss.png'],
+    resumen: '2 metros · Aluminio',
+    especificaciones: ['Longitud de 2 m', 'Estructura de aluminio', 'Montaje modular'],
+  },
+  {
+    id: 12,
+    nombre: 'Monitor de escenario activo de 12 pulgadas',
+    descripcion:
+      'Bocina de monitoreo activa para que músicos y presentadores escuchen el audio en escenario.',
+    precioPorDia: 500,
+    existencias: 6,
+    categoria: 'Audio',
+    fotografiasUrl: ['/images/articulos/articulo-monitor.png'],
+    resumen: '12 pulgadas · Monitor activo',
+    especificaciones: ['Bocina de 12 pulgadas', 'Amplificación integrada', 'Uso en escenario'],
   },
 ];
 
@@ -88,6 +162,9 @@ export const categoriasDemo = [
   'Pantallas',
   'Audio',
   'Iluminación',
+  'Cámaras',
+  'Accesorios',
+  'Escenarios',
 ];
 
 export function formatoPrecio(precio: number): string {

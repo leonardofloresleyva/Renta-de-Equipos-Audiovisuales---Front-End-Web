@@ -10,7 +10,7 @@ import {
 describe('almacenamiento de fotografías de artículo', () => {
   it('guarda una imagen con nombre generado y URL servible', async () => {
     const buffer = await readFile(
-      resolve(process.cwd(), 'uploads', 'seed', 'articulo-seed-proyector.png'),
+      resolve(process.cwd(), 'uploads', 'seed', 'articulo-proyector.png'),
     );
     const urls = await guardarFotografiasArticulo([
       { mimetype: 'image/png', buffer },
