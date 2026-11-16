@@ -1,64 +1,74 @@
 import { useMemo, useState } from 'react';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
-import { articulosDemo, categoriasDemo, type ArticuloDemo } from '../articulos-demo.ts';
+import type { ArticuloDemo } from '../articulos-demo.ts';
+import { useArticulos } from '../hooks/useArticulos.ts';
 import { useDemostracion } from '../../estado/useDemostracion.ts';
+import type { Articulo } from '../../tipos.ts';
+import '../styles/pagina-catalogo.css';
 
-function fechaDemo(dias: number): string {
-  const fecha = new Date(2026, 10, 14 + dias);
-  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+type OrdenCatalogo = 'predeterminado' | 'nombre' | 'precio-asc' | 'precio-desc';
+
+function adaptarArticuloParaLista(articulo: Articulo): ArticuloDemo {
+  return {
+    ...articulo,
+    resumen: articulo.descripcion,
+    especificaciones: [],
+  };
 }
 
 export default function PaginaCatalogo() {
   const [busqueda, setBusqueda] = useState('');
-  const [categorias, setCategorias] = useState<string[]>([]);
+  const [categoria, setCategoria] = useState('');
+  const [precioMinimo, setPrecioMinimo] = useState('');
   const [precioMaximo, setPrecioMaximo] = useState('');
-  const [orden, setOrden] = useState('destacados');
-  const [entrega, setEntrega] = useState(fechaDemo(0));
-  const [recoleccion, setRecoleccion] = useState(fechaDemo(3));
+  const [orden, setOrden] = useState<OrdenCatalogo>('predeterminado');
   const [aviso, setAviso] = useState('');
-  const { agregar: agregarALaLista } = useDemostracion();
-
-  const dias = Math.max(
-    1,
-    Math.ceil(
-      (new Date(`${recoleccion}T12:00:00`).getTime() -
-        new Date(`${entrega}T12:00:00`).getTime()) /
-      86_400_000,
-    ),
-  );
+  const {
+    lista,
+    fechaEntrega,
+    fechaRecoleccion,
+    actualizarPeriodo,
+    agregar: agregarALaLista,
+  } = useDemostracion();
+  const {
+    articulos,
+    categorias,
+    cargando,
+    cargandoCategorias,
+    error,
+    errorCategorias,
+    reintentar,
+  } = useArticulos({
+    nombre: busqueda,
+    categoria: categoria || undefined,
+    precioMinimo: precioMinimo === '' ? undefined : Number(precioMinimo),
+    precioMaximo: precioMaximo === '' ? undefined : Number(precioMaximo),
+  });
+  const errorCatalogo = error ?? errorCategorias;
+  const periodoValido =
+    Boolean(fechaEntrega) &&
+    Boolean(fechaRecoleccion) &&
+    fechaRecoleccion > fechaEntrega;
+  const dias = periodoValido
+    ? Math.ceil(
+        (new Date(`${fechaRecoleccion}T12:00:00`).getTime() -
+          new Date(`${fechaEntrega}T12:00:00`).getTime()) /
+          86_400_000,
+      )
+    : 0;
 
   const resultados = useMemo(() => {
-    const texto = busqueda.trim().toLocaleLowerCase('es-MX');
-    let articulos = articulosDemo.filter((articulo) => {
-      const coincideTexto =
-        !texto ||
-        `${articulo.nombre} ${articulo.descripcion} ${articulo.categoria}`
-          .toLocaleLowerCase('es-MX')
-          .includes(texto);
-      const coincideCategoria =
-        categorias.length === 0 || categorias.includes(articulo.categoria);
-      const coincidePrecio =
-        !precioMaximo || articulo.precioPorDia <= Number(precioMaximo);
-      return coincideTexto && coincideCategoria && coincidePrecio;
-    });
-
     if (orden === 'precio-asc') {
-      articulos = [...articulos].sort((a, b) => a.precioPorDia - b.precioPorDia);
-    } else if (orden === 'precio-desc') {
-      articulos = [...articulos].sort((a, b) => b.precioPorDia - a.precioPorDia);
-    } else if (orden === 'nombre') {
-      articulos = [...articulos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+      return [...articulos].sort((a, b) => a.precioPorDia - b.precioPorDia);
+    }
+    if (orden === 'precio-desc') {
+      return [...articulos].sort((a, b) => b.precioPorDia - a.precioPorDia);
+    }
+    if (orden === 'nombre') {
+      return [...articulos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     }
     return articulos;
-  }, [busqueda, categorias, orden, precioMaximo]);
-
-  function alternarCategoria(categoria: string) {
-    setCategorias((seleccionadas) =>
-      seleccionadas.includes(categoria)
-        ? seleccionadas.filter((item) => item !== categoria)
-        : [...seleccionadas, categoria],
-    );
-  }
+  }, [articulos, orden]);
 
   function agregarArticulo(articulo: ArticuloDemo) {
     agregarALaLista(articulo, 1);
@@ -68,9 +78,19 @@ export default function PaginaCatalogo() {
 
   function limpiarFiltros() {
     setBusqueda('');
-    setCategorias([]);
+    setCategoria('');
+    setPrecioMinimo('');
     setPrecioMaximo('');
-    setOrden('destacados');
+    setOrden('predeterminado');
+  }
+
+  function actualizarPrecio(valor: string, actualizar: (valor: string) => void) {
+    if (valor === '') {
+      actualizar('');
+      return;
+    }
+    const numero = Number(valor);
+    if (Number.isFinite(numero) && numero >= 0) actualizar(valor);
   }
 
   return (
@@ -80,17 +100,35 @@ export default function PaginaCatalogo() {
           <section className="panel periodo">
             <div className="periodo__encabezado">
               <h2>Periodo de renta</h2>
-              <span className="etiqueta-dias">{dias} {dias === 1 ? 'día' : 'días'}</span>
+              <span className="etiqueta-dias">
+                {periodoValido ? `${dias} ${dias === 1 ? 'día' : 'días'}` : 'Sin seleccionar'}
+              </span>
             </div>
             <p className="periodo__texto">Indica las fechas de entrega y recolección de tu equipo.</p>
             <label className="campo-fecha">
               <span className="campo-fecha__etiqueta">FECHA DE ENTREGA</span>
-              <input className="campo-fecha__control" type="date" value={entrega} onChange={(event) => setEntrega(event.target.value)} />
+              <input
+                className="campo-fecha__control"
+                type="date"
+                value={fechaEntrega}
+                disabled={lista.length > 0}
+                onChange={(event) => actualizarPeriodo(event.target.value, fechaRecoleccion)}
+              />
             </label>
             <label className="campo-fecha">
               <span className="campo-fecha__etiqueta">FECHA DE RECOLECCIÓN</span>
-              <input className="campo-fecha__control" type="date" value={recoleccion} min={entrega} onChange={(event) => setRecoleccion(event.target.value)} />
+              <input
+                className="campo-fecha__control"
+                type="date"
+                value={fechaRecoleccion}
+                min={fechaEntrega || undefined}
+                disabled={lista.length > 0}
+                onChange={(event) => actualizarPeriodo(fechaEntrega, event.target.value)}
+              />
             </label>
+            {lista.length > 0 && (
+              <p className="periodo__bloqueado">Quita los artículos de la lista para cambiar el período.</p>
+            )}
           </section>
 
           <section className="panel filtros">
@@ -100,24 +138,49 @@ export default function PaginaCatalogo() {
             </div>
             <div className="filtros__grupo">
               <h3 className="filtros__titulo">Categoría</h3>
-              {categoriasDemo.map((categoria) => (
-                <label className="filtro-opcion" key={categoria}>
-                  <input type="checkbox" checked={categorias.includes(categoria)} onChange={() => alternarCategoria(categoria)} />
-                  <span>{categoria}</span>
+              <label className="filtro-opcion">
+                <input
+                  type="radio"
+                  name="categoria-catalogo"
+                  checked={categoria === ''}
+                  onChange={() => setCategoria('')}
+                />
+                <span>Todas</span>
+              </label>
+              {cargandoCategorias && <p className="catalogo__nota">Cargando categorías…</p>}
+              {categorias.map((opcion) => (
+                <label className="filtro-opcion" key={opcion}>
+                  <input
+                    type="radio"
+                    name="categoria-catalogo"
+                    checked={categoria === opcion}
+                    onChange={() => setCategoria(opcion)}
+                  />
+                  <span>{opcion}</span>
                 </label>
               ))}
             </div>
-            <div className="filtros__grupo">
-              <h3 className="filtros__titulo">Precio máximo por día</h3>
-              <label className="campo">
-                <span className="sr-only">Precio máximo en pesos</span>
+            <div className="filtros__grupo filtros__precios">
+              <label>
+                Precio mínimo por día
                 <input
-                  className="campo__control"
                   type="number"
                   min="0"
-                  placeholder="Sin límite"
+                  step="any"
+                  placeholder="Sin mínimo"
+                  value={precioMinimo}
+                  onChange={(event) => actualizarPrecio(event.target.value, setPrecioMinimo)}
+                />
+              </label>
+              <label>
+                Precio máximo por día
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder="Sin máximo"
                   value={precioMaximo}
-                  onChange={(event) => setPrecioMaximo(event.target.value)}
+                  onChange={(event) => actualizarPrecio(event.target.value, setPrecioMaximo)}
                 />
               </label>
             </div>
@@ -143,29 +206,54 @@ export default function PaginaCatalogo() {
             <span className="orden__etiqueta">Ordenar por</span>
             <label className="orden">
               <span className="sr-only">Ordenar artículos</span>
-              <select value={orden} onChange={(event) => setOrden(event.target.value)}>
-                <option value="destacados">Destacados</option>
+              <select
+                value={orden}
+                onChange={(event) => setOrden(event.target.value as OrdenCatalogo)}
+              >
+                <option value="predeterminado">Sin ordenar</option>
+                <option value="nombre">Nombre: A a Z</option>
                 <option value="precio-asc">Precio: menor a mayor</option>
                 <option value="precio-desc">Precio: mayor a menor</option>
-                <option value="nombre">Nombre</option>
               </select>
             </label>
           </div>
 
           <p className="catalogo__resumen">
-            Mostrando <strong>{resultados.length} equipos</strong> disponibles
+            {cargando ? 'Consultando el catálogo…' : (
+              <>Mostrando <strong>{resultados.length} artículos</strong></>
+            )}
           </p>
           <div className="rejilla-articulos">
-            {resultados.length ? resultados.map((articulo) => (
-              <TarjetaArticulo key={articulo.id} articulo={articulo} alAgregar={agregarArticulo} />
+            {errorCatalogo ? (
+              <div className="articulo-vacio" role="alert">
+                <h2>No se pudo cargar el catálogo</h2>
+                <p>{errorCatalogo}</p>
+                <button className="boton" type="button" onClick={reintentar}>Reintentar</button>
+              </div>
+            ) : cargando ? (
+              <div className="articulo-vacio catalogo__carga" role="status" aria-live="polite">
+                Cargando artículos…
+              </div>
+            ) : resultados.length ? resultados.map((articulo) => (
+              <TarjetaArticulo
+                key={articulo.id}
+                articulo={adaptarArticuloParaLista(articulo)}
+                puedeAgregar={periodoValido}
+                alAgregar={agregarArticulo}
+              />
             )) : (
               <div className="articulo-vacio">
-                <h2>No encontramos equipo con esos filtros</h2>
-                <p>Prueba otra búsqueda o limpia los filtros para ver todo el catálogo.</p>
-                <button className="boton boton--secundario" type="button" onClick={limpiarFiltros}>Limpiar filtros</button>
+                <h2>No encontramos artículos con esos filtros</h2>
+                <p>Prueba otra búsqueda o limpia los filtros para ver el catálogo.</p>
+                <button className="boton" type="button" onClick={limpiarFiltros}>Limpiar filtros</button>
               </div>
             )}
           </div>
+          {!periodoValido && !cargando && !errorCatalogo && resultados.length > 0 && (
+            <p className="catalogo__nota" role="status">
+              Selecciona una fecha de entrega y otra de recolección para agregar artículos.
+            </p>
+          )}
         </section>
       </div>
       {aviso && <div className="toast" role="status">{aviso}</div>}

@@ -1,31 +1,79 @@
 import { Link } from 'react-router';
+import { useState } from 'react';
 import type { ArticuloDemo } from '../articulos-demo.ts';
 import { formatoPrecio } from '../articulos-demo.ts';
+import '../styles/tarjeta-catalogo.css';
+import { urlImagen } from '../../services/api.ts';
 
 export function TarjetaArticulo({
   articulo,
   alAgregar,
+  puedeAgregar = true,
 }: {
   articulo: ArticuloDemo;
   alAgregar: (articulo: ArticuloDemo) => void;
+  puedeAgregar?: boolean;
 }) {
+  const [indiceImagen, setIndiceImagen] = useState(0);
+  const imagenes = articulo.fotografiasUrl;
+  const indiceActual = imagenes.length > 0 ? indiceImagen % imagenes.length : 0;
+
   return (
     <article className="tarjeta-articulo">
-      <Link to={`/articulos/${articulo.id}`} className="tarjeta-articulo__enlace">
-        <div className="tarjeta-articulo__visual">
-          <img
-            className="tarjeta-articulo__imagen"
-            src={articulo.fotografiasUrl[0]}
-            alt={articulo.nombre}
-            loading="lazy"
-          />
+      <div className="tarjeta-articulo__visual">
+        <Link
+          to={`/articulos/${articulo.id}`}
+          state={articulo}
+          className="tarjeta-articulo__visual-enlace"
+        >
+          {imagenes[indiceActual] && (
+            <img
+              className="tarjeta-articulo__imagen"
+              src={urlImagen(imagenes[indiceActual])}
+              alt={articulo.nombre}
+              loading="lazy"
+            />
+          )}
           <span className="tarjeta-articulo__categoria">{articulo.categoria}</span>
-          <span className="tarjeta-articulo__controles" aria-hidden="true">
-            <span className="control-circular">‹</span>
-            <span className="control-circular">›</span>
-          </span>
-          <span className="puntos-imagen" aria-hidden="true"><span /><span /><span /></span>
-        </div>
+        </Link>
+        {imagenes.length > 1 && (
+          <>
+            <div className="tarjeta-articulo__controles">
+              <button
+                className="control-circular"
+                type="button"
+                aria-label={`Imagen anterior de ${articulo.nombre}`}
+                onClick={() =>
+                  setIndiceImagen((actual) => (actual - 1 + imagenes.length) % imagenes.length)
+                }
+              >
+                ‹
+              </button>
+              <button
+                className="control-circular"
+                type="button"
+                aria-label={`Imagen siguiente de ${articulo.nombre}`}
+                onClick={() => setIndiceImagen((actual) => (actual + 1) % imagenes.length)}
+              >
+                ›
+              </button>
+            </div>
+            <div className="puntos-imagen" aria-label={`Imagen ${indiceActual + 1} de ${imagenes.length}`}>
+              {imagenes.map((imagen, indice) => (
+                <span
+                  key={`${imagen}-${indice}`}
+                  className={indice === indiceActual ? 'punto-imagen punto-imagen--activo' : 'punto-imagen'}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <Link
+        to={`/articulos/${articulo.id}`}
+        state={articulo}
+        className="tarjeta-articulo__enlace"
+      >
         <div className="tarjeta-articulo__cuerpo">
           <h2 className="tarjeta-articulo__titulo">{articulo.nombre}</h2>
           <p className="tarjeta-articulo__meta">{articulo.resumen}</p>
@@ -38,9 +86,10 @@ export function TarjetaArticulo({
         className="boton-agregar-mini"
         type="button"
         onClick={() => alAgregar(articulo)}
+        disabled={!puedeAgregar}
         aria-label={`Agregar ${articulo.nombre} a la lista de renta`}
       >
-        + Agregar
+        {puedeAgregar ? '+ Agregar' : 'Selecciona fechas'}
       </button>
     </article>
   );

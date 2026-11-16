@@ -19,8 +19,13 @@ async function bootstrap() {
     origin: ['http://localhost:5173'],
     exposedHeaders: ['Location', 'X-Request-Id'],
   });
-  app.useStaticAssets(resolve(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
+
+  app.useStaticAssets(resolve(process.cwd(), 'public'), {
+    prefix: '/',
+  });
+  
+  app.useStaticAssets(resolve(process.cwd(), 'img'), {
+    prefix: '/public/img/',
   });
 
   app.useGlobalPipes(
