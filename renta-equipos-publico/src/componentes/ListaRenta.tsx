@@ -1,8 +1,10 @@
-import { useDemostracion } from '../estado/useDemostracion.ts';
+import { useCarrito } from '../estado/carrito.ts';
 import { formatoPrecio } from '../catalogo/articulos-demo.ts';
+import { urlImagen } from '../services/api.ts';
 
 export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
-  const { lista, quitar } = useDemostracion();
+  const lista = useCarrito((state) => state.lista);
+  const quitar = useCarrito((state) => state.quitar);
 
   return (
     <div className="modal-fondo" onMouseDown={(event) => {
@@ -18,7 +20,9 @@ export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
             <p className="lista-renta__vacia">Todavía no agregas equipo.<br />Explora el catálogo para comenzar.</p>
           ) : lista.map(({ articulo, cantidad }) => (
             <article className="lista-renta__item" key={articulo.id}>
-              <img src={articulo.fotografiasUrl[0]} alt="" />
+              {articulo.fotografiasUrl[0] && (
+                <img src={urlImagen(articulo.fotografiasUrl[0])} alt="" />
+              )}
               <div>
                 <p className="lista-renta__nombre">{articulo.nombre}</p>
                 <p className="lista-renta__meta">{cantidad} × {formatoPrecio(articulo.precioPorDia)} / día</p>

@@ -9,6 +9,9 @@ export interface ArticuloEnLista {
 export interface Demostracion {
   lista: ArticuloEnLista[];
   totalPiezas: number;
+  fechaEntrega: string;
+  fechaRecoleccion: string;
+  actualizarPeriodo: (fechaEntrega: string, fechaRecoleccion: string) => void;
   agregar: (articulo: ArticuloDemo, cantidad: number) => void;
   quitar: (id: number) => void;
   vaciar: () => void;

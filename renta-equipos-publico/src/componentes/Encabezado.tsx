@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { useSesion } from '../estado/useSesion.ts';
-import { useDemostracion } from '../estado/useDemostracion.ts';
+import { useCarrito } from '../estado/carrito.ts';
 import { ListaRentaPanel } from './ListaRenta.tsx';
 
 function claseEnlace({ isActive }: { isActive: boolean }) {
@@ -9,7 +9,7 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 }
 
 export function Encabezado() {
-  const { totalPiezas } = useDemostracion();
+  const totalPiezas = useCarrito((state) => state.totalPiezas());
   const { usuario, salir } = useSesion();
   const navegar = useNavigate();
   const [listaAbierta, setListaAbierta] = useState(false);
@@ -58,13 +58,13 @@ export function Encabezado() {
             </button>
             {usuario ? (
               <>
-                <Link to="/perfil" className="barra__usuario" title="Ver mi perfil">
+                <span className="barra__usuario">
                   <svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true">
                     <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
                     <path d="M5 20c.5-3.1 3.2-5 7-5s6.5 1.9 7 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
                   </svg>
                   <span className="barra__usuario-nombre">Hola, {usuario.nombre}</span>
-                </Link>
+                </span>
                 <button className="boton-salir" type="button" onClick={cerrarSesion}>Salir</button>
               </>
             ) : (
