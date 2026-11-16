@@ -11,6 +11,7 @@ export interface Demostracion {
   totalPiezas: number;
   agregar: (articulo: ArticuloDemo, cantidad: number) => void;
   quitar: (id: number) => void;
+  vaciar: () => void;
 }
 
 export const DemostracionContext = createContext<Demostracion | null>(null);

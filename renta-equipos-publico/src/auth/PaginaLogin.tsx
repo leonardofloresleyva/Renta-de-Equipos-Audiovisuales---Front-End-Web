@@ -132,7 +132,7 @@ export default function PaginaLogin() {
               {enviando ? 'Entrando…' : 'Iniciar sesión'}
             </button>
           </form>
-          <p className="formulario__pie">¿Aún no tienes cuenta? <Link to="/registro">Crear una cuenta</Link></p>
+          <p className="formulario__pie">¿Aún no tienes cuenta? <Link to="/registro" state={ubicacion.state}>Crear una cuenta</Link></p>
         </div>
       </div>
     </section>

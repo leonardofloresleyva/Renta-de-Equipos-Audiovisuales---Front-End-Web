@@ -270,7 +270,7 @@ export default function PaginaRegistro() {
               {enviando ? 'Creando cuenta…' : 'Crear cuenta'}
             </button>
           </form>
-          <p className="formulario__pie">¿Ya tienes una cuenta? <Link to="/login">Inicia sesión</Link></p>
+          <p className="formulario__pie">¿Ya tienes una cuenta? <Link to="/login" state={ubicacion.state}>Inicia sesión</Link></p>
         </div>
       </div>
     </section>

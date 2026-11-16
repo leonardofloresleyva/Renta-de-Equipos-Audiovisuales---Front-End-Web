@@ -3,9 +3,11 @@ import * as servicio from '../services/sesion.ts';
 import { borrarSesion, guardarSesion, leerSesion } from '../services/almacen-sesion.ts';
 import type { DatosRegistro, Sesion } from '../tipos.ts';
 import { SesionContext, type ValorSesion } from './sesion-context.ts';
+import { useDemostracion } from './useDemostracion.ts';
 
 export function ProveedorSesion({ children }: { children: ReactNode }) {
     const [sesion, setSesion] = useState<Sesion | null>(leerSesion);
+    const { vaciar } = useDemostracion();
 
     async function entrar(correo: string, password: string) {
         const nueva = await servicio.entrar(correo, password);
@@ -20,6 +22,7 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     }
 
     function salir() {
+        vaciar();
         borrarSesion();
         setSesion(null);
     }
@@ -27,10 +30,13 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     // El interceptor de api.ts borra el storage y avisa aquí cuando un 401
     // confirma que la sesión ya no sirve.
     useEffect(() => {
-        const alTerminar = () => setSesion(null);
+        const alTerminar = () => {
+            vaciar();
+            setSesion(null);
+        };
         window.addEventListener('sesion-terminada', alTerminar);
         return () => window.removeEventListener('sesion-terminada', alTerminar);
-    }, []);
+    }, [vaciar]);
 
     const valor: ValorSesion = {
         usuario: sesion?.usuario ?? null,
