@@ -12,5 +12,6 @@ export interface Sobre<T> {
 }
 
 export function urlImagen(ruta: string): string {
-  return `${URL_API}${ruta}`;
+  if (/^(https?:)?\/\//i.test(ruta) || ruta.startsWith('/images/')) return ruta;
+  return `${URL_API.replace(/\/$/, '')}/${ruta.replace(/^\//, '')}`;
 }

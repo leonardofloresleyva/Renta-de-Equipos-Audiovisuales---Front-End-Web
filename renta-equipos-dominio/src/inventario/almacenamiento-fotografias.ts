@@ -5,11 +5,7 @@ import { randomUUID } from 'node:crypto';
 
 export const MAX_FOTOGRAFIAS_ARTICULO = 5;
 export const MAX_TAMANO_FOTOGRAFIA = 5 * 1024 * 1024;
-export const DIRECTORIO_FOTOGRAFIAS = resolve(
-  process.cwd(),
-  'uploads',
-  'articulos',
-);
+export const DIRECTORIO_FOTOGRAFIAS = resolve(process.cwd(), 'public', 'img');
 
 const EXTENSIONES_POR_TIPO: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -48,23 +44,25 @@ export async function guardarFotografiasArticulo(
   if (!archivos?.length) {
     throw new BadRequestException('Debes adjuntar al menos una fotografía.');
   }
+
   if (archivos.length > MAX_FOTOGRAFIAS_ARTICULO) {
     throw new BadRequestException(
       `No puedes adjuntar más de ${MAX_FOTOGRAFIAS_ARTICULO} fotografías.`,
     );
   }
-  if (
-    archivos.some((archivo) => archivo.buffer.length > MAX_TAMANO_FOTOGRAFIA)
-  ) {
+
+  if (archivos.some((archivo) => archivo.buffer.length > MAX_TAMANO_FOTOGRAFIA)) {
     throw new BadRequestException(
       'Cada fotografía debe pesar como máximo 5 MB.',
     );
   }
+
   if (archivos.some((archivo) => !EXTENSIONES_POR_TIPO[archivo.mimetype])) {
     throw new BadRequestException(
       'Las fotografías deben ser archivos JPEG, PNG o WebP.',
     );
   }
+  
   if (archivos.some((archivo) => !tieneFirmaValida(archivo))) {
     throw new BadRequestException(
       'El contenido de cada archivo debe coincidir con una imagen JPEG, PNG o WebP.',
@@ -99,7 +97,7 @@ export async function guardarFotografiasArticulo(
     throw error;
   }
 
-  return guardadas.map((ruta) => `/uploads/articulos/${basename(ruta)}`);
+  return guardadas.map((ruta) => `/img/${basename(ruta)}`);
 }
 
 export async function eliminarFotografiasArticulo(
