@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router';
-import { useDemostracion } from '../estado/useDemostracion.ts';
+import { useCarrito } from '../estado/carrito.ts';
 import { ListaRentaPanel } from './ListaRenta.tsx';
 
 function claseEnlace({ isActive }: { isActive: boolean }) {
@@ -8,7 +8,7 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 }
 
 export function Encabezado() {
-  const { totalPiezas } = useDemostracion();
+  const totalPiezas = useCarrito((state) => state.totalPiezas());
   const [listaAbierta, setListaAbierta] = useState(false);
 
   return (

@@ -1,20 +1,11 @@
 import { useMemo, useState } from 'react';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
-import type { ArticuloDemo } from '../articulos-demo.ts';
 import { useArticulos } from '../hooks/useArticulos.ts';
-import { useDemostracion } from '../../estado/useDemostracion.ts';
+import { useCarrito } from '../../estado/carrito.ts';
 import type { Articulo } from '../../tipos.ts';
 import '../styles/pagina-catalogo.css';
 
 type OrdenCatalogo = 'predeterminado' | 'nombre' | 'precio-asc' | 'precio-desc';
-
-function adaptarArticuloParaLista(articulo: Articulo): ArticuloDemo {
-  return {
-    ...articulo,
-    resumen: articulo.descripcion,
-    especificaciones: [],
-  };
-}
 
 export default function PaginaCatalogo() {
   const [busqueda, setBusqueda] = useState('');
@@ -23,13 +14,13 @@ export default function PaginaCatalogo() {
   const [precioMaximo, setPrecioMaximo] = useState('');
   const [orden, setOrden] = useState<OrdenCatalogo>('predeterminado');
   const [aviso, setAviso] = useState('');
-  const {
-    lista,
-    fechaEntrega,
-    fechaRecoleccion,
-    actualizarPeriodo,
-    agregar: agregarALaLista,
-  } = useDemostracion();
+
+  const lista = useCarrito((state) => state.lista);
+  const fechaEntrega = useCarrito((state) => state.fechaEntrega);
+  const fechaRecoleccion = useCarrito((state) => state.fechaRecoleccion);
+  const actualizarPeriodo = useCarrito((state) => state.actualizarPeriodo);
+  const agregarALaLista = useCarrito((state) => state.agregar);
+
   const {
     articulos,
     categorias,
@@ -44,33 +35,20 @@ export default function PaginaCatalogo() {
     precioMinimo: precioMinimo === '' ? undefined : Number(precioMinimo),
     precioMaximo: precioMaximo === '' ? undefined : Number(precioMaximo),
   });
+
   const errorCatalogo = error ?? errorCategorias;
-  const periodoValido =
-    Boolean(fechaEntrega) &&
-    Boolean(fechaRecoleccion) &&
-    fechaRecoleccion > fechaEntrega;
-  const dias = periodoValido
-    ? Math.ceil(
-        (new Date(`${fechaRecoleccion}T12:00:00`).getTime() -
-          new Date(`${fechaEntrega}T12:00:00`).getTime()) /
-          86_400_000,
-      )
-    : 0;
+
+  const periodoValido = Boolean(fechaEntrega) && Boolean(fechaRecoleccion) && fechaRecoleccion > fechaEntrega;
+  const dias = periodoValido ? Math.ceil((new Date(`${fechaRecoleccion}T12:00:00`).getTime() - new Date(`${fechaEntrega}T12:00:00`).getTime()) / 86_400_000,) : 0;
 
   const resultados = useMemo(() => {
-    if (orden === 'precio-asc') {
-      return [...articulos].sort((a, b) => a.precioPorDia - b.precioPorDia);
-    }
-    if (orden === 'precio-desc') {
-      return [...articulos].sort((a, b) => b.precioPorDia - a.precioPorDia);
-    }
-    if (orden === 'nombre') {
-      return [...articulos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-    }
+    if (orden === 'precio-asc') { return [...articulos].sort((a, b) => a.precioPorDia - b.precioPorDia); }
+    if (orden === 'precio-desc') { return [...articulos].sort((a, b) => b.precioPorDia - a.precioPorDia); }
+    if (orden === 'nombre') { return [...articulos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')); }
     return articulos;
   }, [articulos, orden]);
 
-  function agregarArticulo(articulo: ArticuloDemo) {
+  function agregarArticulo(articulo: Articulo) {
     agregarALaLista(articulo, 1);
     setAviso(`${articulo.nombre} se agregó a tu lista de renta.`);
     window.setTimeout(() => setAviso(''), 2600);
@@ -237,7 +215,7 @@ export default function PaginaCatalogo() {
             ) : resultados.length ? resultados.map((articulo) => (
               <TarjetaArticulo
                 key={articulo.id}
-                articulo={adaptarArticuloParaLista(articulo)}
+                articulo={articulo}
                 puedeAgregar={periodoValido}
                 alAgregar={agregarArticulo}
               />

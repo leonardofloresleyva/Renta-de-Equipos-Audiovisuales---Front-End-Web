@@ -1,19 +1,20 @@
 import { Link } from 'react-router';
 import { useState } from 'react';
-import type { ArticuloDemo } from '../articulos-demo.ts';
 import { formatoPrecio } from '../articulos-demo.ts';
 import '../styles/tarjeta-catalogo.css';
 import { urlImagen } from '../../services/api.ts';
+import type { Articulo } from '../../tipos.ts';
 
 export function TarjetaArticulo({
   articulo,
   alAgregar,
   puedeAgregar = true,
 }: {
-  articulo: ArticuloDemo;
-  alAgregar: (articulo: ArticuloDemo) => void;
+  articulo: Articulo;
+  alAgregar: (articulo: Articulo) => void;
   puedeAgregar?: boolean;
 }) {
+
   const [indiceImagen, setIndiceImagen] = useState(0);
   const imagenes = articulo.fotografiasUrl;
   const indiceActual = imagenes.length > 0 ? indiceImagen % imagenes.length : 0;
@@ -76,7 +77,7 @@ export function TarjetaArticulo({
       >
         <div className="tarjeta-articulo__cuerpo">
           <h2 className="tarjeta-articulo__titulo">{articulo.nombre}</h2>
-          <p className="tarjeta-articulo__meta">{articulo.resumen}</p>
+          <p className="tarjeta-articulo__meta">{articulo.descripcion}</p>
           <span className="tarjeta-articulo__precio">
             {formatoPrecio(articulo.precioPorDia)} <small>por día</small>
           </span>

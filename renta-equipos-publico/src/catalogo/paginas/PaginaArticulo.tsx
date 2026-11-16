@@ -1,19 +1,18 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import { NoEncontrado } from '../../componentes/NoEncontrado.tsx';
-import { useDemostracion } from '../../estado/useDemostracion.ts';
-import { articulosDemo, formatoPrecio, type ArticuloDemo } from '../articulos-demo.ts';
+import { useCarrito } from '../../estado/carrito.ts';
+import { formatoPrecio } from '../articulos-demo.ts';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
 import { useArticulo } from '../hooks/useArticulo.ts';
+import { useArticulos } from '../hooks/useArticulos.ts';
 import type { Articulo } from '../../tipos.ts';
 import { urlImagen } from '../../services/api.ts';
 import '../styles/pagina-articulo.css';
 
-type ArticuloVista = Articulo & Partial<Pick<ArticuloDemo, 'resumen' | 'especificaciones'>>;
-
-function esArticuloVista(valor: unknown): valor is ArticuloVista {
+function esArticulo(valor: unknown): valor is Articulo {
   if (typeof valor !== 'object' || valor === null) return false;
-  const articulo = valor as Partial<ArticuloVista>;
+  const articulo = valor as Partial<Articulo>;
   return (
     typeof articulo.id === 'number' &&
     typeof articulo.nombre === 'string' &&
@@ -26,51 +25,49 @@ function esArticuloVista(valor: unknown): valor is ArticuloVista {
   );
 }
 
-function adaptarArticuloParaLista(articulo: ArticuloVista): ArticuloDemo {
-  return {
-    ...articulo,
-    resumen: articulo.resumen ?? articulo.descripcion,
-    especificaciones: articulo.especificaciones ?? [],
-  };
-}
-
 export default function PaginaArticulo() {
+
   const { id } = useParams();
   const idArticulo = Number(id);
   const idValido = Number.isSafeInteger(idArticulo) && idArticulo > 0;
   const location = useLocation();
-  const articuloEnRuta =
-    esArticuloVista(location.state) && location.state.id === idArticulo
-      ? location.state
-      : null;
+  const articuloEnRuta = esArticulo(location.state) && location.state.id === idArticulo ? location.state : null;
+
   const {
     articulo: articuloApi,
     cargando: cargandoApi,
     error,
     reintentar,
   } = useArticulo(idArticulo, idValido && articuloEnRuta === null);
-  const articuloActual: ArticuloVista | null = articuloEnRuta ?? (
+
+  const articuloActual: Articulo | null = articuloEnRuta ?? (
     articuloApi?.id === idArticulo ? articuloApi : null
   );
+
   const cargando = articuloEnRuta === null && cargandoApi;
-  const {
-    agregar,
-    lista,
-    fechaEntrega,
-    fechaRecoleccion,
-    actualizarPeriodo,
-  } = useDemostracion();
+
+  const lista = useCarrito((state) => state.lista);
+  const fechaEntrega = useCarrito((state) => state.fechaEntrega);
+  const fechaRecoleccion = useCarrito((state) => state.fechaRecoleccion);
+  const actualizarPeriodo = useCarrito((state) => state.actualizarPeriodo);
+  const agregar = useCarrito((state) => state.agregar);
+
   const [cantidad, setCantidad] = useState(1);
   const [aviso, setAviso] = useState('');
+
+  const { articulos: articulosCatalogo } = useArticulos({});
+
   const periodoValido =
     Boolean(fechaEntrega) &&
     Boolean(fechaRecoleccion) &&
     fechaRecoleccion > fechaEntrega;
 
   if (!idValido) return <NoEncontrado />;
+
   if (!articuloActual && cargando) {
     return <div className="pagina-articulo__estado" role="status" aria-live="polite">Cargando artículo…</div>;
   }
+
   if (!articuloActual && error) {
     return (
       <div className="pagina-articulo__estado" role="alert">
@@ -80,22 +77,24 @@ export default function PaginaArticulo() {
       </div>
     );
   }
+
   if (!articuloActual) return <NoEncontrado />;
 
-  const articuloLista = adaptarArticuloParaLista(articuloActual);
-  const especificaciones = articuloActual.especificaciones ?? [];
   const dias = periodoValido
     ? Math.ceil(
-        (new Date(`${fechaRecoleccion}T12:00:00`).getTime() -
-          new Date(`${fechaEntrega}T12:00:00`).getTime()) /
-          86_400_000,
-      )
+      (new Date(`${fechaRecoleccion}T12:00:00`).getTime() -
+        new Date(`${fechaEntrega}T12:00:00`).getTime()) /
+      86_400_000,
+    )
     : 0;
-  const relacionados = articulosDemo.filter((item) => item.id !== articuloActual.id).slice(0, 3);
+
+  const relacionados = articulosCatalogo
+    .filter((item) => item.id !== articuloActual.id)
+    .slice(0, 3);
 
   function agregarALista() {
-    if (!periodoValido) return;
-    agregar(articuloLista, cantidad);
+    if (!periodoValido || !articuloActual) return;
+    agregar(articuloActual, cantidad);
     setAviso(`${cantidad} ${cantidad === 1 ? 'pieza agregada' : 'piezas agregadas'} a tu lista de renta.`);
     window.setTimeout(() => setAviso(''), 2800);
   }
@@ -123,9 +122,6 @@ export default function PaginaArticulo() {
           <span className="etiqueta-categoria">{articuloActual.categoria}</span>
           <p className="detalle__descripcion">{articuloActual.descripcion}</p>
           <div className="detalle__caracteristicas" aria-label="Características">
-            {especificaciones.map((especificacion) => (
-              <span key={especificacion}>{especificacion}</span>
-            ))}
             <span>{articuloActual.existencias} piezas en catálogo</span>
           </div>
 
