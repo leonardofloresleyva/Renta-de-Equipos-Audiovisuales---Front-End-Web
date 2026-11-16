@@ -52,3 +52,44 @@ export interface ArticuloReserva {
     precioUnitario: number;
     subtotal: number;
 }
+
+export type Rol = 'cliente' | 'administrador';
+
+export interface UsuarioSesion {
+    correo: string;
+    nombre: string;
+    rol: Rol;
+}
+
+export interface PayloadJwt {
+    sub: number;
+    perfilId: number;
+    correo: string;
+    rol: Rol;
+    iat?: number;
+    exp?: number;
+}
+
+export interface RespuestaToken {
+    access_token: string;
+    token_type: string;
+    expires_in: number;
+    usuario: UsuarioSesion;
+}
+
+export interface Sesion {
+    token: string;
+    usuario: UsuarioSesion;
+    perfilId: number;
+    expiraEn: number;
+}
+
+export interface DatosRegistro {
+    nombre: string;
+    correo: string;
+    password: string;
+    telefono: string;
+    calle: string;
+    numero: string;
+    colonia: string;
+}
