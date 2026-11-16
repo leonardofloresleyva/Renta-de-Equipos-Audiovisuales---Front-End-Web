@@ -3,6 +3,7 @@ import * as servicio from '../services/sesion.ts';
 import { borrarSesion, guardarSesion, leerSesion } from '../services/almacen-sesion.ts';
 import type { DatosRegistro, Sesion } from '../tipos.ts';
 import { SesionContext, type ValorSesion } from './sesion-context.ts';
+import { useCarrito } from './carrito.ts';
 import { useDemostracion } from './useDemostracion.ts';
 
 export function ProveedorSesion({ children }: { children: ReactNode }) {
@@ -23,6 +24,7 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
 
     function salir() {
         vaciar();
+        useCarrito.getState().vaciar();
         borrarSesion();
         setSesion(null);
     }
@@ -32,6 +34,7 @@ export function ProveedorSesion({ children }: { children: ReactNode }) {
     useEffect(() => {
         const alTerminar = () => {
             vaciar();
+            useCarrito.getState().vaciar();
             setSesion(null);
         };
         window.addEventListener('sesion-terminada', alTerminar);

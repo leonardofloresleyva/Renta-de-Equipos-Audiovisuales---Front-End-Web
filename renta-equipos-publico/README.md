@@ -9,6 +9,7 @@ Consume el servicio del Avance 2 (NestJS + Prisma + MySQL).
 - Vite 8
 - React Router 8
 - Axios
+- Zustand
 
 ## Requisitos
 
@@ -83,11 +84,9 @@ La autenticación consume el backend real:
 | `/articulos/:id` | Detalle de artículo | Público |
 | `/login` | Inicio de sesión | Público |
 | `/registro` | Registro de cliente | Público |
-| `/perfil` | Datos de la sesión | Cliente |
 | `*` | No encontrado | Público |
 
-`/perfil` es de solo lectura: el servicio todavía no expone un endpoint para que el
-cliente consulte o modifique sus datos.
+La vista de perfil se retiró para no exponer datos sensibles de la sesión.
 
 ## Organización del código
 
@@ -96,13 +95,13 @@ cliente consulte o modifique sus datos.
 - `src/services/sesion.ts`: login, registro y decodificación del JWT.
 - `src/estado/SesionContext.tsx`: estado de sesión y limpieza al cerrar sesión.
 - `src/componentes/RutaProtegida.tsx`: protección de rutas y `returnTo`.
-- `src/auth/`: páginas de login, registro y perfil.
+- `src/auth/`: páginas de login y registro.
+- `src/estado/carrito.ts`: carrito de renta en memoria con Zustand.
 
 ## Estado actual
 
-- Login, registro, cierre de sesión, expiración por `401` y perfil protegido funcionan
-  contra el backend.
-- El catálogo y el detalle de artículo siguen usando datos de demostración locales.
-- Crear reservas, consultar reservas, cancelar y editar el perfil están bloqueados por
-  el contrato del Avance 2 (ver `AGENTS.md`, sección 10).
+- Login, registro, cierre de sesión y expiración por `401` funcionan contra el backend.
+- El catálogo y el detalle de artículo consumen el servicio real.
+- Crear reservas y consultar reservas están bloqueados por el contrato del Avance 2 (ver
+  `AGENTS.md`, sección 10).
 - Pruebas automatizadas pendientes.

@@ -187,27 +187,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .vacio p { margin-bottom: 22px; color: var(--suave); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
 
-.perfil { max-width: 760px; margin: 0 auto; padding: 10px 0 40px; }
-.perfil__encabezado { margin-bottom: 24px; }
-.perfil__etiqueta { color: var(--ambar-oscuro); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.perfil__encabezado h1 { margin: 8px 0; font-size: 32px; }
-.perfil__encabezado p { margin: 0; color: var(--suave); font-size: 14px; }
-.perfil__tarjeta { padding: 26px; border: 1px solid var(--linea); border-radius: 20px; background: white; box-shadow: var(--sombra); }
-.perfil__datos { display: grid; margin: 0; }
-.perfil__datos > div { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid #edf0f4; }
-.perfil__datos > div:first-child { padding-top: 0; }
-.perfil__datos > div:last-child { padding-bottom: 0; border-bottom: 0; }
-.perfil__datos dt { color: #697588; font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
-.perfil__datos dd { margin: 0; color: var(--texto); font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }
-.perfil__acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--linea); }
-
-@media (max-width: 760px) {
-  .perfil__encabezado h1 { font-size: 26px; }
-  .perfil__tarjeta { padding: 20px; }
-  .perfil__datos > div { grid-template-columns: 1fr; gap: 5px; }
-  .perfil__acciones .boton { flex: 1 1 100%; }
-}
-
 .modal-fondo { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: flex-end; background: rgba(15,23,42,.42); }
 .lista-renta { width: min(100%, 430px); height: 100%; display: flex; flex-direction: column; padding: 27px; background: white; box-shadow: -10px 0 40px rgba(15,23,42,.17); }
 .lista-renta__encabezado { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--linea); }
