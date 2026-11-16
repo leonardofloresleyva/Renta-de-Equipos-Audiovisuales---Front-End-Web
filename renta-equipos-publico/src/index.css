@@ -277,4 +277,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .formulario__rejilla { grid-template-columns: 1fr; gap: 16px; }
   .lista-renta { padding: 20px; }
   .orden { grid-template-columns: 80px 1fr; }
+  .boton-lista > span:not(.boton-lista__contador) { display: none; }
 }

@@ -1,7 +1,7 @@
 export function PiePagina() {
   return (
     <footer className="pie">
-      Renta AV · Equipo audiovisual para eventos · Maqueta de demostración
+      Renta AV · Equipo audiovisual para eventos
     </footer>
   );
 }

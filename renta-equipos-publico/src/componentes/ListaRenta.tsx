@@ -28,7 +28,7 @@ export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
           ))}
         </div>
         <div className="lista-renta__pie">
-          <p className="formulario__nota">Maqueta de demostración: la lista no se envía al servicio.</p>
+          <p className="formulario__nota">La lista de renta es local y todavía no se envía al servicio.</p>
           <button className="boton boton--ancho" type="button" onClick={cerrar}>Seguir explorando</button>
         </div>
       </aside>

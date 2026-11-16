@@ -45,6 +45,7 @@ export function mensajeDeError(error: unknown, generico: string): string {
     if (!esRutaDeAuth(error.config?.url)) {
       return 'Tu sesión terminó. Vuelve a entrar.';
     }
+    return generico;
   }
 
   if (status === 403) {
