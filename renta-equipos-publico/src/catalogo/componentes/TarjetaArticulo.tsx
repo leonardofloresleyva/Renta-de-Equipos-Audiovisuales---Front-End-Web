@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
-import type { ArticuloDemo } from './articulos-demo.ts';
-import { formatoPrecio } from './articulos-demo.ts';
+import type { ArticuloDemo } from '../articulos-demo.ts';
+import { formatoPrecio } from '../articulos-demo.ts';
 
 export function TarjetaArticulo({
   articulo,

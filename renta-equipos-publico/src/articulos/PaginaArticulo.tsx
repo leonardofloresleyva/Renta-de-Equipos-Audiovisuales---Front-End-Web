@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router';
 import { NoEncontrado } from '../componentes/NoEncontrado.tsx';
 import { useDemostracion } from '../estado/useDemostracion.ts';
 import { articulosDemo, formatoPrecio } from '../catalogo/articulos-demo.ts';
-import { TarjetaArticulo } from '../catalogo/TarjetaArticulo.tsx';
+import { TarjetaArticulo } from '../catalogo/componentes/TarjetaArticulo.tsx';
 
 export default function PaginaArticulo() {
   const { id } = useParams();

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { TarjetaArticulo } from './TarjetaArticulo.tsx';
-import { articulosDemo, categoriasDemo, type ArticuloDemo } from './articulos-demo.ts';
-import { useDemostracion } from '../estado/useDemostracion.ts';
+import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
+import { articulosDemo, categoriasDemo, type ArticuloDemo } from '../articulos-demo.ts';
+import { useDemostracion } from '../../estado/useDemostracion.ts';
 
 function fechaDemo(dias: number): string {
   const fecha = new Date(2026, 10, 14 + dias);
@@ -23,7 +23,7 @@ export default function PaginaCatalogo() {
     Math.ceil(
       (new Date(`${recoleccion}T12:00:00`).getTime() -
         new Date(`${entrega}T12:00:00`).getTime()) /
-        86_400_000,
+      86_400_000,
     ),
   );
 

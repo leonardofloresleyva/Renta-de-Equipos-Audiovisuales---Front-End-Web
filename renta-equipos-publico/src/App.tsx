@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
 
-const PaginaCatalogo = lazy(() => import('./catalogo/PaginaCatalogo.tsx'));
+const PaginaCatalogo = lazy(() => import('./catalogo/paginas/PaginaCatalogo.tsx'));
 const PaginaArticulo = lazy(() => import('./articulos/PaginaArticulo.tsx'));
 const PaginaLogin = lazy(() => import('./auth/PaginaLogin.tsx'));
 const PaginaRegistro = lazy(() => import('./auth/PaginaRegistro.tsx'));
