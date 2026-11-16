@@ -47,6 +47,8 @@ export function ProveedorDemostracion({ children }: { children: ReactNode }) {
     [],
   );
 
+  const vaciar = useCallback(() => setLista([]), []);
+
   const valor = useMemo(
     () => ({
       lista,
@@ -56,8 +58,9 @@ export function ProveedorDemostracion({ children }: { children: ReactNode }) {
       actualizarPeriodo,
       agregar,
       quitar,
+      vaciar,
     }),
-    [lista, fechaEntrega, fechaRecoleccion, actualizarPeriodo, agregar, quitar],
+    [lista, vaciar, fechaEntrega, fechaRecoleccion, actualizarPeriodo, agregar, quitar],
   );
 
   return (

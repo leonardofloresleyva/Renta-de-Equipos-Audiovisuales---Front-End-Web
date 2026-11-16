@@ -14,6 +14,7 @@ export interface Demostracion {
   actualizarPeriodo: (fechaEntrega: string, fechaRecoleccion: string) => void;
   agregar: (articulo: ArticuloDemo, cantidad: number) => void;
   quitar: (id: number) => void;
+  vaciar: () => void;
 }
 
 export const DemostracionContext = createContext<Demostracion | null>(null);

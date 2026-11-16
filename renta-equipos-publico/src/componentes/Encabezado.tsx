@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router';
+import { useSesion } from '../estado/useSesion.ts';
 import { useCarrito } from '../estado/carrito.ts';
 import { ListaRentaPanel } from './ListaRenta.tsx';
 
@@ -9,7 +10,14 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 
 export function Encabezado() {
   const totalPiezas = useCarrito((state) => state.totalPiezas());
+  const { usuario, salir } = useSesion();
+  const navegar = useNavigate();
   const [listaAbierta, setListaAbierta] = useState(false);
+
+  function cerrarSesion() {
+    salir();
+    navegar('/catalogo');
+  }
 
   return (
     <>
@@ -48,12 +56,25 @@ export function Encabezado() {
               <span>Lista de renta</span>
               <span className="boton-lista__contador">{totalPiezas}</span>
             </button>
-            <Link to="/login" className="boton-usuario" aria-label="Iniciar sesión">
-              <svg viewBox="0 0 24 24" width="21" height="21" fill="none" aria-hidden="true">
-                <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
-                <path d="M5 20c.5-3.1 3.2-5 7-5s6.5 1.9 7 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-              </svg>
-            </Link>
+            {usuario ? (
+              <>
+                <span className="barra__usuario">
+                  <svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
+                    <path d="M5 20c.5-3.1 3.2-5 7-5s6.5 1.9 7 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                  </svg>
+                  <span className="barra__usuario-nombre">Hola, {usuario.nombre}</span>
+                </span>
+                <button className="boton-salir" type="button" onClick={cerrarSesion}>Salir</button>
+              </>
+            ) : (
+              <Link to="/login" className="boton-usuario" aria-label="Iniciar sesión">
+                <svg viewBox="0 0 24 24" width="21" height="21" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
+                  <path d="M5 20c.5-3.1 3.2-5 7-5s6.5 1.9 7 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                </svg>
+              </Link>
+            )}
           </div>
         </div>
       </header>
