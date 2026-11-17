@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import { NoEncontrado } from '../../componentes/NoEncontrado.tsx';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
 import { useArticulo } from '../hooks/useArticulo.ts';
 import { useArticulos } from '../hooks/useArticulos.ts';
 import type { Articulo } from '../../tipos.ts';
-import { urlImagen } from '../../services/api.ts';
+import { mensajeDeError, urlImagen } from '../../services/api.ts';
+import { traerDisponibilidad } from '../../services/disponibilidad.ts';
 import '../styles/pagina-articulo.css';
 import { useCarrito } from '../../estado/global/carrito.ts';
 import { formatoPrecio } from '../../utils/formato.precio.ts';
@@ -54,6 +55,21 @@ export default function PaginaArticulo() {
 
   const [cantidad, setCantidad] = useState(1);
   const [aviso, setAviso] = useState('');
+  const [avisoError, setAvisoError] = useState(false);
+
+  const [consultaDisponibilidad, setConsultaDisponibilidad] = useState<{
+    clave: string;
+    cantidad: number | null;
+    error: string | null;
+  } | null>(null);
+
+  const [disponibilidadesRelacionados, setDisponibilidadesRelacionados] = useState<{
+    clavePeriodo: string;
+    porArticulo: Record<number, number>;
+  }>({ clavePeriodo: '', porArticulo: {} });
+
+  const [verificandoRelacionados, setVerificandoRelacionados] = useState<Set<number>>(() => new Set());
+  const verificacionesRelacionadosEnCurso = useRef(new Set<number>());
 
   const { articulos: articulosCatalogo } = useArticulos({});
 
@@ -61,6 +77,64 @@ export default function PaginaArticulo() {
     Boolean(fechaEntrega) &&
     Boolean(fechaRecoleccion) &&
     fechaRecoleccion > fechaEntrega;
+
+  const clavePeriodo = `${fechaEntrega}:${fechaRecoleccion}`;
+
+  const disponibilidadRelacionados = disponibilidadesRelacionados.clavePeriodo === clavePeriodo
+    ? disponibilidadesRelacionados.porArticulo
+    : {};
+
+  const claveDisponibilidad = `${idArticulo}:${fechaEntrega}:${fechaRecoleccion}`;
+
+  const consultaActual = consultaDisponibilidad?.clave === claveDisponibilidad
+    ? consultaDisponibilidad
+    : null;
+
+  const disponibilidad = consultaActual?.cantidad ?? null;
+  const errorDisponibilidad = consultaActual?.error ?? null;
+
+  useEffect(() => {
+    if (!periodoValido || !articuloActual) return;
+
+    let vigente = true;
+    traerDisponibilidad({
+      articuloId: articuloActual.id,
+      fechaInicio: new Date(`${fechaEntrega}T00:00:00.000Z`),
+      fechaFin: new Date(`${fechaRecoleccion}T00:00:00.000Z`),
+    })
+      .then((cantidadDisponible) => {
+        if (vigente) {
+          setConsultaDisponibilidad({
+            clave: claveDisponibilidad,
+            cantidad: cantidadDisponible,
+            error: null,
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (vigente) {
+          setConsultaDisponibilidad({
+            clave: claveDisponibilidad,
+            cantidad: null,
+            error: mensajeDeError(error, 'No pudimos consultar la disponibilidad. Inténtalo de nuevo.'),
+          });
+        }
+      });
+
+    return () => {
+      vigente = false;
+    };
+  }, [articuloActual, fechaEntrega, fechaRecoleccion, periodoValido, claveDisponibilidad]);
+
+  const cantidadEnCarrito = articuloActual
+    ? lista.find((item) => item.articulo.id === articuloActual.id)?.cantidad ?? 0
+    : 0;
+  const piezasRestantes = disponibilidad === null
+    ? null
+    : Math.max(0, disponibilidad - cantidadEnCarrito);
+  const cantidadSeleccionada = piezasRestantes === null
+    ? cantidad
+    : Math.min(cantidad, piezasRestantes);
 
   if (!idValido) return <NoEncontrado />;
 
@@ -93,10 +167,76 @@ export default function PaginaArticulo() {
     .slice(0, 3);
 
   function agregarALista() {
-    if (!periodoValido || !articuloActual) return;
-    agregar(articuloActual, cantidad);
-    setAviso(`${cantidad} ${cantidad === 1 ? 'pieza agregada' : 'piezas agregadas'} a tu lista de renta.`);
+    if (
+      !periodoValido ||
+      !articuloActual ||
+      piezasRestantes === null ||
+      cantidadSeleccionada <= 0 ||
+      cantidadSeleccionada > piezasRestantes
+    ) return;
+    agregar(articuloActual, cantidadSeleccionada);
+    setAvisoError(false);
+    setAviso(`${cantidadSeleccionada} ${cantidadSeleccionada === 1 ? 'pieza agregada' : 'piezas agregadas'} a tu lista de renta.`);
     window.setTimeout(() => setAviso(''), 2800);
+  }
+
+  async function agregarRelacionado(articulo: Articulo) {
+    if (!periodoValido || verificacionesRelacionadosEnCurso.current.has(articulo.id)) return;
+
+    verificacionesRelacionadosEnCurso.current.add(articulo.id);
+    setVerificandoRelacionados((actual) => new Set(actual).add(articulo.id));
+    try {
+      const disponible = await traerDisponibilidad({
+        articuloId: articulo.id,
+        fechaInicio: new Date(`${fechaEntrega}T00:00:00.000Z`),
+        fechaFin: new Date(`${fechaRecoleccion}T00:00:00.000Z`),
+      });
+
+      const carritoActual = useCarrito.getState();
+
+      if (
+        carritoActual.fechaEntrega !== fechaEntrega ||
+        carritoActual.fechaRecoleccion !== fechaRecoleccion
+      ) {
+        setAvisoError(true);
+        setAviso('El período cambió durante la consulta. Verifica las fechas e inténtalo de nuevo.');
+        return;
+      }
+
+      setDisponibilidadesRelacionados((actual) => ({
+        clavePeriodo,
+        porArticulo: {
+          ...(actual.clavePeriodo === clavePeriodo ? actual.porArticulo : {}),
+          [articulo.id]: disponible,
+        },
+      }));
+
+      const cantidadEnCarritoRelacionado = carritoActual.lista.find((item) => item.articulo.id === articulo.id)?.cantidad ?? 0;
+      if (disponible <= cantidadEnCarritoRelacionado) {
+        setAvisoError(true);
+        setAviso(
+          disponible === 0
+            ? `No se pudo agregar ${articulo.nombre} porque no tiene piezas disponibles en el período seleccionado.`
+            : `No se pudo agregar ${articulo.nombre} porque ya alcanzaste el límite disponible en el carrito.`,
+        );
+        return;
+      }
+
+      agregar(articulo, 1);
+      setAvisoError(false);
+      setAviso(`${articulo.nombre} se agregó a tu lista de renta.`);
+    } catch (error) {
+      setAvisoError(true);
+      setAviso(mensajeDeError(error, 'No pudimos consultar la disponibilidad. Inténtalo de nuevo.'));
+    } finally {
+      verificacionesRelacionadosEnCurso.current.delete(articulo.id);
+      setVerificandoRelacionados((actual) => {
+        const siguiente = new Set(actual);
+        siguiente.delete(articulo.id);
+        return siguiente;
+      });
+      window.setTimeout(() => setAviso(''), 3000);
+    }
   }
 
   return (
@@ -122,8 +262,24 @@ export default function PaginaArticulo() {
           <span className="etiqueta-categoria">{articuloActual.categoria}</span>
           <p className="detalle__descripcion">{articuloActual.descripcion}</p>
           <div className="detalle__caracteristicas" aria-label="Características">
-            <span>{articuloActual.existencias} piezas en catálogo</span>
+            {!periodoValido ? (
+              <span>{articuloActual.existencias} piezas en catálogo</span>
+            ) : (
+              <>
+                <span>
+                  {disponibilidad === null
+                    ? errorDisponibilidad ? 'Disponibilidad no disponible' : 'Consultando disponibilidad…'
+                    : `${disponibilidad} ${disponibilidad === 1 ? 'pieza disponible' : 'piezas disponibles'} en el período`}
+                </span>
+                {piezasRestantes !== null && (
+                  <span>
+                    {piezasRestantes} {piezasRestantes === 1 ? 'pieza disponible para agregar' : 'piezas disponibles para agregar'}
+                  </span>
+                )}
+              </>
+            )}
           </div>
+          {errorDisponibilidad && <p className="detalle__disponibilidad-error" role="alert">{errorDisponibilidad}</p>}
 
           <div className="detalle__periodo">
             <div className="detalle__periodo-titulo">
@@ -159,16 +315,46 @@ export default function PaginaArticulo() {
           <div className="detalle__cantidad">
             <span className="detalle__cantidad-label">Piezas a rentar</span>
             <div className="selector-cantidad" aria-label="Cantidad">
-              <button type="button" aria-label="Quitar una pieza" onClick={() => setCantidad((actual) => Math.max(1, actual - 1))}>−</button>
-              <span>{cantidad}</span>
-              <button type="button" aria-label="Agregar una pieza" onClick={() => setCantidad((actual) => Math.min(articuloActual.existencias, actual + 1))}>+</button>
+              <button
+                type="button"
+                aria-label="Quitar una pieza"
+                disabled={periodoValido ? cantidadSeleccionada <= 0 : cantidadSeleccionada <= 1}
+                onClick={() => setCantidad(Math.max(periodoValido ? 0 : 1, cantidadSeleccionada - 1))}
+              >−</button>
+              <span>{cantidadSeleccionada}</span>
+              <button
+                type="button"
+                aria-label="Agregar una pieza"
+                disabled={
+                  periodoValido
+                    ? piezasRestantes === null || cantidadSeleccionada >= piezasRestantes
+                    : cantidadSeleccionada >= articuloActual.existencias
+                }
+                onClick={() => setCantidad(Math.min(
+                  periodoValido ? piezasRestantes ?? 0 : articuloActual.existencias,
+                  cantidadSeleccionada + 1,
+                ))}
+              >+</button>
             </div>
           </div>
+          {piezasRestantes === 0 && (
+            <p className="detalle__disponibilidad-error" role="status">
+              {disponibilidad === 0
+                ? 'No hay piezas disponibles para este período.'
+                : 'Ya alcanzaste el límite de piezas disponibles de este artículo en el carrito.'}
+            </p>
+          )}
           <button
             className="boton boton--ambar boton--ancho"
             type="button"
             onClick={agregarALista}
-            disabled={!periodoValido}
+            disabled={
+              !periodoValido ||
+              disponibilidad === null ||
+              piezasRestantes === null ||
+              cantidadSeleccionada <= 0 ||
+              cantidadSeleccionada > piezasRestantes
+            }
           >
             <svg viewBox="0 0 24 24" width="19" height="19" fill="none" aria-hidden="true">
               <path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.5a2 2 0 0 0 1.9-1.4L22 8H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -178,13 +364,19 @@ export default function PaginaArticulo() {
             Agregar a lista de renta
           </button>
           <p className="detalle__ayuda">
-            {lista.length > 0
-              ? 'Puedes ajustar las fechas desde tu lista de renta.'
+            {errorDisponibilidad
+              ? 'No se puede agregar el artículo hasta consultar su disponibilidad.'
+              : lista.length > 0
+              ? 'Quita los artículos de la lista para cambiar el período.'
               : periodoValido
                 ? 'La disponibilidad final se confirma al solicitar la renta.'
                 : 'Selecciona fechas válidas para agregar este artículo.'}
           </p>
-          {aviso && <p className="aviso-demo" role="status">{aviso}</p>}
+          {aviso && (
+            <p className={avisoError ? 'aviso-demo aviso-demo--error' : 'aviso-demo'} role={avisoError ? 'alert' : 'status'}>
+              {aviso}
+            </p>
+          )}
         </div>
       </article>
 
@@ -196,7 +388,13 @@ export default function PaginaArticulo() {
               key={relacionado.id}
               articulo={relacionado}
               puedeAgregar={periodoValido}
-              alAgregar={(item) => agregar(item, 1)}
+              verificandoDisponibilidad={verificandoRelacionados.has(relacionado.id)}
+              sinDisponibilidad={
+                disponibilidadRelacionados[relacionado.id] !== undefined &&
+                disponibilidadRelacionados[relacionado.id] <=
+                  (lista.find((item) => item.articulo.id === relacionado.id)?.cantidad ?? 0)
+              }
+              alAgregar={agregarRelacionado}
             />
           ))}
         </div>

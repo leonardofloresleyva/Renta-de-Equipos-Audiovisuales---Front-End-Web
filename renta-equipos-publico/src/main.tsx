@@ -8,9 +8,9 @@ import './index.css';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-        <ProveedorSesion>
-          <App />
-        </ProveedorSesion>
+      <ProveedorSesion>
+        <App />
+      </ProveedorSesion>
     </BrowserRouter>
   </StrictMode>,
 );
