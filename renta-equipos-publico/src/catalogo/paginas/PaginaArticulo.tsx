@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
 import { NoEncontrado } from '../../componentes/NoEncontrado.tsx';
-import { formatoPrecio } from '../articulos-demo.ts';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
 import { useArticulo } from '../hooks/useArticulo.ts';
 import { useArticulos } from '../hooks/useArticulos.ts';
@@ -9,6 +8,7 @@ import type { Articulo } from '../../tipos.ts';
 import { urlImagen } from '../../services/api.ts';
 import '../styles/pagina-articulo.css';
 import { useCarrito } from '../../estado/global/carrito.ts';
+import { formatoPrecio } from '../../utils/formato.precio.ts';
 
 function esArticulo(valor: unknown): valor is Articulo {
   if (typeof valor !== 'object' || valor === null) return false;

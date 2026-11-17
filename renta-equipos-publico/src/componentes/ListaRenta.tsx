@@ -1,6 +1,6 @@
-import { formatoPrecio } from '../catalogo/articulos-demo.ts';
 import { useCarrito } from '../estado/global/carrito.ts';
 import { urlImagen } from '../services/api.ts';
+import { formatoPrecio } from '../utils/formato.precio.ts';
 
 export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
   const lista = useCarrito((state) => state.lista);
