@@ -103,15 +103,14 @@ export default function PaginaPago() {
       <header className="pago-encabezado">
         <Link to="/catalogo" className="detalle__volver">← Volver al catálogo</Link>
         <h1>Finalizar reserva</h1>
-        <p>Hola, {sesion.usuario.nombre}. Revisa tu renta y simula el pago con tarjeta.</p>
+        <p>Hola, {sesion.usuario.nombre}. Revisa los detalles de tu renta y confirma tu reserva.</p>
       </header>
 
       {reservaConfirmada && (
         <section className="aviso-demo pago-confirmacion" role="status">
           <h2>Reserva registrada</h2>
           <p>Folio: <strong>{reservaConfirmada.folio}</strong></p>
-          <p>Pago simulado: <strong>{formatoPrecio(montoConfirmado)}</strong></p>
-          <p>Los datos de tarjeta no se guardaron ni se enviaron a la API.</p>
+          <p>Monto seleccionado: <strong>{formatoPrecio(montoConfirmado)}</strong></p>
         </section>
       )}
 
@@ -198,7 +197,7 @@ export default function PaginaPago() {
                 </label>
               </div>
 
-              <p className="formulario__nota">Este es un pago simulado: no se realiza ningún cargo ni se guardan o envían datos de tarjeta.</p>
+              <p className="formulario__nota">Pago de demostración: no se realizará ningún cargo. No ingreses datos reales de tu tarjeta.</p>
               {error && <p className="aviso-error" role="alert">{error}</p>}
               <button className="boton boton--ambar boton--ancho" type="submit" disabled={guardando}>
                 {guardando ? 'Registrando reserva…' : `Pagar ${formatoPrecio(montoAPagar)} y reservar`}
@@ -230,8 +229,6 @@ export default function PaginaPago() {
           </ul>
         )}
       </section>
-
-      <p className="pago-nota">El depósito se calcula localmente y es una estimación; el API actualmente calcula los importes de forma independiente.</p>
     </div>
   );
 }
