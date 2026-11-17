@@ -9,10 +9,14 @@ export function TarjetaArticulo({
   articulo,
   alAgregar,
   puedeAgregar = true,
+  verificandoDisponibilidad = false,
+  sinDisponibilidad = false,
 }: {
   articulo: Articulo;
-  alAgregar: (articulo: Articulo) => void;
+  alAgregar: (articulo: Articulo) => void | Promise<void>;
   puedeAgregar?: boolean;
+  verificandoDisponibilidad?: boolean;
+  sinDisponibilidad?: boolean;
 }) {
 
   const [indiceImagen, setIndiceImagen] = useState(0);
@@ -87,10 +91,16 @@ export function TarjetaArticulo({
         className="boton-agregar-mini"
         type="button"
         onClick={() => alAgregar(articulo)}
-        disabled={!puedeAgregar}
+        disabled={!puedeAgregar || verificandoDisponibilidad || sinDisponibilidad}
         aria-label={`Agregar ${articulo.nombre} a la lista de renta`}
       >
-        {puedeAgregar ? '+ Agregar' : 'Selecciona fechas'}
+        {!puedeAgregar
+          ? 'Selecciona fechas'
+          : verificandoDisponibilidad
+            ? 'Verificando…'
+            : sinDisponibilidad
+              ? 'Sin disponibilidad'
+              : '+ Agregar'}
       </button>
     </article>
   );

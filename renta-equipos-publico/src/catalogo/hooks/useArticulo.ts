@@ -8,7 +8,9 @@ export function useArticulo(id: number, habilitado = true) {
     articulo: Articulo | null;
     error: string | null;
   } | null>(null);
+
   const [intento, setIntento] = useState(0);
+  
   const clave = `${id}:${intento}`;
 
   useEffect(() => {
