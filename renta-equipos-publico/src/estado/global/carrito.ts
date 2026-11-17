@@ -16,6 +16,21 @@ export interface Carrito {
     vaciar: () => void;
     totalPiezas: () => number;
     precioTotal: () => number;
+    diasRenta: () => number;
+    totalRenta: () => number;
+    depositoGarantia: () => number;
+    totalReserva: () => number;
+}
+
+function diferenciaEnDias(fechaEntrega: string, fechaRecoleccion: string): number {
+    if (!fechaEntrega || !fechaRecoleccion || fechaRecoleccion <= fechaEntrega) return 0;
+
+    const convertir = (fecha: string) => {
+        const [anio, mes, dia] = fecha.split('-').map(Number);
+        return Date.UTC(anio, mes - 1, dia);
+    };
+
+    return Math.round((convertir(fechaRecoleccion) - convertir(fechaEntrega)) / 86_400_000);
 }
 
 export const useCarrito = create<Carrito>()((set, get) => ({
@@ -23,12 +38,9 @@ export const useCarrito = create<Carrito>()((set, get) => ({
     fechaEntrega: '',
     fechaRecoleccion: '',
     actualizarPeriodo: (nuevaFechaEntrega: string, nuevaFechaRecoleccion: string) => {
-        set((state) => {
-            if (state.lista.length > 0) return state;
-            return {
-                fechaEntrega: nuevaFechaEntrega,
-                fechaRecoleccion: nuevaFechaRecoleccion <= nuevaFechaEntrega ? '' : nuevaFechaRecoleccion
-            };
+        set({
+            fechaEntrega: nuevaFechaEntrega,
+            fechaRecoleccion: nuevaFechaRecoleccion <= nuevaFechaEntrega ? '' : nuevaFechaRecoleccion
         });
     },
     agregar: (articulo: Articulo, cantidad: number) => {
@@ -65,5 +77,18 @@ export const useCarrito = create<Carrito>()((set, get) => ({
     },
     precioTotal: () => {
         return get().lista.reduce((total, item) => total + item.articulo.precioPorDia * item.cantidad, 0);
+    },
+    diasRenta: () => {
+        const { fechaEntrega, fechaRecoleccion } = get();
+        return diferenciaEnDias(fechaEntrega, fechaRecoleccion);
+    },
+    totalRenta: () => {
+        return get().precioTotal() * get().diasRenta();
+    },
+    depositoGarantia: () => {
+        return Math.round(get().totalRenta() * 0.2 * 100) / 100;
+    },
+    totalReserva: () => {
+        return get().totalRenta() + get().depositoGarantia();
     }
 }));

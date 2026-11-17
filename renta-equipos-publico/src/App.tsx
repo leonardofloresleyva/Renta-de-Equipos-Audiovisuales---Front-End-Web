@@ -8,6 +8,7 @@ const PaginaCatalogo = lazy(() => import('./catalogo/paginas/PaginaCatalogo.tsx'
 const PaginaArticulo = lazy(() => import('./catalogo/paginas/PaginaArticulo.tsx'));
 const PaginaLogin = lazy(() => import('./auth/PaginaLogin.tsx'));
 const PaginaRegistro = lazy(() => import('./auth/PaginaRegistro.tsx'));
+const PaginaPago = lazy(() => import('./pago/PaginaPago.tsx'));
 const PaginaReservas = lazy(() => import('./reservas/paginas/PaginaReservas.tsx'));
 const PaginaReserva = lazy(() => import('./reservas/paginas/PaginaReserva.tsx'));
 
@@ -24,6 +25,7 @@ export default function App() {
         </Route>
         <Route path="login" element={<PaginaLogin />} />
         <Route path="registro" element={<PaginaRegistro />} />
+        <Route path="pago" element={<PaginaPago />} />
         <Route path="*" element={<NoEncontrado />} />
       </Route>
     </Routes>
