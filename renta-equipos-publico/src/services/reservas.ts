@@ -1,12 +1,17 @@
-import { api, type Sobre } from './api.ts';
-import type { NuevaReserva, Reserva } from '../tipos.ts';
+import type { NuevaReserva, Reserva } from "../tipos";
+import { api } from "./api";
 
-export async function registrarReserva(reserva: NuevaReserva): Promise<Reserva> {
-  const respuesta = await api.post<Sobre<Reserva>>('/reservas', reserva);
-  return respuesta.data.data;
+export async function crearReserva(nueva: NuevaReserva): Promise<Reserva> {
+    const respuesta = await api.post('/reservas', { nueva });
+    return respuesta.data.data;
 }
 
-export async function obtenerMisReservas(): Promise<Reserva[]> {
-  const respuesta = await api.get<Sobre<Reserva[]>>('/reservas/mias');
-  return respuesta.data.data;
+export async function traerMisReservas(): Promise<Reserva[]> {
+    const respuesta = await api.get('/reservas/mias');
+    return respuesta.data.data;
+}
+
+export async function traerMiReserva(id: number): Promise<Reserva> {
+    const respuesta = await api.get(`/reservas/articulos/${id}`);
+    return respuesta.data.data;
 }

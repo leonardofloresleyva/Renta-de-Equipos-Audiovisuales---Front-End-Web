@@ -28,7 +28,7 @@ const articulosDePrueba = [
         existencias: 8,
         categoria: 'Proyectores',
         fotografiasUrl: [
-            '/uploads/seed/articulo-proyector.png',
+            '/img/articulo-proyector.png',
         ],
     },
     {
@@ -39,7 +39,7 @@ const articulosDePrueba = [
         existencias: 4,
         categoria: 'Pantallas',
         fotografiasUrl: [
-            '/uploads/seed/articulo-pantalla.png',
+            '/img/articulo-pantalla.png',
         ],
     },
     {
@@ -50,7 +50,7 @@ const articulosDePrueba = [
         existencias: 16,
         categoria: 'Audio',
         fotografiasUrl: [
-            '/uploads/seed/articulo-bafle.png',
+            '/img/articulo-bafle.png',
         ],
     },
     {
@@ -62,7 +62,7 @@ const articulosDePrueba = [
         existencias: 10,
         categoria: 'Audio',
         fotografiasUrl: [
-            '/uploads/seed/articulo-microfonos.png',
+            '/img/articulo-microfonos.png',
         ],
     },
     {
@@ -74,7 +74,7 @@ const articulosDePrueba = [
         existencias: 32,
         categoria: 'Iluminación',
         fotografiasUrl: [
-            '/uploads/seed/articulo-iluminacion.png',
+            '/img/articulo-iluminacion.png',
         ],
     },
     {
@@ -85,7 +85,7 @@ const articulosDePrueba = [
         precioPorDia: 1200,
         existencias: 5,
         categoria: 'Cámaras',
-        fotografiasUrl: ['/uploads/seed/articulo-camara.png'],
+        fotografiasUrl: ['/img/articulo-camara.png'],
     },
     {
         id: 7,
@@ -95,7 +95,7 @@ const articulosDePrueba = [
         precioPorDia: 450,
         existencias: 4,
         categoria: 'Accesorios',
-        fotografiasUrl: ['/uploads/seed/articulo-lente.png'],
+        fotografiasUrl: ['/img/articulo-lente.png'],
     },
     {
         id: 8,
@@ -105,7 +105,7 @@ const articulosDePrueba = [
         precioPorDia: 650,
         existencias: 3,
         categoria: 'Audio',
-        fotografiasUrl: ['/uploads/seed/articulo-consola.png'],
+        fotografiasUrl: ['/img/articulo-consola.png'],
     },
     {
         id: 9,
@@ -115,7 +115,7 @@ const articulosDePrueba = [
         precioPorDia: 700,
         existencias: 6,
         categoria: 'Audio',
-        fotografiasUrl: ['/uploads/seed/articulo-subwoofer.png'],
+        fotografiasUrl: ['/img/articulo-subwoofer.png'],
     },
     {
         id: 10,
@@ -125,7 +125,7 @@ const articulosDePrueba = [
         precioPorDia: 350,
         existencias: 8,
         categoria: 'Iluminación',
-        fotografiasUrl: ['/uploads/seed/articulo-luces-par.png'],
+        fotografiasUrl: ['/img/articulo-luces-par.png'],
     },
     {
         id: 11,
@@ -135,7 +135,7 @@ const articulosDePrueba = [
         precioPorDia: 300,
         existencias: 12,
         categoria: 'Escenarios',
-        fotografiasUrl: ['/uploads/seed/articulo-truss.png'],
+        fotografiasUrl: ['/img/articulo-truss.png'],
     },
     {
         id: 12,
@@ -145,7 +145,7 @@ const articulosDePrueba = [
         precioPorDia: 500,
         existencias: 6,
         categoria: 'Audio',
-        fotografiasUrl: ['/uploads/seed/articulo-monitor.png'],
+        fotografiasUrl: ['/img/articulo-monitor.png'],
     },
 ] as const;
 

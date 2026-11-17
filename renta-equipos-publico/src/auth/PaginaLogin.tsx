@@ -1,42 +1,64 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
-import { iniciarSesion } from '../services/auth.ts';
-import { cerrarSesion } from '../services/sesion.ts';
-import { mensajeDeError } from '../services/errores.ts';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import { mensajeDeError } from '../services/api.ts';
+import { useSesion } from '../estado/sesion/useSesion.ts';
+
+interface ErroresLogin {
+  correo?: string;
+  password?: string;
+}
+
+function validar(correo: string, password: string): ErroresLogin {
+  const errores: ErroresLogin = {};
+
+  if (!correo.trim()) {
+    errores.correo = 'Escribe tu correo electrónico.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
+    errores.correo = 'Escribe un correo válido.';
+  }
+
+  if (!password) {
+    errores.password = 'Escribe tu contraseña.';
+  }
+
+  return errores;
+}
 
 export default function PaginaLogin() {
-  const [error, setError] = useState('');
-  const [enviando, setEnviando] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { usuario, entrar } = useSesion();
+  const navegar = useNavigate();
+  const ubicacion = useLocation();
+  const desde = (ubicacion.state as { desde?: string } | null)?.desde ?? '/catalogo';
 
-  const estado = location.state;
-  const destino = estado && typeof estado === 'object' && 'from' in estado
-    && typeof estado.from === 'string'
-    && estado.from.startsWith('/')
-    && !estado.from.startsWith('//')
-    ? estado.from
-    : '/catalogo';
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+  const [errores, setErrores] = useState<ErroresLogin>({});
+  const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError('');
+
+    const nuevosErrores = validar(correo, password);
+    setErrores(nuevosErrores);
+    setErrorGeneral(null);
+
+    if (Object.keys(nuevosErrores).length > 0) return;
+
     setEnviando(true);
-    const datos = new FormData(event.currentTarget);
     try {
-      const sesion = await iniciarSesion(String(datos.get('correo')), String(datos.get('password')));
-      if (sesion.usuario.rol !== 'cliente') {
-        cerrarSesion();
-        setError('Esta cuenta no tiene acceso al flujo de reservas para clientes.');
-        return;
-      }
-      navigate(destino, { replace: true });
-    } catch (error: unknown) {
-      setError(mensajeDeError(error, 'No se pudo iniciar sesión. Intenta de nuevo.'));
+      await entrar(correo.trim(), password);
+      navegar(desde, { replace: true });
+    } catch (error) {
+      setErrorGeneral(
+        mensajeDeError(error, 'No pudimos iniciar sesión. Inténtalo de nuevo.'),
+      );
     } finally {
       setEnviando(false);
     }
   }
+
+  if (usuario) return <Navigate to={desde} replace />;
 
   return (
     <section className="auth-pagina">
@@ -66,22 +88,51 @@ export default function PaginaLogin() {
             <h1>Bienvenido de nuevo</h1>
             <p>Inicia sesión para continuar con tu renta.</p>
           </header>
-          {error && <p className="aviso-error" role="alert">{error}</p>}
-          <form className="formulario" onSubmit={enviar}>
+          {errorGeneral && (
+            <p className="aviso aviso--error" role="alert">
+              {errorGeneral}
+            </p>
+          )}
+          <form className="formulario" onSubmit={enviar} noValidate>
             <label className="campo">
               <span className="campo__etiqueta">Correo electrónico</span>
-              <input className="campo__control" type="email" name="correo" placeholder="tu@correo.com" autoComplete="email" required />
+              <input
+                className={`campo__control${errores.correo ? ' campo__control--error' : ''}`}
+                type="email"
+                name="correo"
+                value={correo}
+                onChange={(event) => setCorreo(event.target.value)}
+                placeholder="tu@correo.com"
+                autoComplete="email"
+                aria-invalid={Boolean(errores.correo)}
+                required
+              />
+              {errores.correo && (
+                <span className="campo__error" role="alert">{errores.correo}</span>
+              )}
             </label>
             <label className="campo">
               <span className="campo__etiqueta">Contraseña</span>
-              <input className="campo__control" type="password" name="password" placeholder="••••••••" minLength={8} autoComplete="current-password" required />
+              <input
+                className={`campo__control${errores.password ? ' campo__control--error' : ''}`}
+                type="password"
+                name="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                aria-invalid={Boolean(errores.password)}
+                required
+              />
+              {errores.password && (
+                <span className="campo__error" role="alert">{errores.password}</span>
+              )}
             </label>
             <button className="boton boton--ambar boton--ancho" type="submit" disabled={enviando}>
-              {enviando ? 'Iniciando sesión…' : 'Iniciar sesión'}
+              {enviando ? 'Entrando…' : 'Iniciar sesión'}
             </button>
           </form>
-          <p className="formulario__pie">¿Aún no tienes cuenta? <Link to="/registro">Crear una cuenta</Link></p>
-          <p className="formulario__nota">Tu sesión se conserva en esta pestaña y expira junto con el token de acceso.</p>
+          <p className="formulario__pie">¿Aún no tienes cuenta? <Link to="/registro" state={ubicacion.state}>Crear una cuenta</Link></p>
         </div>
       </div>
     </section>

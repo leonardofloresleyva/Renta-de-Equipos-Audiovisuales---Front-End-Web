@@ -1,68 +1,55 @@
-export type RolUsuario = 'cliente' | 'administrador';
+import { api, type Sobre } from './api.ts';
+import type { DatosRegistro, PayloadJwt, RespuestaToken, Sesion } from '../tipos.ts';
 
-export interface UsuarioSesion {
-  correo: string;
-  nombre: string;
-  rol: RolUsuario;
-}
-
-export interface TokenAutenticacion {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  usuario: UsuarioSesion;
-}
-
-interface Sesion extends TokenAutenticacion {
-  expiraEn: number;
-}
-
-const CLAVE_SESION = 'renta-av-sesion';
-
-function esSesion(valor: unknown): valor is Sesion {
-  if (!valor || typeof valor !== 'object') return false;
-  const sesion = valor as Partial<Sesion>;
-  return typeof sesion.access_token === 'string'
-    && typeof sesion.expiraEn === 'number'
-    && typeof sesion.expires_in === 'number'
-    && typeof sesion.usuario?.correo === 'string'
-    && typeof sesion.usuario.nombre === 'string'
-    && (sesion.usuario.rol === 'cliente' || sesion.usuario.rol === 'administrador');
-}
-
-export function guardarSesion(token: TokenAutenticacion): void {
-  const sesion: Sesion = {
-    ...token,
-    expiraEn: Date.now() + token.expires_in * 1000,
-  };
-  sessionStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
-}
-
-export function obtenerSesion(): Sesion | null {
-  const valor = sessionStorage.getItem(CLAVE_SESION);
-  if (!valor) return null;
-
+// El JWT viene firmado, no cifrado: se puede leer, pero no modificar.
+function decodificarPayload(token: string): PayloadJwt | null {
   try {
-    const sesion: unknown = JSON.parse(valor);
-    if (!esSesion(sesion) || sesion.expiraEn <= Date.now()) {
-      cerrarSesion();
-      return null;
-    }
-    return sesion;
+    const parte = token.split('.')[1];
+    if (!parte) return null;
+
+    const normalizado = parte.replace(/-/g, '+').replace(/_/g, '/');
+    const resto = normalizado.length % 4;
+    const conRelleno =
+      resto === 0 ? normalizado : normalizado + '='.repeat(4 - resto);
+
+    const binario = atob(conRelleno);
+    const json = decodeURIComponent(
+      binario
+        .split('')
+        .map((caracter) => `%${caracter.charCodeAt(0).toString(16).padStart(2, '0')}`)
+        .join(''),
+    );
+
+    return JSON.parse(json) as PayloadJwt;
   } catch {
-    cerrarSesion();
     return null;
   }
 }
 
-export function obtenerToken(): string | null {
-  return obtenerSesion()?.access_token ?? null;
+function construirSesion(respuesta: RespuestaToken): Sesion {
+  const payload = decodificarPayload(respuesta.access_token);
+
+  if (!payload || typeof payload.perfilId !== 'number') {
+    throw new Error('La respuesta de autenticación no contiene un token válido.');
+  }
+
+  return {
+    token: respuesta.access_token,
+    usuario: respuesta.usuario,
+    perfilId: payload.perfilId,
+    expiraEn: Date.now() + respuesta.expires_in * 1000,
+  };
 }
 
-export function esClienteAutenticado(): boolean {
-  return obtenerSesion()?.usuario.rol === 'cliente';
+export async function entrar(correo: string, password: string): Promise<Sesion> {
+  const respuesta = await api.post<Sobre<RespuestaToken>>('/auth/login', {
+    correo,
+    password,
+  });
+  return construirSesion(respuesta.data.data);
 }
 
-export function cerrarSesion(): void {
-  sessionStorage.removeItem(CLAVE_SESION);
+export async function registrar(datos: DatosRegistro): Promise<Sesion> {
+  const respuesta = await api.post<Sobre<RespuestaToken>>('/auth/registro', datos);
+  return construirSesion(respuesta.data.data);
 }
