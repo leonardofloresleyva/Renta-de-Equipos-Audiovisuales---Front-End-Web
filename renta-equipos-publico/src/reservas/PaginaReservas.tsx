@@ -1,31 +1,31 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { formatoPrecio } from '../catalogo/articulos-demo.ts';
-import { NoEncontrado } from '../componentes/NoEncontrado.tsx';
-import { fechaReserva, subtotalReserva, type EstadoReserva, type ReservaDemo } from './reservas-demo.ts';
-import { useReservas } from './useReservas.ts';
+import { formatoPrecio } from '../utils/formato.precio.ts';
+import { useReservas } from '../estado/global/reservas.ts';
+import type { Reserva } from '../tipos.ts';
+import { claseEstado, etiquetaEstado, formatearFecha, formatearFechaCreacion } from './formato-reserva.ts';
 
-type FiltroReserva = 'Todas' | 'En Curso' | 'Confirmadas' | 'Finalizadas';
+type FiltroReserva = 'Todas' | 'En curso' | 'Confirmadas' | 'Finalizadas' | 'Canceladas';
 type VistaReserva = 'tabla' | 'tarjetas';
 
-function estadoClase(estado: EstadoReserva): string {
-  if (estado === 'Apartada') return 'reserva-estado reserva-estado--apartada';
-  if (estado === 'En curso') return 'reserva-estado reserva-estado--curso';
-  if (estado === 'Cancelación solicitada') return 'reserva-estado reserva-estado--solicitud';
-  return 'reserva-estado reserva-estado--finalizada';
-}
+const FILTROS: readonly FiltroReserva[] = [
+  'Todas',
+  'En curso',
+  'Confirmadas',
+  'Finalizadas',
+  'Canceladas',
+];
 
-function coincideFiltro(reserva: ReservaDemo, filtro: FiltroReserva): boolean {
+function coincideFiltro(reserva: Reserva, filtro: FiltroReserva): boolean {
   if (filtro === 'Todas') return true;
-  if (filtro === 'En Curso') return reserva.estado === 'En curso';
-  if (filtro === 'Confirmadas') {
-    return reserva.estado === 'Apartada' || reserva.estado === 'Cancelación solicitada';
-  }
-  return reserva.estado === 'Finalizada';
+  if (filtro === 'En curso') return reserva.estado === 'entregada';
+  if (filtro === 'Confirmadas') return reserva.estado === 'apartada';
+  if (filtro === 'Finalizadas') return reserva.estado === 'devuelta';
+  return reserva.estado === 'cancelada';
 }
 
 export default function PaginaReservas() {
-  const { reservas } = useReservas();
+  const { lista: reservas, cargando, error, cargar } = useReservas();
   const [filtro, setFiltro] = useState<FiltroReserva>('Todas');
   const [vista, setVista] = useState<VistaReserva>('tabla');
   const filtradas = useMemo(
@@ -33,7 +33,39 @@ export default function PaginaReservas() {
     [reservas, filtro],
   );
 
-  if (!reservas.length) return <NoEncontrado />;
+  if (cargando) {
+    return (
+      <section className="reservas panel">
+        <div className="reservas__vacio" role="status" aria-live="polite">
+          Cargando tus reservas…
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="reservas panel">
+        <div className="reservas__vacio" role="alert">
+          <h2>No se pudieron cargar tus reservas</h2>
+          <p>{error}</p>
+          <button className="boton" type="button" onClick={cargar}>Reintentar</button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!reservas.length) {
+    return (
+      <section className="reservas panel">
+        <div className="reservas__vacio">
+          <h2>Aún no tienes reservas</h2>
+          <p>Explora el catálogo y arma tu lista de renta para crear la primera.</p>
+          <Link className="boton" to="/catalogo">Ir al catálogo</Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="reservas panel">
@@ -47,7 +79,7 @@ export default function PaginaReservas() {
         </div>
         <div className="reservas__controles">
           <div className="selector-segmentado" role="group" aria-label="Filtrar reservas">
-            {(['Todas', 'En Curso', 'Confirmadas', 'Finalizadas'] as const).map((opcion) => (
+            {FILTROS.map((opcion) => (
               <button
                 className={filtro === opcion ? 'selector-segmentado__opcion selector-segmentado__opcion--activa' : 'selector-segmentado__opcion'}
                 key={opcion}
@@ -84,6 +116,9 @@ export default function PaginaReservas() {
         <div className="reservas__vacio">
           <h2>No hay reservas en esta categoría</h2>
           <p>Elige otro filtro para consultar tu historial.</p>
+          <button className="boton" type="button" onClick={() => setFiltro('Todas')}>
+            Ver todas
+          </button>
         </div>
       ) : vista === 'tabla' ? (
         <div className="reservas__tabla-contenedor">
@@ -103,15 +138,15 @@ export default function PaginaReservas() {
                 <tr key={reserva.id}>
                   <td>
                     <Link className="reserva-folio" to={`/reservas/${reserva.id}`}>
-                      <strong>#{reserva.id}</strong>
+                      <strong>#{reserva.folio}</strong>
                       <span>Ver detalle →</span>
                     </Link>
                   </td>
-                  <td>{fechaReserva(reserva.fechaInicio)}</td>
-                  <td>{fechaReserva(reserva.fechaFin)}</td>
-                  <td className="reservas__fecha-creacion">{fechaReserva(reserva.fechaCreacion)}</td>
-                  <td><strong>{formatoPrecio(subtotalReserva(reserva))}</strong></td>
-                  <td><span className={estadoClase(reserva.estado)}>{reserva.estado}</span></td>
+                  <td>{formatearFecha(reserva.fechaEntrega)}</td>
+                  <td>{formatearFecha(reserva.fechaRecoleccion)}</td>
+                  <td className="reservas__fecha-creacion">{formatearFechaCreacion(reserva.creadoEn)}</td>
+                  <td><strong>{formatoPrecio(reserva.montoTotal)}</strong></td>
+                  <td><span className={claseEstado(reserva.estado)}>{etiquetaEstado(reserva.estado)}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -122,13 +157,13 @@ export default function PaginaReservas() {
           {filtradas.map((reserva) => (
             <Link className="reserva-tarjeta" key={reserva.id} to={`/reservas/${reserva.id}`}>
               <div className="reserva-tarjeta__encabezado">
-                <strong>#{reserva.id}</strong>
-                <span className={estadoClase(reserva.estado)}>{reserva.estado}</span>
+                <strong>#{reserva.folio}</strong>
+                <span className={claseEstado(reserva.estado)}>{etiquetaEstado(reserva.estado)}</span>
               </div>
-              <p>{fechaReserva(reserva.fechaInicio)} – {fechaReserva(reserva.fechaFin)}</p>
+              <p>{formatearFecha(reserva.fechaEntrega)} – {formatearFecha(reserva.fechaRecoleccion)}</p>
               <div className="reserva-tarjeta__pie">
-                <span>{reserva.articulos.length} {reserva.articulos.length === 1 ? 'artículo' : 'artículos'}</span>
-                <strong>{formatoPrecio(subtotalReserva(reserva))}</strong>
+                <span>{formatoPrecio(reserva.montoTotal)}</span>
+                <span>{formatearFechaCreacion(reserva.creadoEn)}</span>
               </div>
               <span className="reserva-tarjeta__link">Ver detalle →</span>
             </Link>

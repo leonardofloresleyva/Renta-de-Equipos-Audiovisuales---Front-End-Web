@@ -22,8 +22,8 @@ export interface NuevoArticuloReserva {
 }
 
 export interface NuevaReserva {
-    fechaEntrega: Date;
-    fechaRecoleccion: Date;
+    fechaEntrega: string;
+    fechaRecoleccion: string;
     calle: string;
     numero: string;
     colonia: string;
@@ -35,13 +35,19 @@ export interface Reserva {
     clienteId: number;
     folio: string;
     montoTotal: number;
-    fechaEntrega: Date;
-    fechaRecoleccion: Date;
-    creadoEn: Date;
+    fechaEntrega: string;
+    fechaRecoleccion: string;
+    creadoEn: string;
     estado: 'apartada'| 'entregada'| 'devuelta' | 'cancelada';
     calle: string;
     numero: string;
     colonia: string;
+}
+
+export interface DepositoGarantia {
+    id: number;
+    reservaId: number;
+    monto: number;
 }
 
 export interface ArticuloReserva {

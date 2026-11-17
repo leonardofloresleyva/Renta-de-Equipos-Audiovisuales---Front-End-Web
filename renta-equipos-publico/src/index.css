@@ -185,6 +185,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .vacio__codigo { margin-bottom: 10px; color: #e5e9ef; font-size: 90px; font-weight: 850; line-height: 1; }
 .vacio h1 { margin: 0 0 10px; }
 .vacio p { margin-bottom: 22px; color: var(--suave); }
+.vacio__acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
 
 .modal-fondo { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: flex-end; background: rgba(15,23,42,.42); }
@@ -287,6 +288,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .reserva-estado--curso { border-color: #f1dfa4; color: #9c6710; background: #fffaf0; }
 .reserva-estado--finalizada { border-color: #e0e5ec; color: #687487; background: #f3f5f8; }
 .reserva-estado--solicitud { border-color: #f2c3c1; color: #b42323; background: #fff4f3; }
+.reserva-estado--cancelada { border-color: #f2c3c1; color: #b42323; background: #fff4f3; }
 .reservas__rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding-top: 24px; }
 .reserva-tarjeta { display: grid; gap: 14px; padding: 19px; border: 1px solid var(--linea); border-radius: 15px; color: inherit; background: white; text-decoration: none; transition: .18s ease; }
 .reserva-tarjeta:hover { border-color: #cbd3df; box-shadow: var(--sombra); transform: translateY(-2px); }
@@ -321,7 +323,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .reserva-resumen__total dt { color: var(--tinta); font-size: 17px; font-weight: 800; }
 .reserva-resumen__totales .reserva-resumen__total dd { color: var(--ambar-oscuro); font-size: 24px; font-weight: 850; }
 .reserva-resumen__estado { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--linea); color: #39465b; font-size: 13px; font-weight: 750; }
-.reserva-resumen__nota { margin: 12px 0 0; color: #9a5150; font-size: 12px; line-height: 1.5; }
 .boton-cancelar { width: 100%; min-height: 44px; margin-top: 17px; border: 1px solid #f1b6b5; border-radius: 11px; color: #c52424; background: white; font-size: 13px; font-weight: 750; }
 .boton-cancelar:hover { background: #fff5f4; }
 .reserva-articulos__encabezado { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 17px; border-bottom: 1px solid var(--linea); }
@@ -329,23 +330,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .reserva-articulos__lista { display: grid; gap: 13px; padding-top: 18px; }
 .articulo-reservado { display: grid; grid-template-columns: 83px minmax(0, 1fr) auto; align-items: center; gap: 15px; padding: 15px; border: 1px solid var(--linea); border-radius: 15px; background: white; }
 .articulo-reservado > img { width: 83px; height: 78px; border: 1px solid #e6eaf0; border-radius: 12px; background: #f1f4f8; object-fit: cover; }
+.articulo-reservado__sin-imagen { width: 83px; height: 78px; border: 1px dashed #cfd6e0; border-radius: 12px; background: #f8fafc; }
 .articulo-reservado__datos h3 { margin: 0 0 6px; color: #202c40; font-size: 15px; line-height: 1.4; }
 .articulo-reservado__datos p { margin: 0 0 4px; color: #647186; font-size: 13px; }
 .articulo-reservado__datos > span { color: #4c596d; font-size: 12px; }
 .articulo-reservado__subtotal { display: grid; gap: 4px; text-align: right; }
 .articulo-reservado__subtotal span { color: #929cad; font-size: 11px; }
 .articulo-reservado__subtotal strong { color: var(--tinta); font-size: 17px; white-space: nowrap; }
-.reservas__nota { margin: 20px 0 0; color: #98a1af; font-size: 11px; text-align: right; }
-.reserva-modal__fondo { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 18px; background: rgba(15,23,42,.62); }
-.reserva-modal { width: min(100%, 560px); display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: start; gap: 15px; padding: 28px; border: 1px solid rgba(255,255,255,.7); border-radius: 24px; background: white; box-shadow: 0 20px 60px rgba(15,23,42,.25); }
-.reserva-modal__icono { width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid #f4c7c5; border-radius: 16px; color: #cf2929; background: #fff5f4; font-size: 23px; font-weight: 800; }
-.reserva-modal__contenido h2 { margin: 2px 0 9px; font-size: 19px; }
-.reserva-modal__contenido > p { margin: 0 0 17px; color: #596679; font-size: 14px; line-height: 1.55; }
-.reserva-modal__campo { display: grid; gap: 8px; }
-.reserva-modal__campo > span { color: #737f92; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-.reserva-modal__campo textarea { width: 100%; resize: vertical; padding: 12px; border: 1px solid #cfd6e0; border-radius: 12px; color: var(--texto); background: #fbfcfd; font: inherit; font-size: 13px; line-height: 1.45; }
-.reserva-modal__campo textarea::placeholder { color: #a1a9b5; }
-.reserva-modal__acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .boton--secundario { border-color: #cfd6e0; color: #465368; background: white; }
 .boton--secundario:hover { background: #f7f8fa; }
 .boton--peligro { color: white; background: #d82727; }
@@ -369,16 +360,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .reservas__rejilla { grid-template-columns: 1fr; }
   .reserva-detalle__encabezado { align-items: flex-start; }
   .reserva-detalle__columnas { grid-template-columns: 1fr; }
-  .reserva-modal { grid-template-columns: 1fr; gap: 13px; padding: 22px; }
-  .reserva-modal__icono { width: 42px; height: 42px; }
 }
 @media (max-width: 460px) {
   .reservas__titulo-linea { flex-wrap: wrap; gap: 8px; }
   .reservas__encabezado p { font-size: 13px; }
   .articulo-reservado { grid-template-columns: 66px minmax(0, 1fr); gap: 11px; padding: 12px; }
-  .articulo-reservado > img { width: 66px; height: 66px; }
+  .articulo-reservado > img, .articulo-reservado__sin-imagen { width: 66px; height: 66px; }
   .articulo-reservado__datos h3 { font-size: 13px; }
   .articulo-reservado__subtotal { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: space-between; text-align: left; }
-  .reserva-modal__acciones { flex-direction: column-reverse; }
-  .reserva-modal__acciones .boton { width: 100%; }
 }

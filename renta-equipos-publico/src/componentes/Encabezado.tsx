@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
 import { ListaRentaPanel } from './ListaRenta.tsx';
-import { useReservas } from '../reservas/useReservas.ts';
+import { useReservas } from '../estado/global/reservas.ts';
 import { useCarrito } from '../estado/global/carrito.ts';
 import { useSesion } from '../estado/sesion/useSesion.ts';
 
@@ -10,7 +10,7 @@ function claseEnlace({ isActive }: { isActive: boolean }) {
 }
 
 export function Encabezado() {
-  const { reservas } = useReservas();
+  const totalReservas = useReservas((state) => state.lista.length);
   const totalPiezas = useCarrito((state) => state.totalPiezas());
   const { usuario, salir } = useSesion();
   const navegar = useNavigate();
@@ -42,7 +42,10 @@ export function Encabezado() {
           <nav className="barra__enlaces" aria-label="Navegación principal">
             <NavLink to="/catalogo" className={claseEnlace}>Catálogo</NavLink>
             <NavLink to="/reservas" className={claseEnlace}>
-              Reservas <span className="barra__enlace-contador">{reservas.length}</span>
+              Reservas
+              {usuario?.rol === 'cliente' && (
+                <span className="barra__enlace-contador">{totalReservas}</span>
+              )}
             </NavLink>
           </nav>
 

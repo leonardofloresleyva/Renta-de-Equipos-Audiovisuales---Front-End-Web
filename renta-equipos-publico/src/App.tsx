@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { Layout } from './componentes/Layout.tsx';
 import { NoEncontrado } from './componentes/NoEncontrado.tsx';
+import { RutaProtegida } from './componentes/RutaProtegida.tsx';
 
 const PaginaCatalogo = lazy(() => import('./catalogo/paginas/PaginaCatalogo.tsx'));
 const PaginaArticulo = lazy(() => import('./catalogo/paginas/PaginaArticulo.tsx'));
@@ -17,8 +18,10 @@ export default function App() {
         <Route index element={<Navigate to="/catalogo" replace />} />
         <Route path="catalogo" element={<PaginaCatalogo />} />
         <Route path="articulos/:id" element={<PaginaArticulo />} />
-        <Route path="reservas" element={<PaginaReservas />} />
-        <Route path="reservas/:id" element={<PaginaReserva />} />
+        <Route element={<RutaProtegida roles={['cliente']} />}>
+          <Route path="reservas" element={<PaginaReservas />} />
+          <Route path="reservas/:id" element={<PaginaReserva />} />
+        </Route>
         <Route path="login" element={<PaginaLogin />} />
         <Route path="registro" element={<PaginaRegistro />} />
         <Route path="*" element={<NoEncontrado />} />
