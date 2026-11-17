@@ -7,6 +7,7 @@ const PaginaCatalogo = lazy(() => import('./catalogo/PaginaCatalogo.tsx'));
 const PaginaArticulo = lazy(() => import('./articulos/PaginaArticulo.tsx'));
 const PaginaLogin = lazy(() => import('./auth/PaginaLogin.tsx'));
 const PaginaRegistro = lazy(() => import('./auth/PaginaRegistro.tsx'));
+const PaginaPago = lazy(() => import('./pago/PaginaPago.tsx'));
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="articulos/:id" element={<PaginaArticulo />} />
         <Route path="login" element={<PaginaLogin />} />
         <Route path="registro" element={<PaginaRegistro />} />
+        <Route path="pago" element={<PaginaPago />} />
         <Route path="*" element={<NoEncontrado />} />
       </Route>
     </Routes>

@@ -183,6 +183,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lista-renta__encabezado h2 { margin: 0; font-size: 20px; }
 .lista-renta__cerrar { width: 38px; height: 38px; border: 1px solid var(--linea); border-radius: 50%; color: #5e6a7c; background: white; font-size: 20px; }
 .lista-renta__items { flex: 1; overflow: auto; padding: 12px 0; }
+.lista-renta__resumen { padding: 7px 0 15px; border-bottom: 1px solid var(--linea); }
+.lista-renta__resumen h3 { margin: 0 0 12px; font-size: 13px; }
+.lista-renta__flecha { display: block; margin: 6px 0; color: #a0a9b7; text-align: center; }
+.lista-renta__totales { display: grid; gap: 12px; margin: 16px 0 0; color: #657185; font-size: 12px; }
+.lista-renta__totales div { display: flex; justify-content: space-between; gap: 12px; }
+.lista-renta__totales dt, .lista-renta__totales dd { margin: 0; }
+.lista-renta__totales dd { color: #263248; font-weight: 700; text-align: right; }
+.lista-renta__total { margin-top: 5px; padding-top: 13px; border-top: 1px solid var(--linea); font-size: 15px; font-weight: 800; }
+.lista-renta__total dt, .lista-renta__total dd { color: var(--tinta); }
 .lista-renta__vacia { padding: 45px 8px; color: var(--suave); text-align: center; }
 .lista-renta__item { display: grid; grid-template-columns: 76px 1fr auto; gap: 12px; align-items: center; padding: 13px 0; border-bottom: 1px solid #edf0f4; }
 .lista-renta__item img { width: 76px; height: 62px; border-radius: 9px; object-fit: cover; }
@@ -190,6 +199,36 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lista-renta__meta { margin: 0; color: var(--suave); font-size: 12px; }
 .lista-renta__quitar { border: 0; color: #9c4a3c; background: transparent; font-size: 12px; }
 .lista-renta__pie { padding-top: 16px; border-top: 1px solid var(--linea); }
+.boton:disabled { cursor: wait; opacity: .65; }
+.aviso-error { margin: 0; padding: 11px 13px; border: 1px solid #f1c5c1; border-radius: 10px; color: #8d342b; background: #fff5f4; font-size: 13px; line-height: 1.5; }
+.pago-pagina { display: grid; gap: 22px; max-width: 1080px; margin: 0 auto; }
+.pago-encabezado h1 { margin: 0 0 8px; font-size: 32px; }
+.pago-encabezado p { margin: 0; color: var(--suave); }
+.pago-rejilla { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: 22px; }
+.pago-panel { padding: 24px; }
+.pago-panel h2 { margin: 0 0 18px; font-size: 20px; }
+.pago-periodo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border: 1px solid var(--linea); border-radius: 10px; color: #354156; background: #fbfcfd; font-size: 13px; }
+.pago-articulos, .pago-lista-reservas { display: grid; gap: 12px; margin: 18px 0; padding: 0; list-style: none; }
+.pago-articulos li, .pago-lista-reservas li { display: flex; justify-content: space-between; gap: 16px; color: #5f6b7e; font-size: 13px; line-height: 1.5; }
+.pago-articulos strong { flex: 0 0 auto; color: #263248; }
+.pago-totales { display: grid; gap: 12px; margin: 0; padding-top: 16px; border-top: 1px solid var(--linea); color: #657185; font-size: 13px; }
+.pago-totales div { display: flex; justify-content: space-between; gap: 12px; }
+.pago-totales dt, .pago-totales dd { margin: 0; }
+.pago-totales dd { color: #263248; font-weight: 700; }
+.pago-totales__total { padding-top: 12px; border-top: 1px solid var(--linea); font-size: 16px; font-weight: 800; }
+.pago-totales__total dt, .pago-totales__total dd { color: var(--tinta); }
+.pago-opciones { display: grid; gap: 11px; margin: 0; padding: 14px; border: 1px solid var(--linea); border-radius: 11px; }
+.pago-opciones legend { padding: 0 5px; }
+.pago-opciones label { display: flex; align-items: center; gap: 9px; color: #536073; font-size: 13px; }
+.pago-opciones input { accent-color: var(--ambar-oscuro); }
+.pago-direccion { display: grid; gap: 13px; }
+.pago-direccion h3 { margin: 0; font-size: 15px; }
+.pago-confirmacion h2 { margin-bottom: 10px; }
+.pago-confirmacion p { margin: 5px 0 0; }
+.pago-mis-reservas { min-width: 0; }
+.pago-lista-reservas { margin-bottom: 0; }
+.pago-lista-reservas li { padding-bottom: 11px; border-bottom: 1px solid #edf0f4; }
+.pago-nota { margin: 0; color: var(--suave); font-size: 11px; text-align: center; }
 .toast { position: fixed; right: 28px; bottom: 26px; z-index: 60; max-width: min(90vw, 380px); padding: 14px 18px; border: 1px solid #d4e9d8; border-radius: 13px; color: #315d3b; background: #f2fbf3; box-shadow: var(--sombra-hover); font-size: 14px; font-weight: 650; }
 
 @media (max-width: 1100px) {
@@ -234,6 +273,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .auth-card__marca-texto, .auth-card__marca-pie { display: none; }
   .auth-card__formulario { padding: 30px 24px; }
   .auth-card__encabezado { margin-bottom: 20px; }
+  .pago-rejilla { grid-template-columns: 1fr; }
+  .pago-panel { padding: 19px; }
+  .pago-lista-reservas li { flex-direction: column; gap: 4px; }
 }
 @media (max-width: 460px) {
   .rejilla-articulos { grid-template-columns: 1fr; }

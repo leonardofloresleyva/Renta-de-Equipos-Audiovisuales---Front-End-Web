@@ -8,23 +8,21 @@ import { TarjetaArticulo } from '../catalogo/TarjetaArticulo.tsx';
 export default function PaginaArticulo() {
   const { id } = useParams();
   const articulo = articulosDemo.find((item) => item.id === Number(id));
-  const { agregar } = useDemostracion();
+  const {
+    agregar,
+    fechaEntrega,
+    fechaRecoleccion,
+    fechaMinima,
+    diasRenta,
+    cambiarFechaEntrega,
+    cambiarFechaRecoleccion,
+  } = useDemostracion();
   const [cantidad, setCantidad] = useState(1);
-  const [entrega, setEntrega] = useState('2026-11-14');
-  const [recoleccion, setRecoleccion] = useState('2026-11-17');
   const [aviso, setAviso] = useState('');
 
   if (!articulo) return <NoEncontrado />;
   const articuloActual = articulo;
 
-  const dias = Math.max(
-    1,
-    Math.ceil(
-      (new Date(`${recoleccion}T12:00:00`).getTime() -
-        new Date(`${entrega}T12:00:00`).getTime()) /
-        86_400_000,
-    ),
-  );
   const relacionados = articulosDemo.filter((item) => item.id !== articulo.id).slice(0, 3);
 
   function agregarALista() {
@@ -59,16 +57,16 @@ export default function PaginaArticulo() {
           <div className="detalle__periodo">
             <div className="detalle__periodo-titulo">
               <span>Periodo de renta</span>
-              <span className="detalle__dias">{dias} {dias === 1 ? 'día seleccionado' : 'días seleccionados'}</span>
+              <span className="detalle__dias">{diasRenta} {diasRenta === 1 ? 'día seleccionado' : 'días seleccionados'}</span>
             </div>
             <label className="campo-fecha">
               <span className="sr-only">Fecha de entrega</span>
-              <input className="campo-fecha__control" type="date" value={entrega} onChange={(event) => setEntrega(event.target.value)} />
+              <input className="campo-fecha__control" type="date" min={fechaMinima} value={fechaEntrega} onChange={(event) => cambiarFechaEntrega(event.target.value)} />
             </label>
             <span className="flecha-periodo" aria-hidden="true">→</span>
             <label className="campo-fecha">
               <span className="sr-only">Fecha de recolección</span>
-              <input className="campo-fecha__control" type="date" min={entrega} value={recoleccion} onChange={(event) => setRecoleccion(event.target.value)} />
+              <input className="campo-fecha__control" type="date" min={fechaEntrega} value={fechaRecoleccion} onChange={(event) => cambiarFechaRecoleccion(event.target.value)} />
             </label>
           </div>
 

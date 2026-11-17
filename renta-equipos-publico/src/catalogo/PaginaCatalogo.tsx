@@ -3,29 +3,21 @@ import { TarjetaArticulo } from './TarjetaArticulo.tsx';
 import { articulosDemo, categoriasDemo, type ArticuloDemo } from './articulos-demo.ts';
 import { useDemostracion } from '../estado/useDemostracion.ts';
 
-function fechaDemo(dias: number): string {
-  const fecha = new Date(2026, 10, 14 + dias);
-  return `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
-}
-
 export default function PaginaCatalogo() {
   const [busqueda, setBusqueda] = useState('');
   const [categorias, setCategorias] = useState<string[]>([]);
   const [precioMaximo, setPrecioMaximo] = useState('');
   const [orden, setOrden] = useState('destacados');
-  const [entrega, setEntrega] = useState(fechaDemo(0));
-  const [recoleccion, setRecoleccion] = useState(fechaDemo(3));
   const [aviso, setAviso] = useState('');
-  const { agregar: agregarALaLista } = useDemostracion();
-
-  const dias = Math.max(
-    1,
-    Math.ceil(
-      (new Date(`${recoleccion}T12:00:00`).getTime() -
-        new Date(`${entrega}T12:00:00`).getTime()) /
-        86_400_000,
-    ),
-  );
+  const {
+    agregar: agregarALaLista,
+    fechaEntrega,
+    fechaRecoleccion,
+    fechaMinima,
+    diasRenta,
+    cambiarFechaEntrega,
+    cambiarFechaRecoleccion,
+  } = useDemostracion();
 
   const resultados = useMemo(() => {
     const texto = busqueda.trim().toLocaleLowerCase('es-MX');
@@ -80,16 +72,16 @@ export default function PaginaCatalogo() {
           <section className="panel periodo">
             <div className="periodo__encabezado">
               <h2>Periodo de renta</h2>
-              <span className="etiqueta-dias">{dias} {dias === 1 ? 'día' : 'días'}</span>
+              <span className="etiqueta-dias">{diasRenta} {diasRenta === 1 ? 'día' : 'días'}</span>
             </div>
             <p className="periodo__texto">Indica las fechas de entrega y recolección de tu equipo.</p>
             <label className="campo-fecha">
               <span className="campo-fecha__etiqueta">FECHA DE ENTREGA</span>
-              <input className="campo-fecha__control" type="date" value={entrega} onChange={(event) => setEntrega(event.target.value)} />
+              <input className="campo-fecha__control" type="date" min={fechaMinima} value={fechaEntrega} onChange={(event) => cambiarFechaEntrega(event.target.value)} />
             </label>
             <label className="campo-fecha">
               <span className="campo-fecha__etiqueta">FECHA DE RECOLECCIÓN</span>
-              <input className="campo-fecha__control" type="date" value={recoleccion} min={entrega} onChange={(event) => setRecoleccion(event.target.value)} />
+              <input className="campo-fecha__control" type="date" value={fechaRecoleccion} min={fechaEntrega} onChange={(event) => cambiarFechaRecoleccion(event.target.value)} />
             </label>
           </section>
 

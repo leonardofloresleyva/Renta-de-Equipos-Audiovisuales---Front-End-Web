@@ -1,12 +1,41 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { iniciarSesion } from '../services/auth.ts';
+import { cerrarSesion } from '../services/sesion.ts';
+import { mensajeDeError } from '../services/errores.ts';
 
 export default function PaginaLogin() {
-  const [aviso, setAviso] = useState(false);
+  const [error, setError] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  function enviar(event: FormEvent<HTMLFormElement>) {
+  const estado = location.state;
+  const destino = estado && typeof estado === 'object' && 'from' in estado
+    && typeof estado.from === 'string'
+    && estado.from.startsWith('/')
+    && !estado.from.startsWith('//')
+    ? estado.from
+    : '/catalogo';
+
+  async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setAviso(true);
+    setError('');
+    setEnviando(true);
+    const datos = new FormData(event.currentTarget);
+    try {
+      const sesion = await iniciarSesion(String(datos.get('correo')), String(datos.get('password')));
+      if (sesion.usuario.rol !== 'cliente') {
+        cerrarSesion();
+        setError('Esta cuenta no tiene acceso al flujo de reservas para clientes.');
+        return;
+      }
+      navigate(destino, { replace: true });
+    } catch (error: unknown) {
+      setError(mensajeDeError(error, 'No se pudo iniciar sesión. Intenta de nuevo.'));
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -37,11 +66,7 @@ export default function PaginaLogin() {
             <h1>Bienvenido de nuevo</h1>
             <p>Inicia sesión para continuar con tu renta.</p>
           </header>
-          {aviso && (
-            <p className="aviso-demo" role="status">
-              Esta pantalla es una maqueta. No se validaron credenciales ni se contactó al servicio.
-            </p>
-          )}
+          {error && <p className="aviso-error" role="alert">{error}</p>}
           <form className="formulario" onSubmit={enviar}>
             <label className="campo">
               <span className="campo__etiqueta">Correo electrónico</span>
@@ -51,10 +76,12 @@ export default function PaginaLogin() {
               <span className="campo__etiqueta">Contraseña</span>
               <input className="campo__control" type="password" name="password" placeholder="••••••••" minLength={8} autoComplete="current-password" required />
             </label>
-            <button className="boton boton--ambar boton--ancho" type="submit">Iniciar sesión</button>
+            <button className="boton boton--ambar boton--ancho" type="submit" disabled={enviando}>
+              {enviando ? 'Iniciando sesión…' : 'Iniciar sesión'}
+            </button>
           </form>
           <p className="formulario__pie">¿Aún no tienes cuenta? <Link to="/registro">Crear una cuenta</Link></p>
-          <p className="formulario__nota">Demostración visual: este formulario no envía ni guarda tus datos.</p>
+          <p className="formulario__nota">Tu sesión se conserva en esta pestaña y expira junto con el token de acceso.</p>
         </div>
       </div>
     </section>
