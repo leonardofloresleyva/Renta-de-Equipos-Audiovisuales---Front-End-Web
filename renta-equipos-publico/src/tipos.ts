@@ -1,3 +1,5 @@
+export type OrdenCatalogo = 'predeterminado' | 'nombre' | 'precio-asc' | 'precio-desc';
+
 export interface Articulo {
     id: number;
     nombre: string;

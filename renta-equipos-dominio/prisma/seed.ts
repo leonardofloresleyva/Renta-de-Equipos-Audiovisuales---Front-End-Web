@@ -28,8 +28,10 @@ const articulosDePrueba = [
         existencias: 8,
         categoria: 'Proyectores',
         fotografiasUrl: [
-            '/img/articulo-proyector.png',
-        ],
+            '/img/articulo-proyector-1.jpg',
+            '/img/articulo-proyector-2.jpg',
+            '/img/articulo-proyector-3.jpg'
+        ]
     },
     {
         id: 2,
@@ -39,8 +41,11 @@ const articulosDePrueba = [
         existencias: 4,
         categoria: 'Pantallas',
         fotografiasUrl: [
-            '/img/articulo-pantalla.png',
-        ],
+            '/img/articulo-pantalla-inflable-1.webp',
+            '/img/articulo-pantalla-inflable-2.webp',
+            '/img/articulo-pantalla-inflable-3.webp',
+            '/img/articulo-pantalla-inflable-4.webp'
+        ]
     },
     {
         id: 3,
@@ -50,8 +55,10 @@ const articulosDePrueba = [
         existencias: 16,
         categoria: 'Audio',
         fotografiasUrl: [
-            '/img/articulo-bafle.png',
-        ],
+            '/img/articulo-bafle-1.webp',
+            '/img/articulo-bafle-2.webp',
+            '/img/articulo-bafle-3.webp'
+        ]
     },
     {
         id: 4,
@@ -62,8 +69,9 @@ const articulosDePrueba = [
         existencias: 10,
         categoria: 'Audio',
         fotografiasUrl: [
-            '/img/articulo-microfonos.png',
-        ],
+            '/img/articulo-microfonos-1.webp',
+            '/img/articulo-microfonos-2.webp'
+        ]
     },
     {
         id: 5,
@@ -74,8 +82,11 @@ const articulosDePrueba = [
         existencias: 32,
         categoria: 'Iluminación',
         fotografiasUrl: [
-            '/img/articulo-iluminacion.png',
-        ],
+            '/img/articulo-iluminacion-1.webp',
+            '/img/articulo-iluminacion-2.webp',
+            '/img/articulo-iluminacion-3.webp',
+            '/img/articulo-iluminacion-4.webp'
+        ]
     },
     {
         id: 6,
@@ -85,7 +96,11 @@ const articulosDePrueba = [
         precioPorDia: 1200,
         existencias: 5,
         categoria: 'Cámaras',
-        fotografiasUrl: ['/img/articulo-camara.png'],
+        fotografiasUrl: [
+            '/img/articulo-camara-1.jpg',
+            '/img/articulo-camara-2.jpg',
+            '/img/articulo-camara-3.jpg'
+        ]
     },
     {
         id: 7,
@@ -95,7 +110,12 @@ const articulosDePrueba = [
         precioPorDia: 450,
         existencias: 4,
         categoria: 'Accesorios',
-        fotografiasUrl: ['/img/articulo-lente.png'],
+        fotografiasUrl: [
+            '/img/articulo-lente-1.jpg',
+            '/img/articulo-lente-2.jpg',
+            '/img/articulo-lente-3.jpg',
+            '/img/articulo-lente-4.jpg'
+        ]
     },
     {
         id: 8,
@@ -105,7 +125,10 @@ const articulosDePrueba = [
         precioPorDia: 650,
         existencias: 3,
         categoria: 'Audio',
-        fotografiasUrl: ['/img/articulo-consola.png'],
+        fotografiasUrl: [
+            '/img/articulo-consola-1.webp',
+            '/img/articulo-consola-2.webp'
+        ]
     },
     {
         id: 9,
@@ -115,7 +138,7 @@ const articulosDePrueba = [
         precioPorDia: 700,
         existencias: 6,
         categoria: 'Audio',
-        fotografiasUrl: ['/img/articulo-subwoofer.png'],
+        fotografiasUrl: ['/img/articulo-subwoofer-1.webp']
     },
     {
         id: 10,
@@ -125,7 +148,7 @@ const articulosDePrueba = [
         precioPorDia: 350,
         existencias: 8,
         categoria: 'Iluminación',
-        fotografiasUrl: ['/img/articulo-luces-par.png'],
+        fotografiasUrl: ['/img/articulo-luces-par-1.webp']
     },
     {
         id: 11,
@@ -135,7 +158,7 @@ const articulosDePrueba = [
         precioPorDia: 300,
         existencias: 12,
         categoria: 'Escenarios',
-        fotografiasUrl: ['/img/articulo-truss.png'],
+        fotografiasUrl: ['/img/articulo-truss-1.webp'],
     },
     {
         id: 12,
@@ -145,7 +168,10 @@ const articulosDePrueba = [
         precioPorDia: 500,
         existencias: 6,
         categoria: 'Audio',
-        fotografiasUrl: ['/img/articulo-monitor.png'],
+        fotografiasUrl: [
+            '/img/articulo-monitor-1.webp',
+            '/img/articulo-monitor-2.webp'
+        ]
     },
 ] as const;
 
@@ -300,6 +326,21 @@ async function main() {
             ]
         });
 
+        // Depósitos de garantía
+        await tx.depositoGarantia.createMany({
+            data: [
+                {
+                    id: 1,
+                    reservaId: 1,
+                    monto: 920.0
+                },
+                {
+                    id: 2,
+                    reservaId: 2,
+                    monto: 510.0
+                }
+            ]
+        });
     });
 }
 

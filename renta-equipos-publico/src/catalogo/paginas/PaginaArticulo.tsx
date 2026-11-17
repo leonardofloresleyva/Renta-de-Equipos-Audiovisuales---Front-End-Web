@@ -7,7 +7,6 @@ import { useArticulos } from '../hooks/useArticulos.ts';
 import type { Articulo } from '../../tipos.ts';
 import { mensajeDeError, urlImagen } from '../../services/api.ts';
 import { traerDisponibilidad } from '../../services/disponibilidad.ts';
-import '../styles/pagina-articulo.css';
 import { useCarrito } from '../../estado/global/carrito.ts';
 import { formatoPrecio } from '../../utils/formato.precio.ts';
 
@@ -54,6 +53,7 @@ export default function PaginaArticulo() {
   const agregar = useCarrito((state) => state.agregar);
 
   const [cantidad, setCantidad] = useState(1);
+  const [fotoActiva, setFotoActiva] = useState<{ articuloId: number; indice: number } | null>(null);
   const [aviso, setAviso] = useState('');
   const [avisoError, setAvisoError] = useState(false);
 
@@ -72,6 +72,24 @@ export default function PaginaArticulo() {
   const verificacionesRelacionadosEnCurso = useRef(new Set<number>());
 
   const { articulos: articulosCatalogo } = useArticulos({});
+
+  const fotografias = articuloActual?.fotografiasUrl.filter((url) => url.trim().length > 0) ?? [];
+  const indiceFoto = fotoActiva?.articuloId === idArticulo ? fotoActiva.indice : 0;
+  const indiceFotoActual = fotografias.length > 0 ? indiceFoto % fotografias.length : 0;
+
+  function seleccionarFoto(indice: number) {
+    setFotoActiva({ articuloId: idArticulo, indice });
+  }
+
+  function moverFoto(direccion: number) {
+    setFotoActiva((actual) => {
+      const indiceActual = actual?.articuloId === idArticulo ? actual.indice : 0;
+      return {
+        articuloId: idArticulo,
+        indice: (indiceActual + direccion + fotografias.length) % fotografias.length,
+      };
+    });
+  }
 
   const periodoValido =
     Boolean(fechaEntrega) &&
@@ -245,15 +263,56 @@ export default function PaginaArticulo() {
         <span aria-hidden="true">←</span> Volver al catálogo
       </Link>
       <article className="detalle">
-        <div className="detalle__visual">
-          {articuloActual.fotografiasUrl[0] && (
-            <img
-              className="detalle__imagen"
-              src={urlImagen(articuloActual.fotografiasUrl[0])}
-              alt={articuloActual.nombre}
-            />
+        <div className="detalle__galeria">
+          <div className="detalle__visual">
+            {fotografias[indiceFotoActual] && (
+              <img
+                className="detalle__imagen"
+                src={urlImagen(fotografias[indiceFotoActual])}
+                alt={
+                  fotografias.length > 1
+                    ? `${articuloActual.nombre}, imagen ${indiceFotoActual + 1} de ${fotografias.length}`
+                    : articuloActual.nombre
+                }
+              />
+            )}
+            <span className="detalle__etiqueta-visual">VISTA DEL EQUIPO</span>
+          </div>
+          {fotografias.length > 1 && (
+            <div className="detalle__fotos" role="group" aria-label={`Imágenes de ${articuloActual.nombre}`}>
+              <button
+                className="detalle__foto-nav"
+                type="button"
+                aria-label="Ver imagen anterior"
+                onClick={() => moverFoto(-1)}
+              >
+                ‹
+              </button>
+              <div className="detalle__foto-opciones">
+                {fotografias.map((_, indice) => (
+                  <button
+                    key={indice}
+                    className={indice === indiceFotoActual ? 'detalle__foto-opcion detalle__foto-opcion--activa' : 'detalle__foto-opcion'}
+                    type="button"
+                    aria-label={`Mostrar imagen ${indice + 1} de ${fotografias.length}`}
+                    aria-pressed={indice === indiceFotoActual}
+                    onClick={() => seleccionarFoto(indice)}
+                  />
+                ))}
+              </div>
+              <span className="detalle__foto-contador" aria-live="polite">
+                {indiceFotoActual + 1} / {fotografias.length}
+              </span>
+              <button
+                className="detalle__foto-nav"
+                type="button"
+                aria-label="Ver imagen siguiente"
+                onClick={() => moverFoto(1)}
+              >
+                ›
+              </button>
+            </div>
           )}
-          <span className="detalle__etiqueta-visual">VISTA DEL EQUIPO</span>
         </div>
         <div className="detalle__datos">
           <hr className="detalle__divisor" />

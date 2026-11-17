@@ -78,8 +78,8 @@ export default function PaginaPago() {
       return control instanceof HTMLInputElement ? control.value : '';
     };
     const nuevaReserva = await registrar({
-      fechaEntrega: new Date(`${fechaEntrega}T12:00:00`),
-      fechaRecoleccion: new Date(`${fechaRecoleccion}T12:00:00`),
+      fechaEntrega: `${fechaEntrega}T12:00:00`,
+      fechaRecoleccion: `${fechaRecoleccion}T12:00:00`,
       calle: leerCampo('calle'),
       numero: leerCampo('numero'),
       colonia: leerCampo('colonia'),

@@ -4,7 +4,6 @@ import { formatoPrecio } from '../../utils/formato.precio.ts';
 import { mensajeDeError, urlImagen } from '../../services/api.ts';
 import { crearSolicitudCancelacion } from '../../services/reservas.ts';
 import { useReservas } from '../../estado/global/reservas.ts';
-import '../styles/reservas.css';
 import { claseEstado, diasDeReserva, etiquetaEstado, formatearFecha, formatearFechaCreacion } from '../formato-reserva.ts';
 import { useDetalleReserva } from '../hooks/useDetalleReserva.ts';
 

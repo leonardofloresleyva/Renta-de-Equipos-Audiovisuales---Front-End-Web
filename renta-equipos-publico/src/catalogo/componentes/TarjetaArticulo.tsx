@@ -1,6 +1,5 @@
 import { Link } from 'react-router';
 import { useState } from 'react';
-import '../styles/tarjeta-catalogo.css';
 import { urlImagen } from '../../services/api.ts';
 import type { Articulo } from '../../tipos.ts';
 import { formatoPrecio } from '../../utils/formato.precio.ts';
