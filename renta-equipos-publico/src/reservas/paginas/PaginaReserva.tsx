@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { formatoPrecio } from '../../utils/formato.precio.ts';
-import { urlImagen } from '../../services/api.ts';
+import { mensajeDeError, urlImagen } from '../../services/api.ts';
+import { crearSolicitudCancelacion } from '../../services/reservas.ts';
 import { useReservas } from '../../estado/global/reservas.ts';
 import '../styles/reservas.css';
 import { claseEstado, diasDeReserva, etiquetaEstado, formatearFecha, formatearFechaCreacion } from '../formato-reserva.ts';
@@ -47,7 +48,8 @@ export default function PaginaReserva() {
   );
 
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [motivo, setMotivo] = useState('');
+  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
+  const [errorSolicitud, setErrorSolicitud] = useState<string | null>(null);
   const [aviso, setAviso] = useState('');
 
   if (!idValido) return <ReservaNoEncontrada />;
@@ -86,13 +88,24 @@ export default function PaginaReserva() {
   const piezas = articulos.reduce((total, articulo) => total + articulo.cantidad, 0);
   const deposito = garantia?.monto ?? 0;
   const total = reserva.montoTotal + deposito;
+  const reservaIdActual = reserva.id;
   const puedeCancelar = reserva.estado === 'apartada' || reserva.estado === 'entregada';
 
-  function enviarSolicitud() {
-    setModalAbierto(false);
-    setMotivo('');
-    setAviso('Tu solicitud de cancelación quedó registrada en modo demostración. Todavía no se envía al servicio.');
-    window.setTimeout(() => setAviso(''), 4000);
+  async function enviarSolicitud() {
+    setEnviandoSolicitud(true);
+    setErrorSolicitud(null);
+    try {
+      await crearSolicitudCancelacion(reservaIdActual);
+      setModalAbierto(false);
+      setAviso('Tu solicitud se envió correctamente. La reserva no se cancela automáticamente.');
+      window.setTimeout(() => setAviso(''), 4000);
+    } catch (error) {
+      setErrorSolicitud(
+        mensajeDeError(error, 'No pudimos enviar la solicitud de cancelación. Inténtalo de nuevo.'),
+      );
+    } finally {
+      setEnviandoSolicitud(false);
+    }
   }
 
   return (
@@ -140,7 +153,14 @@ export default function PaginaReserva() {
               <span className={claseEstado(reserva.estado)}>{etiquetaEstado(reserva.estado)}</span>
             </div>
             {puedeCancelar && (
-              <button className="boton-cancelar" type="button" onClick={() => setModalAbierto(true)}>
+              <button
+                className="boton-cancelar"
+                type="button"
+                onClick={() => {
+                  setErrorSolicitud(null);
+                  setModalAbierto(true);
+                }}
+              >
                 Solicitar cancelación
               </button>
             )}
@@ -192,7 +212,9 @@ export default function PaginaReserva() {
         <div
           className="reserva-modal__fondo"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setModalAbierto(false);
+            if (!enviandoSolicitud && event.target === event.currentTarget) {
+              setModalAbierto(false);
+            }
           }}
         >
           <section className="reserva-modal" role="dialog" aria-modal="true" aria-labelledby="reserva-modal-titulo">
@@ -200,25 +222,29 @@ export default function PaginaReserva() {
             <div className="reserva-modal__contenido">
               <h2 id="reserva-modal-titulo">Solicitar cancelación de reserva</h2>
               <p>
-                ¿Estás seguro de que deseas enviar una solicitud de cancelación para la reserva
-                <strong> #{reserva.folio}</strong>? Esta acción es una demostración: todavía no se
-                envía nada al servicio.
+                ¿Deseas enviar una solicitud de cancelación para la reserva
+                <strong> #{reserva.folio}</strong>? La solicitud quedará pendiente de revisión;
+                no cancela la reserva automáticamente.
               </p>
-              <label className="reserva-modal__campo">
-                <span>Motivo de la solicitud (opcional)</span>
-                <textarea
-                  value={motivo}
-                  onChange={(event) => setMotivo(event.target.value)}
-                  placeholder="Ej. Cambio de fechas del evento o ajuste de producción..."
-                  rows={3}
-                />
-              </label>
+              {errorSolicitud && (
+                <p className="aviso aviso--error" role="alert">{errorSolicitud}</p>
+              )}
               <div className="reserva-modal__acciones">
-                <button className="boton boton--secundario" type="button" onClick={() => setModalAbierto(false)}>
+                <button
+                  className="boton boton--secundario"
+                  type="button"
+                  onClick={() => setModalAbierto(false)}
+                  disabled={enviandoSolicitud}
+                >
                   No, conservar
                 </button>
-                <button className="boton boton--peligro" type="button" onClick={enviarSolicitud}>
-                  Sí, enviar solicitud
+                <button
+                  className="boton boton--peligro"
+                  type="button"
+                  onClick={enviarSolicitud}
+                  disabled={enviandoSolicitud}
+                >
+                  {enviandoSolicitud ? 'Enviando…' : 'Sí, enviar solicitud'}
                 </button>
               </div>
             </div>

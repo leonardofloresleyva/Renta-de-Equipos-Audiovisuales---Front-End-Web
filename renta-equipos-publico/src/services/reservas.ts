@@ -4,6 +4,7 @@ import type {
     DepositoGarantia,
     NuevaReserva,
     Reserva,
+    SolicitudCancelacion,
 } from '../tipos.ts';
 import { api, type Sobre } from './api.ts';
 
@@ -14,6 +15,16 @@ export async function crearReserva(nueva: NuevaReserva): Promise<Reserva> {
 
 export async function traerMisReservas(): Promise<Reserva[]> {
     const respuesta = await api.get<Sobre<Reserva[]>>('/reservas/mias');
+    return respuesta.data.data;
+}
+
+export async function crearSolicitudCancelacion(
+    reservaId: number,
+): Promise<SolicitudCancelacion> {
+    const respuesta = await api.post<Sobre<SolicitudCancelacion>>(
+        '/reservas/solicitudes/cancelacion',
+        { reservaId },
+    );
     return respuesta.data.data;
 }
 

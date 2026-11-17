@@ -53,6 +53,14 @@ export function mensajeDeError(error: unknown, generico: string): string {
     return 'No tienes permiso para realizar esta acción.';
   }
 
+  if (
+    status === 409 &&
+    error.config?.method?.toLowerCase() === 'post' &&
+    error.config.url?.includes('/reservas/solicitudes/cancelacion')
+  ) {
+    return 'Esta reserva ya tiene una solicitud de cancelación registrada.';
+  }
+
   if (status === 409) {
     const texto = Array.isArray(mensaje) ? mensaje.join(' ') : mensaje;
     if (typeof texto === 'string' && /registrad|existe/i.test(texto)) {
