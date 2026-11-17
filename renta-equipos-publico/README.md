@@ -14,41 +14,7 @@ Consume el servicio del Avance 2 (NestJS + Prisma + MySQL).
 ## Requisitos
 
 - Node.js 20 o superior
-
-## Configuración local del Backend
-
-Ejecuta los siguientes pasos desde la carpeta `renta-equipos-dominio`.
-
-1. Crea el archivo local de variables de entorno:
-
-```bash
-  copy .env.example .env
-```
-
-2. Edita `.env` con la URL de tu base de datos y una clave secreta para JWT:
-
-```dotenv
-  DATABASE_URL="mysql://root:TU_PASSWORD@localhost:3306/renta-equipos"
-  JWT_SECRET="reemplaza-por-una-clave-larga-y-aleatoria"
-```
-
-   Asegúrate de que la base de datos `renta-equipos` exista
-
-3. Instala las dependencias, aplica las migraciones y seed:
-
-```bash
-  npm install
-  npm run prisma:migrate 
-  npm run prisma:seed
-```
-
-4. Inicia el servidor en modo desarrollo:
-
-```bash
-  npm run start:dev
-```
-
-Por defecto, la API escucha en `http://localhost:3000`. La documentación interactiva está disponible en `http://localhost:3000/docs`.
+- Backend corriendo en http://localhost:3000
 
 ## Configuración local del Frontend
 
