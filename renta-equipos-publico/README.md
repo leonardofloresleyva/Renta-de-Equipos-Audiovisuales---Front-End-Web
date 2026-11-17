@@ -104,7 +104,8 @@ La vista de perfil se retiró para no exponer datos sensibles de la sesión.
 - `src/auth/`: páginas de login y registro.
 - `src/estado/global/carrito.ts`: carrito de renta en memoria con Zustand.
 - `src/estado/global/reservas.ts`: reservas del cliente con Zustand.
-- `src/reservas/`: listado y detalle de reservas del cliente.
+- `src/reservas/paginas/`: listado y detalle de reservas del cliente.
+- `src/reservas/styles/reservas.css`: estilos propios del listado y del detalle.
 - `src/services/reservas.ts`: consulta de reservas, artículos y depósito de garantía.
 
 ## Estado actual
@@ -113,5 +114,6 @@ La vista de perfil se retiró para no exponer datos sensibles de la sesión.
 - El catálogo y el detalle de artículo consumen el servicio real.
 - “Mis reservas” y el detalle de reserva consumen `GET /reservas/mias`,
   `GET /reservas/articulos/:id` y `GET /reservas/garantias/:id`.
-- La creación de reservas y la solicitud de cancelación siguen pendientes.
+- La creación de reservas sigue pendiente.
+- La solicitud de cancelación tiene modal y estilos listos, pero todavía no envía datos a la API.
 - Pruebas automatizadas pendientes.

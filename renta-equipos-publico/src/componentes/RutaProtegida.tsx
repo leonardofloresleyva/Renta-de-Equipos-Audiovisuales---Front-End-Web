@@ -29,12 +29,13 @@ export function RutaProtegida({ roles }: RutaProtegidaProps) {
           La cuenta de administrador no puede consultar ni agendar reservas desde
           el portal del cliente. Inicia sesión con una cuenta de cliente.
         </p>
-        <div className="vacio__acciones">
+        <p>
           <Link to="/catalogo" className="boton">Volver al catálogo</Link>
+          {' '}
           <button className="boton boton--secundario" type="button" onClick={salir}>
             Cerrar sesión
           </button>
-        </div>
+        </p>
       </section>
     );
   }

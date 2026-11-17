@@ -8,8 +8,8 @@ const PaginaCatalogo = lazy(() => import('./catalogo/paginas/PaginaCatalogo.tsx'
 const PaginaArticulo = lazy(() => import('./catalogo/paginas/PaginaArticulo.tsx'));
 const PaginaLogin = lazy(() => import('./auth/PaginaLogin.tsx'));
 const PaginaRegistro = lazy(() => import('./auth/PaginaRegistro.tsx'));
-const PaginaReservas = lazy(() => import('./reservas/PaginaReservas.tsx'));
-const PaginaReserva = lazy(() => import('./reservas/PaginaReserva.tsx'));
+const PaginaReservas = lazy(() => import('./reservas/paginas/PaginaReservas.tsx'));
+const PaginaReserva = lazy(() => import('./reservas/paginas/PaginaReserva.tsx'));
 
 export default function App() {
   return (

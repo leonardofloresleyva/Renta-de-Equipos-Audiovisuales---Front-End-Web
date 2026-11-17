@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import { formatoPrecio } from '../utils/formato.precio.ts';
-import { useReservas } from '../estado/global/reservas.ts';
-import type { Reserva } from '../tipos.ts';
-import { claseEstado, etiquetaEstado, formatearFecha, formatearFechaCreacion } from './formato-reserva.ts';
+import { formatoPrecio } from '../../utils/formato.precio.ts';
+import { useReservas } from '../../estado/global/reservas.ts';
+import type { Reserva } from '../../tipos.ts';
+import '../styles/reservas.css';
+import { claseEstado, etiquetaEstado, formatearFecha, formatearFechaCreacion } from '../formato-reserva.ts';
 
 type FiltroReserva = 'Todas' | 'En curso' | 'Confirmadas' | 'Finalizadas' | 'Canceladas';
 type VistaReserva = 'tabla' | 'tarjetas';
