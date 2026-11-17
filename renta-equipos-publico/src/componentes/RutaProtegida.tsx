@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { useSesion } from '../estado/useSesion.ts';
+import { useSesion } from '../estado/sesion/useSesion';
 
 export function RutaProtegida() {
   const { usuario } = useSesion();

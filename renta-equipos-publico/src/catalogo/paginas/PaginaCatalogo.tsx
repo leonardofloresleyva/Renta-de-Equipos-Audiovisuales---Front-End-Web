@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
 import { useArticulos } from '../hooks/useArticulos.ts';
-import { useCarrito } from '../../estado/carrito.ts';
 import type { Articulo } from '../../tipos.ts';
 import '../styles/pagina-catalogo.css';
+import { useCarrito } from '../../estado/global/carrito.ts';
 
 type OrdenCatalogo = 'predeterminado' | 'nombre' | 'precio-asc' | 'precio-desc';
 
