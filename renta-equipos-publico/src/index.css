@@ -57,6 +57,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .boton-lista__contador { min-width: 24px; height: 24px; display: grid; place-items: center; padding: 0 6px; border-radius: 50px; color: white; background: var(--ambar); font-size: 12px; }
 .boton-usuario { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--linea); border-radius: 50%; color: #39465b; background: #f7f8fb; text-decoration: none; }
 .boton-usuario:hover { background: #edf0f5; }
+.barra__usuario { max-width: 270px; height: 44px; display: inline-flex; align-items: center; gap: 8px; padding: 0 15px; border: 1px solid var(--linea); border-radius: 50px; color: #39465b; background: #f7f8fb; font-size: 13px; font-weight: 700; text-decoration: none; }
+.barra__usuario:hover { background: #edf0f5; }
+.barra__usuario-nombre { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.boton-salir { height: 44px; padding: 0 16px; border: 1px solid var(--linea); border-radius: 12px; color: #45516a; background: white; font-size: 13px; font-weight: 750; }
+.boton-salir:hover { background: #f3f5f8; }
 
 .pie { padding: 24px 32px; border-top: 1px solid var(--linea); color: #858fa0; background: white; text-align: center; font-size: 13px; }
 .pagina-catalogo { display: grid; grid-template-columns: 340px minmax(0, 1fr); align-items: start; gap: 32px; }
@@ -140,6 +145,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .selector-cantidad span { display: grid; place-items: center; border-right: 1px solid var(--linea); border-left: 1px solid var(--linea); font-size: 14px; font-weight: 700; }
 .boton { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 0 20px; border: 1px solid transparent; border-radius: 12px; color: white; background: var(--tinta); font-size: 14px; font-weight: 750; text-decoration: none; transition: .18s ease; }
 .boton:hover { background: #29364b; }
+.boton:disabled { opacity: .62; cursor: not-allowed; }
 .boton--ambar { color: #1a2435; background: #f5b52e; }
 .boton--ambar:hover { background: #eca91c; }
 .boton--ancho { width: 100%; }
@@ -147,6 +153,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .detalle__relacionados { margin-top: 38px; }
 .detalle__relacionados h2 { margin-bottom: 18px; }
 .aviso-demo { margin: 17px 0 0; padding: 11px 13px; border: 1px solid #d5e8d9; border-radius: 10px; color: #35613b; background: #f1faf2; font-size: 13px; }
+.aviso { margin: 17px 0 0; padding: 11px 13px; border: 1px solid var(--linea); border-radius: 10px; font-size: 13px; line-height: 1.5; }
+.aviso--error { border-color: #f0c9c9; color: #8c2f2f; background: #fdf3f3; }
 
 .auth-pagina { min-height: 640px; display: grid; place-items: center; padding: 20px 0; }
 .auth-card { width: min(100%, 1000px); min-height: 590px; display: grid; grid-template-columns: .85fr 1.15fr; overflow: hidden; border: 1px solid var(--linea); border-radius: 24px; background: white; box-shadow: var(--sombra); }
@@ -167,6 +175,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .campo__etiqueta { color: #344156; font-size: 12px; font-weight: 750; }
 .campo__control { width: 100%; height: 46px; padding: 0 13px; border: 1px solid #d4dae3; border-radius: 10px; color: var(--texto); background: #fbfcfd; font-size: 14px; }
 .campo__control::placeholder { color: #a1a9b5; }
+.campo__control--error { border-color: #d98c8c; background: #fffafa; }
+.campo__error { color: #a13333; font-size: 12px; line-height: 1.4; }
 .formulario__pie { margin: 20px 0 0; color: #727d8f; font-size: 13px; text-align: center; }
 .formulario__pie a { color: #a36600; font-weight: 750; text-decoration: none; }
 .formulario__pie a:hover { text-decoration: underline; }
@@ -213,6 +223,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .boton-lista { height: 40px; gap: 7px; padding: 0 9px; font-size: 12px; }
   .boton-lista svg { width: 18px; }
   .boton-usuario { width: 40px; height: 40px; }
+  .barra__usuario { width: 40px; height: 40px; padding: 0; justify-content: center; }
+  .barra__usuario-nombre { display: none; }
+  .boton-salir { height: 40px; padding: 0 12px; font-size: 12px; }
   .disposicion__contenido { padding: 20px 16px 42px; }
   .pagina-catalogo { grid-template-columns: 1fr; gap: 19px; }
   .barra-lateral { grid-template-columns: 1fr; gap: 14px; }
@@ -243,6 +256,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .formulario__rejilla { grid-template-columns: 1fr; gap: 16px; }
   .lista-renta { padding: 20px; }
   .orden { grid-template-columns: 80px 1fr; }
+  .boton-lista > span:not(.boton-lista__contador) { display: none; }
 }
 
 .barra__enlace-contador { display: inline-grid; min-width: 22px; height: 22px; margin-left: 5px; place-items: center; padding: 0 5px; border-radius: 50px; color: #825300; background: #fff1c8; font-size: 11px; font-weight: 800; vertical-align: middle; }

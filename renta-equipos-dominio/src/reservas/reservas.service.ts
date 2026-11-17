@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import type { ReservaRepository } from './repositorios/reserva.repository';
 import { DEPOSITO_GARANTIA_REPOSITORY, RESERVA_REPOSITORY, SOLICITUD_CANCELACION_REPOSITORY } from './reservas.tokens';
 import { ARTICULO_REPOSITORY } from 'src/inventario/inventario.tokens';
@@ -9,7 +9,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { InventarioService } from 'src/inventario/inventario.service';
 import { ArticuloReserva, DepositoGarantia, FiltrosReserva, FiltrosSolicitud, NuevaReserva, NuevaSolicitud, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva, SolicitudCancelacion } from 'src/dominio/entidades';
 import { CrearReservaDto } from './dto/crear.reserva.dto';
-import { ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, EstadoReservaInvalidoError, FechasInvalidasError, ReservaNoEncontradaError, SolicitudNoEncontradaError } from 'src/dominio/errores';
+import { ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, EstadoReservaInvalidoError, FechasInvalidasError, ReservaNoEncontradaError } from 'src/dominio/errores';
 import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
 import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
@@ -46,10 +46,10 @@ export class ReservasService {
         return this.articulosReservaRepo.buscarPorReserva(reservaId);
     }
 
-    async crear(dto: CrearReservaDto): Promise<Reserva> {
+    async crear(dto: CrearReservaDto, clienteId: number): Promise<Reserva> {
         // Verificar a cliente asociado
-        const cliente = await this.usuariosService.buscarClientePorId(dto.clienteId);
-        if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
+        const cliente = await this.usuariosService.buscarClientePorId(clienteId);
+        if (!cliente) throw new ClienteNoEncontradoError(clienteId);
         
 
         // REGLA DE NEGOCIO 02 - VERIFICAR FECHAS VÁlIDAS
@@ -63,7 +63,7 @@ export class ReservasService {
         const articulosReservados: NuevoArticuloReserva[] = [];
         let montoTotal = 0;
         // Se verifica que las existencias sean suficientes para cada artículo reservado
-        for(let a of dto.articulos) {
+        for(const a of dto.articulos) {
             const articulo = await this.inventarioService.buscarArticuloPorId(a.articuloId);
             if (!articulo) throw new ArticuloNoEncontradoError(a.articuloId);
 
@@ -83,7 +83,7 @@ export class ReservasService {
         
         // Se contruye la nueva reserva validada
         const nuevaReserva: NuevaReserva = {
-            clienteId: dto.clienteId,
+            clienteId,
             folio: nuevoFolio(),
             montoTotal: montoTotal,
             fechaEntrega: dto.fechaEntrega,
@@ -141,16 +141,19 @@ export class ReservasService {
         return this.solicitudesRepo.listar(filtros);
     }
 
-    async crearSolicitud(dto: CrearSolicitudDto): Promise<SolicitudCancelacion> {
+    async crearSolicitud(dto: CrearSolicitudDto, clienteId: number): Promise<SolicitudCancelacion> {
         // Verificar la existencia de la reserva
         const reserva = await this.reservasRepo.buscarPorId(dto.reservaId);
         if (!reserva) throw new ReservaNoEncontradaError(dto.reservaId);
+        if (reserva.clienteId !== clienteId) {
+            throw new ForbiddenException('Solo puedes solicitar la cancelación de tus propias reservas.');
+        }
 
         // Verificar a cliente asociado
-        const cliente = await this.usuariosService.buscarClientePorId(dto.clienteId);
-        if (!cliente) throw new ClienteNoEncontradoError(dto.clienteId);
+        const cliente = await this.usuariosService.buscarClientePorId(clienteId);
+        if (!cliente) throw new ClienteNoEncontradoError(clienteId);
         const nuevaSolicitud: NuevaSolicitud = {
-            clienteId: dto.clienteId,
+            clienteId,
             reservaId: dto.reservaId
         };
         return this.solicitudesRepo.crear(nuevaSolicitud);

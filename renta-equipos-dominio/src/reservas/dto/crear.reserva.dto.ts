@@ -1,11 +1,7 @@
 import { ArticuloReservaDto } from "./articulo.reserva.dto";
-import { ArrayNotEmpty, IsDate, IsInt, IsNotEmpty, IsPositive, IsString, Length, MaxLength, min, MinLength } from "class-validator";
+import { ArrayNotEmpty, IsDate, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CrearReservaDto {
-    @IsInt({message: "El Id del cliente debe ser un entero"})
-    @IsPositive({message: "El Id del cliente debe ser positivo"})
-    clienteId: number;
-
     @IsDate({message: "Fecha de entrega inválida"})
     fechaEntrega: Date;
 
