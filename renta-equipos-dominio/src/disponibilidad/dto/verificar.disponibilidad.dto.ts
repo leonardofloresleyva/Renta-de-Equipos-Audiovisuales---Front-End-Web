@@ -1,5 +1,9 @@
-export class VerificarDisponibilidadDto {
-    articuloId: number;
-    fechaInicio: Date;
-    fechaFin: Date;
+import { IsDate } from "class-validator";
+
+export class PeriodoDisponibilidadDto {
+  @IsDate()
+  fechaInicio: Date;
+
+  @IsDate()
+  fechaFin: Date;
 }

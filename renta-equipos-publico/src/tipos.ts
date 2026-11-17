@@ -16,6 +16,12 @@ export interface FiltrosArticulo {
     categoria?: string;
 }
 
+export interface DisponibilidadArticulo {
+    articuloId: number;
+    fechaInicio: Date;
+    fechaFin: Date;
+}
+
 export interface NuevoArticuloReserva {
     articuloId: number;
     cantidad: number;

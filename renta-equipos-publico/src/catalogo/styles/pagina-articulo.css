@@ -226,6 +226,11 @@
   background: #f4f6f8;
 }
 
+.selector-cantidad button:disabled {
+  color: #a4acb9;
+  cursor: not-allowed;
+}
+
 .selector-cantidad span {
   display: grid;
   place-items: center;
@@ -281,6 +286,13 @@
   text-align: center;
 }
 
+.detalle__disponibilidad-error {
+  margin: 12px 0;
+  color: #842b2b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .detalle__relacionados {
   margin-top: 38px;
 }
@@ -303,6 +315,12 @@
   color: #35613b;
   background: #f1faf2;
   font-size: 13px;
+}
+
+.aviso-demo--error {
+  border-color: #efcaca;
+  color: #842b2b;
+  background: #fff3f3;
 }
 
 .sr-only {

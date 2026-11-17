@@ -262,6 +262,12 @@
   line-height: 1.5;
 }
 
+.catalogo__toast--error {
+  border-color: #efcaca;
+  color: #842b2b;
+  background: #fff3f3;
+}
+
 @media (max-width: 1100px) {
   .pagina-catalogo {
     grid-template-columns: 285px minmax(0, 1fr);

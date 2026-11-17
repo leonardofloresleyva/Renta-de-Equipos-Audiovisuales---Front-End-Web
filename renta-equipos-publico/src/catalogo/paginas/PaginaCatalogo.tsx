@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { TarjetaArticulo } from '../componentes/TarjetaArticulo.tsx';
 import { useArticulos } from '../hooks/useArticulos.ts';
 import type { Articulo } from '../../tipos.ts';
 import '../styles/pagina-catalogo.css';
 import { useCarrito } from '../../estado/global/carrito.ts';
+import { traerDisponibilidad } from '../../services/disponibilidad.ts';
+import { mensajeDeError } from '../../services/api.ts';
 
 type OrdenCatalogo = 'predeterminado' | 'nombre' | 'precio-asc' | 'precio-desc';
 
@@ -14,6 +16,13 @@ export default function PaginaCatalogo() {
   const [precioMaximo, setPrecioMaximo] = useState('');
   const [orden, setOrden] = useState<OrdenCatalogo>('predeterminado');
   const [aviso, setAviso] = useState('');
+  const [avisoEsError, setAvisoEsError] = useState(false);
+  const [disponibilidades, setDisponibilidades] = useState<{
+    clavePeriodo: string;
+    porArticulo: Record<number, number>;
+  }>({ clavePeriodo: '', porArticulo: {} });
+  const [verificandoIds, setVerificandoIds] = useState<Set<number>>(() => new Set());
+  const verificacionesEnCurso = useRef(new Set<number>());
 
   const lista = useCarrito((state) => state.lista);
   const fechaEntrega = useCarrito((state) => state.fechaEntrega);
@@ -39,6 +48,8 @@ export default function PaginaCatalogo() {
   const errorCatalogo = error ?? errorCategorias;
 
   const periodoValido = Boolean(fechaEntrega) && Boolean(fechaRecoleccion) && fechaRecoleccion > fechaEntrega;
+  const clavePeriodo = `${fechaEntrega}:${fechaRecoleccion}`;
+  const disponibilidadPorArticulo = disponibilidades.clavePeriodo === clavePeriodo ? disponibilidades.porArticulo : {};
   const dias = periodoValido ? Math.ceil((new Date(`${fechaRecoleccion}T12:00:00`).getTime() - new Date(`${fechaEntrega}T12:00:00`).getTime()) / 86_400_000,) : 0;
 
   const resultados = useMemo(() => {
@@ -48,10 +59,63 @@ export default function PaginaCatalogo() {
     return articulos;
   }, [articulos, orden]);
 
-  function agregarArticulo(articulo: Articulo) {
-    agregarALaLista(articulo, 1);
-    setAviso(`${articulo.nombre} se agregó a tu lista de renta.`);
-    window.setTimeout(() => setAviso(''), 2600);
+  async function agregarArticulo(articulo: Articulo) {
+    if (!periodoValido || verificacionesEnCurso.current.has(articulo.id)) return;
+
+    verificacionesEnCurso.current.add(articulo.id);
+    setVerificandoIds((actual) => new Set(actual).add(articulo.id));
+    try {
+      const disponible = await traerDisponibilidad({
+        articuloId: articulo.id,
+        fechaInicio: new Date(`${fechaEntrega}T00:00:00.000Z`),
+        fechaFin: new Date(`${fechaRecoleccion}T00:00:00.000Z`),
+      });
+      const carritoActual = useCarrito.getState();
+      if (
+        carritoActual.fechaEntrega !== fechaEntrega ||
+        carritoActual.fechaRecoleccion !== fechaRecoleccion
+      ) {
+        setAvisoEsError(true);
+        setAviso('El período cambió durante la consulta. Verifica las fechas e inténtalo de nuevo.');
+        window.setTimeout(() => setAviso(''), 3000);
+        return;
+      }
+
+      setDisponibilidades((actual) => ({
+        clavePeriodo,
+        porArticulo: {
+          ...(actual.clavePeriodo === clavePeriodo ? actual.porArticulo : {}),
+          [articulo.id]: disponible,
+        },
+      }));
+      const cantidadEnCarrito = carritoActual.lista.find((item) => item.articulo.id === articulo.id)?.cantidad ?? 0;
+      if (disponible <= cantidadEnCarrito) {
+        setAvisoEsError(true);
+        setAviso(
+          disponible === 0
+            ? `No se pudo agregar ${articulo.nombre} porque no tiene piezas disponibles en el período seleccionado.`
+            : `No se pudo agregar ${articulo.nombre} porque ya alcanzaste el límite disponible en el carrito.`,
+        );
+        window.setTimeout(() => setAviso(''), 3000);
+        return;
+      }
+
+      agregarALaLista(articulo, 1);
+      setAvisoEsError(false);
+      setAviso(`${articulo.nombre} se agregó a tu lista de renta.`);
+      window.setTimeout(() => setAviso(''), 2600);
+    } catch (error) {
+      setAvisoEsError(true);
+      setAviso(mensajeDeError(error, 'No pudimos consultar la disponibilidad. Inténtalo de nuevo.'));
+      window.setTimeout(() => setAviso(''), 3000);
+    } finally {
+      verificacionesEnCurso.current.delete(articulo.id);
+      setVerificandoIds((actual) => {
+        const siguiente = new Set(actual);
+        siguiente.delete(articulo.id);
+        return siguiente;
+      });
+    }
   }
 
   function limpiarFiltros() {
@@ -217,6 +281,12 @@ export default function PaginaCatalogo() {
                 key={articulo.id}
                 articulo={articulo}
                 puedeAgregar={periodoValido}
+                verificandoDisponibilidad={verificandoIds.has(articulo.id)}
+                sinDisponibilidad={
+                  disponibilidadPorArticulo[articulo.id] !== undefined &&
+                  disponibilidadPorArticulo[articulo.id] <=
+                    (lista.find((item) => item.articulo.id === articulo.id)?.cantidad ?? 0)
+                }
                 alAgregar={agregarArticulo}
               />
             )) : (
@@ -234,7 +304,11 @@ export default function PaginaCatalogo() {
           )}
         </section>
       </div>
-      {aviso && <div className="toast" role="status">{aviso}</div>}
+      {aviso && (
+        <div className={avisoEsError ? 'toast catalogo__toast--error' : 'toast'} role={avisoEsError ? 'alert' : 'status'}>
+          {aviso}
+        </div>
+      )}
     </>
   );
 }
