@@ -258,3 +258,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .orden { grid-template-columns: 80px 1fr; }
   .boton-lista > span:not(.boton-lista__contador) { display: none; }
 }
+
+.barra__enlace-contador { display: inline-grid; min-width: 22px; height: 22px; margin-left: 5px; place-items: center; padding: 0 5px; border-radius: 50px; color: #825300; background: #fff1c8; font-size: 11px; font-weight: 800; vertical-align: middle; }
+
+.boton--secundario { border-color: #cfd6e0; color: #465368; background: white; }
+.boton--secundario:hover { background: #f7f8fa; }
+.boton--peligro { color: white; background: #d82727; }
+.boton--peligro:hover { background: #b91f1f; }
