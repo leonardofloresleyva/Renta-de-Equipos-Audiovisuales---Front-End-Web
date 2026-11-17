@@ -2,7 +2,7 @@ import type { NuevaReserva, Reserva } from "../tipos";
 import { api } from "./api";
 
 export async function crearReserva(nueva: NuevaReserva): Promise<Reserva> {
-    const respuesta = await api.post('/reservas', { nueva });
+    const respuesta = await api.post('/reservas', nueva);
     return respuesta.data.data;
 }
 

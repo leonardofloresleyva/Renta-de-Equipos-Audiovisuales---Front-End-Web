@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { mensajeDeError } from '../services/errores.ts';
-import { registrarReserva } from '../services/reservas.ts';
+import { mensajeDeError } from '../services/api.ts';
+import { crearReserva } from '../services/reservas.ts';
 import type { NuevaReserva, Reserva } from '../tipos.ts';
 
 export function useRegistrarReserva() {
@@ -11,7 +11,7 @@ export function useRegistrarReserva() {
     setGuardando(true);
     setError('');
     try {
-      return await registrarReserva(reserva);
+      return await crearReserva(reserva);
     } catch (error: unknown) {
       setError(mensajeDeError(error, 'No se pudo registrar la reserva. Intenta de nuevo.'));
       return null;

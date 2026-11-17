@@ -105,7 +105,7 @@ export default function PaginaCatalogo() {
               />
             </label>
             {lista.length > 0 && (
-              <p className="periodo__bloqueado">Quita los artículos de la lista para cambiar el período.</p>
+              <p className="periodo__bloqueado">Puedes ajustar las fechas desde tu lista de renta.</p>
             )}
           </section>
 

@@ -179,7 +179,7 @@ export default function PaginaArticulo() {
           </button>
           <p className="detalle__ayuda">
             {lista.length > 0
-              ? 'Quita los artículos de la lista para cambiar el período.'
+              ? 'Puedes ajustar las fechas desde tu lista de renta.'
               : periodoValido
                 ? 'La disponibilidad final se confirma al solicitar la renta.'
                 : 'Selecciona fechas válidas para agregar este artículo.'}

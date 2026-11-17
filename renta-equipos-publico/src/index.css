@@ -195,6 +195,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .lista-renta__items { flex: 1; overflow: auto; padding: 12px 0; }
 .lista-renta__resumen { padding: 7px 0 15px; border-bottom: 1px solid var(--linea); }
 .lista-renta__resumen h3 { margin: 0 0 12px; font-size: 13px; }
+.lista-renta__fechas { display: grid; gap: 7px; color: #354156; font-size: 12px; }
+.lista-renta__fechas time { display: block; padding: 10px 12px; border: 1px solid var(--linea); border-radius: 10px; background: #fbfcfd; }
+.lista-renta__fechas span { color: #a0a9b7; text-align: center; }
 .lista-renta__flecha { display: block; margin: 6px 0; color: #a0a9b7; text-align: center; }
 .lista-renta__totales { display: grid; gap: 12px; margin: 16px 0 0; color: #657185; font-size: 12px; }
 .lista-renta__totales div { display: flex; justify-content: space-between; gap: 12px; }
@@ -217,6 +220,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .pago-rejilla { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: 22px; }
 .pago-panel { padding: 24px; }
 .pago-panel h2 { margin: 0 0 18px; font-size: 20px; }
+.pago-aviso-tarjeta { margin: 0; padding: 12px; border: 1px solid #f1dda5; border-radius: 10px; color: #76500a; background: #fffaf0; font-size: 13px; line-height: 1.5; }
 .pago-periodo { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border: 1px solid var(--linea); border-radius: 10px; color: #354156; background: #fbfcfd; font-size: 13px; }
 .pago-articulos, .pago-lista-reservas { display: grid; gap: 12px; margin: 18px 0; padding: 0; list-style: none; }
 .pago-articulos li, .pago-lista-reservas li { display: flex; justify-content: space-between; gap: 16px; color: #5f6b7e; font-size: 13px; line-height: 1.5; }
