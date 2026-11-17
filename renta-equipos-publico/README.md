@@ -14,21 +14,55 @@ Consume el servicio del Avance 2 (NestJS + Prisma + MySQL).
 ## Requisitos
 
 - Node.js 20 o superior
-- Servicio del Avance 2 corriendo en `http://localhost:3000`
 
-## Configuración
+## Configuración local del Backend
+
+Ejecuta los siguientes pasos desde la carpeta `renta-equipos-dominio`.
+
+1. Crea el archivo local de variables de entorno:
+
+```bash
+  copy .env.example .env
+```
+
+2. Edita `.env` con la URL de tu base de datos y una clave secreta para JWT:
+
+```dotenv
+  DATABASE_URL="mysql://root:TU_PASSWORD@localhost:3306/renta-equipos"
+  JWT_SECRET="reemplaza-por-una-clave-larga-y-aleatoria"
+```
+
+   Asegúrate de que la base de datos `renta-equipos` exista
+
+3. Instala las dependencias, aplica las migraciones y seed:
+
+```bash
+  npm install
+  npm run prisma:migrate 
+  npm run prisma:seed
+```
+
+4. Inicia el servidor en modo desarrollo:
+
+```bash
+  npm run start:dev
+```
+
+Por defecto, la API escucha en `http://localhost:3000`. La documentación interactiva está disponible en `http://localhost:3000/docs`.
+
+## Configuración local del Frontend
 
 1. Copia el archivo de ejemplo:
 
-   ```bash
-   copy .env.example .env
-   ```
+```bash
+  copy .env.example .env
+```
 
 2. Verifica la URL del servicio:
 
-   ```env
-   VITE_API_URL=http://localhost:3000
-   ```
+```env
+  VITE_API_URL=http://localhost:3000
+```
 
 El backend solo permite CORS desde `http://localhost:5173`, así que el dev server
 debe usar ese puerto.
@@ -36,8 +70,9 @@ debe usar ese puerto.
 ## Levantar el portal
 
 ```bash
-npm install
-npm run dev
+  cd renta-equipos-publico
+  npm install
+  npm run dev
 ```
 
 Abre `http://localhost:5173`.
@@ -52,29 +87,10 @@ Abre `http://localhost:5173`.
 | `npm run lint` | Análisis estático con Oxlint |
 | `npm run preview` | Vista previa del build de producción |
 
-## Autenticación
-
-La autenticación consume el backend real:
-
-- `POST /auth/login` — inicia sesión.
-- `POST /auth/registro` — crea un cliente y devuelve token (auto-login).
-- El token se envía como `Authorization: Bearer <access_token>` en cada petición.
-- La sesión se guarda en `localStorage` bajo la clave `renta-av.sesion`.
-- El payload del JWT incluye `sub`, `perfilId`, `correo` y `rol`. `perfilId` es el
-  identificador del cliente y queda disponible en `useSesion()` para las reservas.
-- No existe `GET /auth/yo`: la sesión se valida con la expiración del token y el
-  interceptor de `401`.
-- Ante un `401`, la aplicación cierra la sesión, vacía la lista de renta y regresa al
-  login conservando la ruta de origen (`returnTo`).
-
 ### Credenciales de desarrollo
 
 - Cliente: `contacto@eventospro.mx` / `rentas2026`
 - Administrador: `admin.general@audiorent.mx` / `rentas2026`
-
-> La instancia local fue sembrada con `rentas2026`. El archivo
-> `renta-equipos-dominio/src/datos/renta.equipo.seed.ts` define actualmente otro hash;
-> si recreas la base de datos, usa la contraseña que corresponda a ese seed.
 
 ## Rutas
 
@@ -92,8 +108,6 @@ Las rutas de reservas están protegidas: sin sesión redirigen al login conserva
 destino (`returnTo`). Si entra una cuenta con rol `administrador`, se muestra un aviso
 porque ese rol no puede consultar ni agendar reservas desde el portal del cliente.
 
-La vista de perfil se retiró para no exponer datos sensibles de la sesión.
-
 ## Organización del código
 
 - `src/services/api.ts`: única instancia de Axios, interceptores y traducción de errores.
@@ -107,13 +121,3 @@ La vista de perfil se retiró para no exponer datos sensibles de la sesión.
 - `src/reservas/paginas/`: listado y detalle de reservas del cliente.
 - `src/reservas/styles/reservas.css`: estilos propios del listado y del detalle.
 - `src/services/reservas.ts`: consulta de reservas, artículos y depósito de garantía.
-
-## Estado actual
-
-- Login, registro, cierre de sesión y expiración por `401` funcionan contra el backend.
-- El catálogo y el detalle de artículo consumen el servicio real.
-- “Mis reservas” y el detalle de reserva consumen `GET /reservas/mias`,
-  `GET /reservas/articulos/:id` y `GET /reservas/garantias/:id`.
-- La creación de reservas sigue pendiente.
-- La solicitud de cancelación tiene modal y estilos listos, pero todavía no envía datos a la API.
-- Pruebas automatizadas pendientes.
