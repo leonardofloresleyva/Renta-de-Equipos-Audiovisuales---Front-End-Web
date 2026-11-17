@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { mensajeDeError } from '../services/api.ts';
-import { useSesion } from '../estado/useSesion.ts';
 import type { DatosRegistro } from '../tipos.ts';
+import { useSesion } from '../estado/sesion/useSesion.ts';
 
 interface ErroresRegistro {
   nombre?: string;

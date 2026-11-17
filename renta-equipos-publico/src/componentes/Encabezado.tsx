@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
-import { useSesion } from '../estado/useSesion.ts';
-import { useCarrito } from '../estado/carrito.ts';
 import { ListaRentaPanel } from './ListaRenta.tsx';
+import { useCarrito } from '../estado/global/carrito.ts';
+import { useSesion } from '../estado/sesion/useSesion.ts';
 
 function claseEnlace({ isActive }: { isActive: boolean }) {
   return isActive ? 'barra__enlace barra__enlace--activo' : 'barra__enlace';

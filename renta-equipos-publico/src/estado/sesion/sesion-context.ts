@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { DatosRegistro, UsuarioSesion } from '../tipos.ts';
+import type { UsuarioSesion, DatosRegistro } from '../../tipos';
 
 export interface ValorSesion {
     usuario: UsuarioSesion | null;

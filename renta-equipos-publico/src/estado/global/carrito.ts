@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Articulo } from "../tipos";
+import type { Articulo } from "../../tipos";
 
 export interface ArticuloCarrito {
     articulo: Articulo;
