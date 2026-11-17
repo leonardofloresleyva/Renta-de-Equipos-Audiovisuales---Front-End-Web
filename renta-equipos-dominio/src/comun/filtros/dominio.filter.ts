@@ -27,6 +27,7 @@ import {
   NoSePuedeEliminarPropiaCuentaError,
   ReduccionStockInvalidaError,
   ReservaNoEncontradaError,
+  SolicitudCancelacionExistenteError,
   SolicitudNoEncontradaError,
 } from 'src/dominio/errores';
 import { Response } from 'express';
@@ -63,7 +64,8 @@ export class DominioExceptionFilter implements ExceptionFilter {
       error instanceof EstadoAjusteNoValido ||
       error instanceof NoSePuedeEliminarPropiaCuentaError ||
       error instanceof ClienteConRegistrosError ||
-      error instanceof AdministradorConRegistrosError
+      error instanceof AdministradorConRegistrosError ||
+      error instanceof SolicitudCancelacionExistenteError
     ) { return HttpStatus.CONFLICT; }
 
     if (

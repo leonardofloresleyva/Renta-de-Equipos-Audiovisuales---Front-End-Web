@@ -9,7 +9,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { InventarioService } from 'src/inventario/inventario.service';
 import { ArticuloReserva, DepositoGarantia, FiltrosReserva, FiltrosSolicitud, NuevaReserva, NuevaSolicitud, NuevoArticuloReserva, nuevoFolio, porcentajeGarantia, Reserva, SolicitudCancelacion } from 'src/dominio/entidades';
 import { CrearReservaDto } from './dto/crear.reserva.dto';
-import { ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, EstadoReservaInvalidoError, FechasInvalidasError, ReservaNoEncontradaError } from 'src/dominio/errores';
+import { ArticuloNoEncontradoError, CancelacionReservaInvalidaError, CantidadExcesivaError, ClienteNoEncontradoError, DisponibilidadInsuficienteError, EstadoReservaInvalidoError, FechasInvalidasError, ReservaNoEncontradaError, SolicitudCancelacionExistenteError } from 'src/dominio/errores';
 import { DisponibilidadService } from 'src/disponibilidad/disponibilidad.service';
 import { CrearSolicitudDto } from './dto/crear.solicitud.dto';
 
@@ -152,6 +152,10 @@ export class ReservasService {
         // Verificar a cliente asociado
         const cliente = await this.usuariosService.buscarClientePorId(clienteId);
         if (!cliente) throw new ClienteNoEncontradoError(clienteId);
+        if (await this.solicitudesRepo.buscarPorReserva(dto.reservaId)) {
+            throw new SolicitudCancelacionExistenteError(dto.reservaId);
+        }
+
         const nuevaSolicitud: NuevaSolicitud = {
             clienteId,
             reservaId: dto.reservaId

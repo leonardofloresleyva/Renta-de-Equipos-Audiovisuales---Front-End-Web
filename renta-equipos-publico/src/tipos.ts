@@ -56,6 +56,13 @@ export interface DepositoGarantia {
     monto: number;
 }
 
+export interface SolicitudCancelacion {
+    clienteId: number;
+    reservaId: number;
+    fechaSolicitud: string;
+    estadoSolicitud: 'pendiente' | 'aprobada' | 'rechazada';
+}
+
 export interface ArticuloReserva {
     id: number;
     articuloId: number;

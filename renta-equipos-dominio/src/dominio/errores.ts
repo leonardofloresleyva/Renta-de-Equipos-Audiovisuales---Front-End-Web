@@ -53,6 +53,15 @@ export class SolicitudNoEncontradaError extends ErrorDeDominio {
   }
 }
 
+export class SolicitudCancelacionExistenteError extends ErrorDeDominio {
+  constructor(reservaId: number) {
+    super(
+      `La reserva ${reservaId} ya tiene una solicitud de cancelación registrada.`,
+    );
+    this.name = 'SolicitudCancelacionExistenteError';
+  }
+}
+
 /* =========================================================
    Errores de Validación, Duplicidad o Lógica
    ========================================================= */

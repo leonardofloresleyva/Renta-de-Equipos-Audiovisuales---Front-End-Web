@@ -1,6 +1,8 @@
 import { PrismaService } from "src/prisma/prisma.service";
 import { SolicitudCancelacionRepository } from "../repositorios/solicitud.cancelacion.repository";
 import { FiltrosSolicitud, NuevaSolicitud, SolicitudCancelacion } from "src/dominio/entidades";
+import { Prisma } from "../../generado/prisma/client";
+import { SolicitudCancelacionExistenteError } from "src/dominio/errores";
 import { connect } from "http2";
 import { Inject, Injectable } from "@nestjs/common";
 
@@ -31,13 +33,24 @@ export class SolicitudCancelacionPrismaRepository implements SolicitudCancelacio
     }
 
     async crear(datos: NuevaSolicitud): Promise<SolicitudCancelacion> {
-        return this.prisma.solicitudCancelacion.create({
-            data: {
-                cliente: { connect: { id: datos.clienteId }},
-                reserva: {connect: { id: datos.reservaId}},
-                fechaSolicitud: new Date()
+        try {
+            return await this.prisma.solicitudCancelacion.create({
+                data: {
+                    cliente: { connect: { id: datos.clienteId }},
+                    reserva: {connect: { id: datos.reservaId}},
+                    fechaSolicitud: new Date()
+                }
+            }) as SolicitudCancelacion;
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2014' &&
+                error.meta?.relation === 'ReservaToSolicitudCancelacion'
+            ) {
+                throw new SolicitudCancelacionExistenteError(datos.reservaId);
             }
-        }) as Promise<SolicitudCancelacion>;
+            throw error;
+        }
     }
 
     async rechazar(id: number): Promise<SolicitudCancelacion | null> {
