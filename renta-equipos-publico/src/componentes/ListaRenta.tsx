@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useCarrito } from '../estado/global/carrito.ts';
 import { urlImagen } from '../services/api.ts';
 import { formatoPrecio } from '../utils/formato.precio.ts';
@@ -6,15 +5,10 @@ import { useSesion } from '../estado/sesion/useSesion.ts';
 import { useNavigate } from 'react-router';
 
 export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
-  const [fechaMinima] = useState(() => {
-    const hoy = new Date();
-    return `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
-  });
   const lista = useCarrito((state) => state.lista);
   const quitar = useCarrito((state) => state.quitar);
   const fechaEntrega = useCarrito((state) => state.fechaEntrega);
   const fechaRecoleccion = useCarrito((state) => state.fechaRecoleccion);
-  const actualizarPeriodo = useCarrito((state) => state.actualizarPeriodo);
   const diasRenta = useCarrito((state) => state.diasRenta());
   const totalPiezas = useCarrito((state) => state.totalPiezas());
   const totalRenta = useCarrito((state) => state.totalRenta());
@@ -48,9 +42,8 @@ export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
                 <input
                   className="campo-fecha__control"
                   type="date"
-                  min={fechaMinima}
                   value={fechaEntrega}
-                  onChange={(event) => actualizarPeriodo(event.target.value, fechaRecoleccion)}
+                  disabled
                 />
               </label>
               <span className="lista-renta__flecha" aria-hidden="true">↓</span>
@@ -59,9 +52,8 @@ export function ListaRentaPanel({ cerrar }: { cerrar: () => void }) {
                 <input
                   className="campo-fecha__control"
                   type="date"
-                  min={fechaEntrega || fechaMinima}
                   value={fechaRecoleccion}
-                  onChange={(event) => actualizarPeriodo(fechaEntrega, event.target.value)}
+                  disabled
                 />
               </label>
               <dl className="lista-renta__totales">

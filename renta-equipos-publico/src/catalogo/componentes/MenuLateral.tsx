@@ -83,7 +83,7 @@ export default function MenuLateral({
         </label>
 
         {lista.length > 0 && (
-          <p className="periodo__bloqueado">Puedes ajustar las fechas desde tu lista de renta.</p>
+          <p className="periodo__bloqueado">Las fechas quedan bloqueadas mientras haya artículos en tu lista de renta.</p>
         )}
       </section>
 

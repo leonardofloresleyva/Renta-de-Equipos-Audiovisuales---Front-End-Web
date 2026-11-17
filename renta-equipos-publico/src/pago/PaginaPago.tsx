@@ -1,10 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, Navigate } from 'react-router';
 import { useCarrito } from '../estado/global/carrito.ts';
 import { useSesion } from '../estado/sesion/useSesion.ts';
 import { useRegistrarReserva } from '../estado/useReservas.ts';
-import { mensajeDeError } from '../services/api.ts';
-import { traerMisReservas } from '../services/reservas.ts';
+import { urlImagen } from '../services/api.ts';
 import { formatoPrecio } from '../utils/formato.precio.ts';
 import type { Reserva } from '../tipos.ts';
 
@@ -24,37 +23,8 @@ export default function PaginaPago() {
   const totalReserva = useCarrito((state) => state.totalReserva());
   const { registrar, guardando, error } = useRegistrarReserva();
   const [tipoPago, setTipoPago] = useState<'total' | 'deposito'>('total');
-  const [reservas, setReservas] = useState<Reserva[]>([]);
-  const [cargandoReservas, setCargandoReservas] = useState(usuario?.rol === 'cliente');
-  const [errorReservas, setErrorReservas] = useState('');
   const [reservaConfirmada, setReservaConfirmada] = useState<Reserva | null>(null);
   const [montoConfirmado, setMontoConfirmado] = useState(0);
-
-  useEffect(() => {
-    if (usuario?.rol !== 'cliente') {
-      return;
-    }
-
-    let vigente = true;
-    traerMisReservas()
-      .then((resultado) => {
-        if (vigente) setReservas(resultado);
-      })
-      .catch((error: unknown) => {
-        if (vigente) {
-          setErrorReservas(
-            mensajeDeError(error, 'No pudimos mostrar tus reservas. Inténtalo más tarde.'),
-          );
-        }
-      })
-      .finally(() => {
-        if (vigente) setCargandoReservas(false);
-      });
-
-    return () => {
-      vigente = false;
-    };
-  }, [usuario?.rol]);
 
   if (!usuario) {
     return <Navigate to="/login" state={{ desde: '/pago' }} replace />;
@@ -92,7 +62,6 @@ export default function PaginaPago() {
     if (!nuevaReserva) return;
     setMontoConfirmado(tipoPago === 'total' ? totalReserva : depositoGarantia);
     setReservaConfirmada(nuevaReserva);
-    setReservas((actuales) => [nuevaReserva, ...actuales]);
     vaciar();
   }
 
@@ -116,33 +85,53 @@ export default function PaginaPago() {
 
       {lista.length > 0 ? (
         <div className="pago-rejilla">
-          <section className="panel pago-panel">
-            <h2>Resumen de renta</h2>
-            <div className="pago-periodo">
-              <span>{mostrarFecha(fechaEntrega)}</span>
-              <span aria-hidden="true">→</span>
-              <span>{mostrarFecha(fechaRecoleccion)}</span>
+          <section className="panel pago-panel pago-resumen">
+            <div className="pago-resumen__detalle">
+              <h2>Resumen de renta</h2>
+              <div className="pago-periodo">
+                <span>{mostrarFecha(fechaEntrega)}</span>
+                <span aria-hidden="true">→</span>
+                <span>{mostrarFecha(fechaRecoleccion)}</span>
+              </div>
+              <p>{diasRenta} {diasRenta === 1 ? 'día' : 'días'} de renta</p>
+              <dl className="pago-totales">
+                <div><dt>Total de artículos</dt><dd>{formatoPrecio(totalRenta)}</dd></div>
+                <div><dt>Depósito de garantía (20%)</dt><dd>{formatoPrecio(depositoGarantia)}</dd></div>
+                <div className="pago-totales__total"><dt>Total</dt><dd>{formatoPrecio(totalReserva)}</dd></div>
+              </dl>
             </div>
-            <p>{diasRenta} {diasRenta === 1 ? 'día' : 'días'} de renta</p>
-            <ul className="pago-articulos">
-              {lista.map(({ articulo, cantidad }) => (
-                <li key={articulo.id}>
-                  <span>{articulo.nombre} × {cantidad}</span>
-                  <strong>{formatoPrecio(articulo.precioPorDia * cantidad * diasRenta)}</strong>
-                </li>
-              ))}
-            </ul>
-            <dl className="pago-totales">
-              <div><dt>Total de artículos</dt><dd>{formatoPrecio(totalRenta)}</dd></div>
-              <div><dt>Depósito de garantía (20%)</dt><dd>{formatoPrecio(depositoGarantia)}</dd></div>
-              <div className="pago-totales__total"><dt>Total</dt><dd>{formatoPrecio(totalReserva)}</dd></div>
-            </dl>
+            <section className="pago-resumen__articulos" aria-labelledby="pago-articulos-titulo">
+              <h3 className="pago-articulos__titulo" id="pago-articulos-titulo">
+                Artículos incluidos ({lista.length})
+              </h3>
+              <ul className="pago-articulos">
+                {lista.map(({ articulo, cantidad }) => (
+                  <li key={articulo.id}>
+                    {articulo.fotografiasUrl[0] ? (
+                      <img className="pago-articulo__imagen" src={urlImagen(articulo.fotografiasUrl[0])} alt="" />
+                    ) : (
+                      <span className="pago-articulo__sin-imagen" aria-hidden="true">Sin imagen</span>
+                    )}
+                    <div className="pago-articulo__informacion">
+                      <p className="pago-articulo__nombre">{articulo.nombre}</p>
+                      <p className="pago-articulo__meta">
+                        {cantidad} × {formatoPrecio(articulo.precioPorDia)} / día
+                      </p>
+                    </div>
+                    <div className="pago-articulo__subtotal">
+                      <span>Subtotal de renta</span>
+                      <strong>{formatoPrecio(articulo.precioPorDia * cantidad * diasRenta)}</strong>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
           </section>
 
           <section className="panel pago-panel">
             <h2>Elige tu forma de pago</h2>
-            <form className="formulario" onSubmit={confirmarReserva}>
-              <fieldset className="pago-opciones">
+            <form className="formulario pago-formulario" onSubmit={confirmarReserva}>
+              <fieldset className="pago-opciones pago-opciones--monto">
                 <legend className="campo__etiqueta">¿Cuánto deseas pagar?</legend>
                 <label>
                   <input
@@ -168,7 +157,7 @@ export default function PaginaPago() {
 
               <div className="pago-direccion">
                 <h3>Dirección de entrega</h3>
-                <div className="formulario__rejilla">
+                <div className="formulario__rejilla pago-direccion__campos">
                   <label className="campo">
                     <span className="campo__etiqueta">Calle</span>
                     <input className="campo__control" name="calle" maxLength={100} autoComplete="street-address" required />
@@ -177,28 +166,28 @@ export default function PaginaPago() {
                     <span className="campo__etiqueta">Número</span>
                     <input className="campo__control" name="numero" maxLength={20} required />
                   </label>
+                  <label className="campo pago-direccion__colonia">
+                    <span className="campo__etiqueta">Colonia</span>
+                    <input className="campo__control" name="colonia" maxLength={100} autoComplete="address-level3" required />
+                  </label>
                 </div>
-                <label className="campo">
-                  <span className="campo__etiqueta">Colonia</span>
-                  <input className="campo__control" name="colonia" maxLength={100} autoComplete="address-level3" required />
-                </label>
               </div>
 
-              <fieldset className="pago-opciones">
+              <fieldset className="pago-opciones pago-opciones--tarjeta">
                 <legend className="campo__etiqueta">Tarjeta</legend>
                 <label><input type="radio" name="tipoTarjeta" value="debito" defaultChecked /> Débito</label>
                 <label><input type="radio" name="tipoTarjeta" value="credito" /> Crédito</label>
               </fieldset>
 
-              <label className="campo">
+              <label className="campo pago-campo--titular">
                 <span className="campo__etiqueta">Nombre en la tarjeta</span>
                 <input className="campo__control" name="titular" autoComplete="off" required />
               </label>
-              <label className="campo">
+              <label className="campo pago-campo--numero">
                 <span className="campo__etiqueta">Número de tarjeta de prueba</span>
                 <input className="campo__control" name="numeroTarjeta" inputMode="numeric" autoComplete="off" minLength={13} maxLength={23} pattern="[0-9 ]{13,23}" required />
               </label>
-              <div className="formulario__rejilla">
+              <div className="formulario__rejilla pago-formulario__vencimiento">
                 <label className="campo">
                   <span className="campo__etiqueta">Vencimiento</span>
                   <input className="campo__control" type="month" name="vencimiento" autoComplete="off" required />
@@ -223,23 +212,6 @@ export default function PaginaPago() {
           <Link className="boton boton--ambar" to="/catalogo">Explorar equipo</Link>
         </section>
       )}
-
-      <section className="panel pago-panel pago-mis-reservas">
-        <h2>Mis reservas</h2>
-        {cargandoReservas && <p>Buscando tus reservas…</p>}
-        {errorReservas && <p className="aviso-error" role="alert">{errorReservas}</p>}
-        {!cargandoReservas && reservas.length === 0 && !errorReservas && <p>Aún no tienes reservas.</p>}
-        {reservas.length > 0 && (
-          <ul className="pago-lista-reservas">
-            {reservas.map((reserva) => (
-              <li key={reserva.id}>
-                <span><strong>{reserva.folio}</strong> · {mostrarFecha(reserva.fechaEntrega)} al {mostrarFecha(reserva.fechaRecoleccion)}</span>
-                <span>{formatoPrecio(reserva.montoTotal)} · {reserva.estado}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }

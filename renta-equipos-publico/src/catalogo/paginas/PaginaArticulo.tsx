@@ -426,7 +426,7 @@ export default function PaginaArticulo() {
             {errorDisponibilidad
               ? 'No se puede agregar el artículo hasta consultar su disponibilidad.'
               : lista.length > 0
-              ? 'Quita los artículos de la lista para cambiar el período.'
+              ? 'Quita todos los artículos de la lista para cambiar el período.'
               : periodoValido
                 ? 'La disponibilidad final se confirma al solicitar la renta.'
                 : 'Selecciona fechas válidas para agregar este artículo.'}

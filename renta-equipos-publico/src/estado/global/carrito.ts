@@ -38,9 +38,14 @@ export const useCarrito = create<Carrito>()((set, get) => ({
     fechaEntrega: '',
     fechaRecoleccion: '',
     actualizarPeriodo: (nuevaFechaEntrega: string, nuevaFechaRecoleccion: string) => {
-        set({
-            fechaEntrega: nuevaFechaEntrega,
-            fechaRecoleccion: nuevaFechaRecoleccion <= nuevaFechaEntrega ? '' : nuevaFechaRecoleccion
+        set((state) => {
+            if (state.lista.length > 0) return state;
+
+            return {
+                ...state,
+                fechaEntrega: nuevaFechaEntrega,
+                fechaRecoleccion: nuevaFechaRecoleccion <= nuevaFechaEntrega ? '' : nuevaFechaRecoleccion
+            };
         });
     },
     agregar: (articulo: Articulo, cantidad: number) => {
