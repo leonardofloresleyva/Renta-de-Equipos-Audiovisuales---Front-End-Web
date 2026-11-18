@@ -80,6 +80,10 @@ export class ReservasService {
             montoTotal += nuevoArticuloReservado.subtotal;
             articulosReservados.push(nuevoArticuloReservado);
         }
+
+        // Se obtiene la cantidad de días de renta para calcular el monto total
+        const diasRenta = diferenciaEnDias(dto.fechaEntrega, dto.fechaRecoleccion);
+        montoTotal *= diasRenta;
         
         // Se contruye la nueva reserva validada
         const nuevaReserva: NuevaReserva = {
@@ -167,4 +171,8 @@ export class ReservasService {
         return await this.solicitudesRepo.rechazar(id); // Temporal por ser repo en memoria
     }
 
+}
+
+function diferenciaEnDias(fechaEntrega: Date, fechaRecoleccion: Date): number {
+    return Math.round((fechaRecoleccion.getTime() - fechaEntrega.getTime()) / 86_400_000);
 }
